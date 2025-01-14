@@ -41,20 +41,16 @@ library(glue)
 cal <- here("Syllabus/schedule.csv") |>
   read_csv(show_col_types = FALSE) |>
   pivot_wider(names_from = "name", values_from = "value") |>
-  mutate(across(c(Tuesday, Thursday), \(x) replace_na(x, "")))
-
-
-# %%
-# midterm_idx_Tuesday <- which(str_detect(cal$Tuesday, "Midterm"))
-# midterm_idx_Thursday <- which(str_detect(cal$Thursday, "Midterm"))
-# noclass_idx_Tuesday <- which(str_detect(cal$Tuesday, "No Class"))
-# noclass_idx_Thursday <- which(str_detect(cal$Thursday, "No Class"))
-
-tab <- cal |>
+  mutate(across(c(Tuesday, Thursday), \(x) replace_na(x, ""))) |>
   mutate(across(
     c(Tuesday, Thursday),
     \(x) str_replace(x, "<br\\s?/>", " \\\\newline ")
-  )) |>
+  ))
+
+
+# %%
+options(tinytable_theme_placement_latex_float = "H")
+tab <- cal |>
   tt(
     width = c(0.1, 0.2, 0.3, 0.3),
     caption = "Tentative Schedule"
@@ -70,7 +66,8 @@ save_tt(tab, here("Syllabus/schedule.tex"), overwrite = TRUE)
 readme <- xfun::read_utf8(here("README.md"))
 insert_idx <- which(str_detect(readme, "<!-- Schedule -->"))
 
-tab_md_string <- tab |>
+tab_md_string <- cal |>
+  tt() |>
   tinytable:::build_tt("gfm") |>
   (\(x) x@table_string)() |>
   str_split_1("\n")

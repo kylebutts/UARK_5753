@@ -73,12 +73,6 @@ There are two primary textbooks that will be referenced in the class. These text
 
 The \href{https://github.com/kylebutts/UARK_5753}{github repository} will assign readings from each textbook as well as additional readings that complement the textbooks.
 
-
-\section*{Course Outline}
-
-See the \href{https://github.com/kylebutts/UARK_5753}{github repository} for a detailed outline and a tentative schedule.
-
-
 \section*{Coding Software}
 
 You will need to download \emph{two} programs:
@@ -121,10 +115,6 @@ The breakdown of your final grade will be as follows:
 \end{table}
 
 
-
-
-
-
 \newpage
 \section*{Policies}
 
@@ -136,9 +126,157 @@ If you have any questions during the lecture, feel free to ask right away. Your 
 
 \subsection*{Access and Accommodations}
 
-Your experience in this class is important to me. University of Arkansas Academic \href{https://policies.uark.edu/academic/152010.php}{Policy Series 1520.10} requires that students with disabilities are provided reasonable accommodations to ensure their equal access to course content. If you have already established accommodations with the Center for Educational Access (CEA), please request your accommodations letter early in the semester and contact me privately, so that we have adequate time to arrange your approved academic accommodations.
+Your experience in this class is important to me. University of Arkansas Academic \href{https://policies.uark.edu/academic/152010.php}{Policy Series 1520.10} requires that students with disabilities are provided reasonable accommodations to ensure their equal access to course content. If you have already established accommodations with the \href{https://cea.uark.edu}{Center for Educational Access (CEA)}, please request your accommodations letter early in the semester and contact me privately, so that we have adequate time to arrange your approved academic accommodations.
 
-If you have \textbf{not} yet established services through CEA, but have a documented disability and require accommodations (conditions include but not limited to: mental health, attention-related, learning, vision, hearing, physical, health  or temporary impacts), contact CEA directly to set up an Access Plan. CEA facilitates the interactive process that establishes reasonable accommodations.  For more information on CEA registration procedures contact 479—575—3104, ada@uark.edu or visit cea.uark.edu.
+If you have \textbf{not} yet established services through CEA, but have a documented disability and require accommodations (conditions include but not limited to: mental health, attention-related, learning, vision, hearing, physical, health  or temporary impacts), contact CEA directly to set up an Access Plan. CEA facilitates the interactive process that establishes reasonable accommodations.  For more information on CEA registration procedures contact 479—575—3104, ada@uark.edu or visit https://cea.uark.edu.
+
+
+
+
+\newpage
+\section*{Course Outline}
+
+\subsection*{1. Linear Algebra}
+
+\href{https://nbviewer.org/github/kylebutts/UARK_5753/blob/main/01-Linear_Algebra/01-Linear_Algebra.pdf}{Slides}
+
+\noindent\emph{Topics:}
+
+\begin{itemize}
+  \item Matrices and vectors
+  \item Transpose
+  \item Identity matrix and matrix inverse
+  \item Dot product as $v' v$
+  \item Statistics as matrix operations
+  \item Derivatives as linear approximation
+  \item Useful matrix derivative rules
+\end{itemize}
+
+\bigskip
+\noindent\emph{Readings:}
+
+\begin{itemize}
+  \item Review Notes: \href{https://nbviewer.org/github/kylebutts/UARK_5753/blob/main/01-Linear_Algebra/Review_Probability_and_Statistics/Review_Probability_and_Statistics.pdf}{Probability and Statistics}
+
+  \item \href{https://bookdown.org/compfinezbook/introcompfinr/Matrix-Algebra-Review.html}{Chapter 3 of Introduction to Computational Finance and Financial Econometrics with R}
+
+  \item Video: \href{https://www.youtube.com/watch?v=-l7JHalBubw}{So You Think You Know How to Take Derivatives? | Steven Johnson}
+\end{itemize}
+
+
+\subsection*{2. Introduction to Forecasting}
+
+\noindent\emph{Topics:}
+
+\begin{itemize}
+  \item Goals of forecasting
+  \begin{itemize}
+    \item Prediction and Inference
+  \end{itemize}
+
+  \item How to evaluate a model
+  \begin{itemize}
+    \item loss-function and mean-squared prediction error
+  \end{itemize}
+
+  \item Overfitting and some solutions
+  \begin{itemize}
+    \item Cross-validation
+  \end{itemize}
+
+  \item Types of Datasets
+  \begin{itemize}
+    \item cross-sectional, time-series, and panel
+  \end{itemize}
+\end{itemize}
+
+\bigskip
+\noindent\emph{Readings:}
+
+
+\subsection*{3. Cross-sectional Forecasting}
+
+\noindent\emph{Topics:}
+
+\begin{itemize}
+  \item Conditional expectation function $\mathbb{E}(y \ \vert \ X)$
+  \item Bivariate Regression 
+  \begin{itemize}
+    \item Derivation of bivariate regression
+    \item Deriviation of standard errors 
+    \item Indicator variables
+  \end{itemize}
+
+  \item Multivariate Linear Regression
+  \begin{itemize}
+    \item Discrete variables
+    \item Polynomials and other bases
+  \end{itemize}
+
+  \item Non-parametric regression of 1 explanatory variable
+  \begin{itemize}
+    \item Trade-offs with linear regression
+  \end{itemize}
+
+  \item Partially linear-model
+  
+  \item Logistic regression for 0/1 variables
+\end{itemize}
+
+\bigskip
+\noindent\emph{Readings:}
+
+
+\subsection*{4. Time-series Forecasting}
+
+\noindent\emph{Topics:}
+
+\begin{itemize}
+  \item Time-series regression
+
+  \begin{itemize}
+    \item Estimating holiday and seasonal patterns (day of week, monthly effects, etc.)
+    
+    \item Linear time-trends
+    
+    \item Piecewise linear time trends
+    \begin{itemize}
+      \item Pre-selected breaks
+      \item Data selected breaks
+    \end{itemize}
+  \end{itemize}
+
+  \item Smoothing methods
+  \begin{itemize}
+    \item One-sided and two-sided rolling averages
+    \item Exponential smoothing methods
+  \end{itemize}
+
+  \item Prophet model
+\end{itemize}
+
+\bigskip
+\noindent\emph{Readings:}
+
+
+\subsection*{5. Spatial Forecasting (time permitting)}
+
+\noindent\emph{Topics:}
+
+\begin{itemize}
+  \item Kriging and other smoothing methods
+\end{itemize}
+
+\bigskip
+\noindent\emph{Readings:}
+
+
+
+\newpage
+\section*{Tentative Schedule}
+\input{schedule.tex}
+
+
 
 % ------------------------------------------------------------------------------
 % \printbibliography
