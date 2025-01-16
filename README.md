@@ -95,7 +95,7 @@ If you have **not** yet established services through CEA, but have a documented 
 - Useful matrix derivative rules
 
 *Readings:*
-- Review Notes: [Probability and Statistics](https://nbviewer.org/github/kylebutts/UARK_5753/blob/main/01-Linear_Algebra/Review_Probability_and_Statistics/Review_Probability_and_Statistics.pdf)
+- Review Notes: [Probability and Statistics](https://nbviewer.org/github/kylebutts/UARK_5753/blob/main/00-Review_Probability_and_Statistics/Review_Probability_and_Statistics.pdf)
 - [Chapter 3 of Introduction to Computational Finance and Financial Econometrics with R](https://bookdown.org/compfinezbook/introcompfinr/Matrix-Algebra-Review.html)
 - Video: [So You Think You Know How to Take Derivatives? | Steven Johnson](https://www.youtube.com/watch?v=-l7JHalBubw)
 

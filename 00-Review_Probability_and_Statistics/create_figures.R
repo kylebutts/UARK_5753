@@ -3,7 +3,7 @@ library(tidyverse)
 library(here)
 library(kfbmisc)
 
-fs::dir_create(here("Notes/Review_Probability_and_Statistics/figures/"))
+fs::dir_create(here("00-Review_Probability_and_Statistics/figures/"))
 
 pkgs <- system.file(c("tikzsave/paper.sty", "tikzsave/math.sty"), package = "kfbmisc")
 options(tikzMetricPackages = c(
@@ -66,7 +66,7 @@ colors <- c(
 )
 
 kfbmisc::tikzsave(
-  here("Notes/Review_Probability_and_Statistics/figures/ex_normal_dist.pdf"),
+  here("00-Review_Probability_and_Statistics/figures/ex_normal_dist.pdf"),
   plot = plot_ex_normal_dist, width = 8, height = 3.8
 )
 
@@ -98,7 +98,7 @@ curr_density <- function(x) dnorm(x, mean = 10, sd = 2)
 )
 
 kfbmisc::tikzsave(
-  here("Notes/Review_Probability_and_Statistics/figures/ex_probability_leq.pdf"),
+  here("00-Review_Probability_and_Statistics/figures/ex_probability_leq.pdf"),
   plot = plot_ex_probability_leq, width = 8, height = 3.8
 )
 
@@ -135,7 +135,7 @@ curr_density <- function(x) dnorm(x, mean = 10, sd = 2)
 )
 
 kfbmisc::tikzsave(
-  here("Notes/Review_Probability_and_Statistics/figures/ex_probability_between.pdf"),
+  here("00-Review_Probability_and_Statistics/figures/ex_probability_between.pdf"),
   plot = plot_ex_probability_between, width = 8, height = 3.8
 )
 
@@ -193,7 +193,7 @@ kfbmisc::tikzsave(
 )
 
 kfbmisc::tikzsave(
-  here("Notes/Review_Probability_and_Statistics/figures/68_95_99.pdf"),
+  here("00-Review_Probability_and_Statistics/figures/68_95_99.pdf"),
   plot = plot_68_95_99_rule, width = 8, height = 3.8
 )
 
