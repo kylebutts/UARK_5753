@@ -1,0 +1,19 @@
+\begin{table}[H]
+\centering
+\begin{tblr}[         %% tabularray outer open
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]},
+row{even}={bg=black!5!white},
+colsep = {1em},
+}                     %% tabularray inner close
+\toprule
+$y_i$ & $\hat{y}_i$ & $\hat{\varepsilon}_i$ \\ \midrule %% TinyTableHeader
+3.7 & 4.20 & \only<2>{0.5} \\
+4.1 & 4.18 & \only<2>{0.08} \\
+5.6 & 5.48 & \only<2>{-0.12} \\
+2.9 & 3.29 & \only<2>{0.39} \\
+8.8 & 8.81 & \only<2>{0.01} \\
+\bottomrule
+\end{tblr}
+\end{table}

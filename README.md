@@ -108,11 +108,12 @@ If you have **not** yet established services through CEA, but have a documented 
 - How to evaluate a model
   - loss-function and mean-squared prediction error
 - Overfitting and some solutions
-  - Cross-validation
+  - Sample-splitting and Cross-validation
 - Types of Datasets
   - cross-sectional, time-series, and panel
 
 *Readings:*
+- ISLR: All of 2.1, 2.2 thru 2.2.2
 
 
 ### 3. Cross-sectional Forecasting
