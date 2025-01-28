@@ -1,0 +1,1210 @@
+\documentclass[aspectratio=169,t,11pt,table]{beamer}
+\usepackage{../includes/slides,../includes/math}
+\definecolor{accent}{HTML}{2B5269}
+\definecolor{accent2}{HTML}{9D2235}
+
+\title{Regression Methods}
+\subtitle{\it  ECON 5753 — University of Arkansas}
+\date{Sprint 2025}
+\author{Prof. Kyle Butts}
+
+\begin{document}
+
+% ------------------------------------------------------------------------------
+\begin{frame}[noframenumbering,plain]
+\maketitle
+\end{frame}
+% ------------------------------------------------------------------------------
+
+
+% ------------------------------------------------------------------------------
+\section{Conditional Expectation Function}
+% ------------------------------------------------------------------------------
+
+\begin{frame}{Forecasting}
+  We have an outcome variable $Y$ and a set of $p$ different predictor variables $X = (X_1, X_2, \dots, X_p)$. 
+
+  \bigskip
+  The goal of forecasting is to take an observation's $X$ values, $X = x$, and predict $Y$ given that information. 
+  \begin{itemize}
+    \item We want to know: \emph{conditional} on $X = x$, what do we \emph{expect} the value of $Y$ to be.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{$f_0$ as the Conditional Expectation Function}
+  \vspace*{-\bigskipamount}
+  $$
+    Y = f_0(X) + \varepsilon,
+  $$
+  
+  The last time, we called this best guess at $y$, $f_0(X)$. Today, we will call it the \alert{Conditional Expectation Function}
+\end{frame}
+
+\begin{frame}{Joint Distribution}
+  For now, let's think of $X$ as a single variable, e.g. someone's height. Let $Y$ be someone's weight. To make notation easier, think of these as discrete variables (i.e. finite, but large, number of values)
+
+  \pause
+  \bigskip
+  For forecasting, it is not enough to know the \emph{marginal} distributions of height and weight. We must know the \emph{joint} distribution, i.e.:
+  $$\prob{X = x, Y = y}$$
+
+  \begin{itemize}
+    \item The probability we sample a person with $X$ equal to $x$ \emph{\textbf{and}} $Y$ equal to $y$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Joint Distribution}
+  \vspace*{-\bigskipamount}
+  $$\prob{X = x, Y = y}$$
+
+  \bigskip
+  This is easy to estimate in our sample; we just count the number of times $X_i = x$ and $Y_i = y$ and divide by the total number of obseravtions
+\end{frame}
+  
+\begin{frame}{Conditional Probability}
+  A related question we can ask is the \alert{conditional probability} of $Y = y$ \emph{given}/\emph{conditional on} $X = x$:
+  $$
+    \prob{Y = y}{X = x}
+  $$
+  
+  \bigskip
+  Think of it like this:
+  \begin{itemize}
+    \item You grab a random unit from your population and you observe that $X_i = x$
+    \item Given that you know this information, you now have to take a guess at what the value of $Y$ is. 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Conditional Probability}
+  If knowing the value of $X_i$ does not help you guess the value of $Y_i$, then
+  $$
+    \prob{Y = y}{X = x} = \prob{Y = y}
+  $$ 
+  and we say $X$ and $Y$ are \alert{independent}
+  
+  \begin{itemize}
+    \item This means knowing $X$ can not help you forecast $Y$!
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Bayes' Rule}
+  The joint-distribution and the conditional-distribution are connected via \alert{Bayes' Rule}:
+
+  \bigskip
+  $$
+    \prob{Y = y}{X = x} = \frac{
+      \tcbhighmath[colback = bgRaspberry]{\prob{Y = y, X = x}}
+    }{
+      \tcbhighmath[colback = bgPurple]{\prob{X = x}}
+    }
+  $$
+  
+  % \devgrid 
+  \begin{tikzpicture}[remember picture, overlay]
+    \node [anchor = south, text width = 0.4\textwidth] at (page cs:0.61,0.375) {
+      \begin{center}
+        \setstretch{0.8}
+        {\footnotesize\color{raspberry} (\# of units with $X = x$ \emph{\textbf{and}} $Y = y$) $/ \ n$}
+      \end{center}
+    };
+
+    \node [anchor = north, text width = 0.35\textwidth] at (page cs:0.61,0.485) {
+      \begin{center}
+        \setstretch{0.8}
+        {\footnotesize\color{purple} (\# of units with $X = x$) $/ \ n$}
+      \end{center}
+    };
+  \end{tikzpicture}
+
+  \bigskip
+  The intuition is:
+  \begin{itemize}
+    \item Count the number of people with $X = x$ \emph{and} $Y = y$ 
+    
+    \item Divide by the number of people with $X = x$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Conditional Probability}
+  Note that for all values of $x$, we have
+  $$
+    \sum_{y} \prob{Y = y}{X = x} = 1
+  $$
+
+  \bigskip
+  Intuition: ``The conditional that $Y$ equals something given $X = x$ is $1$''
+
+  \pause
+  \bigskip
+  You should think of the conditional probability as a new probability defined on the sub-population with $X_i = x$
+\end{frame}
+
+\begin{frame}{Expectation}
+  Remember the definition of the conditional expectation of a discrete varaible:
+  $$
+    \expec{Y} = \sum_y \prob{Y = y} y 
+  $$
+  
+  \bigskip
+  The average of the values $Y$ can take, weighted by the probability they take those values
+\end{frame}
+
+\begin{frame}{Expectation}
+  \vspace*{-\bigskipamount}
+  $$
+    \expec{Y} = \sum_y \prob{Y = y} y 
+  $$
+
+  If we observed everyone in the \emph{population}, we could calculate this really easily:
+  \begin{itemize}
+    \item Take the average value of $y$ in the population
+  \end{itemize}
+\end{frame}
+  
+\begin{frame}{Conditional Expectation}
+  Similarly, the \alert{conditional expectation} of $Y$ given $X = x$ is: 
+  $$
+    \expec{Y}{X = x} = \sum_y \prob{Y = y}{X = x} y 
+  $$
+  
+  \bigskip
+  The average of the values $Y$ can take, weighted by the \emph{conditional} probability they take those values
+\end{frame}
+
+\begin{frame}{Conditional Expectation}
+  \vspace*{-\bigskipamount}
+  $$
+    \expec{Y}{X = x} = \sum_y \prob{Y = y}{X = x} y 
+  $$
+
+  If we observed everyone in the \emph{population}, we could calculate this really easily:
+  \begin{itemize}
+    \item Subset to people with $X = x$
+    \item Take the average value of $y$ \emph{within that subsample}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Conditional Expectation}
+  In the previous lecture, we used the notation $f_0(x)$ to denote the conditional expectation function:
+  $$
+    f_0(x) \equiv \expec{Y}{X = x}
+  $$
+
+  \bigskip
+  This function takes $x$ as an input and outputs the conditional expectation of $Y$ given $X = x$
+  
+
+\end{frame}
+
+\begin{frame}{Estimating Conditional Expectation}
+  In reality, we only observe a sample $(X_i, Y_i)_{i=1}^n$. We can estimate $f_0(x)$ at a point $x$ in the same way:
+  \begin{itemize}
+    \item Subset to people with $X_i = x$
+    \item Take the average value of $Y_i$ \emph{within that subsample}. Call this $\hat{f}(x)$
+  \end{itemize}
+
+  \bigskip
+  In math terms, this estimator is given by
+  
+  \vspace*{-\medskipamount}
+  $$
+    \hat{f}(x) = 
+    \frac{1}{\tcbhighmath[colback = bgRaspberry]{\sum_{i=1}^n \one{X_i = x}}} 
+    \tcbhighmath[colback = bgPurple]{\sum_{i=1}^n Y_i \one{X_i = x}}
+  $$
+
+  % \devgrid 
+  \begin{tikzpicture}[remember picture, overlay]
+    \node [anchor = south, text width = 0.4\textwidth] at (page cs:0.63,0.655) {
+      \begin{center}
+        \setstretch{0.8}
+        {\footnotesize\color{purple} sum of $Y_i$ for units with $X_i = x$}
+      \end{center}
+    };
+
+    \node [anchor = north, text width = 0.4\textwidth] at (page cs:0.45,0.84) {
+      \begin{center}
+        \setstretch{0.8}
+        {\footnotesize\color{raspberry} \# of units with $X_i = x$}
+      \end{center}
+    };
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Estimating Conditional Expectation}
+  We can estimate $f_0(x)$ at a point $x$ in the same way:
+  \begin{itemize}
+    \item Subset to people with $X_i = x$
+    \item Take the average value of $Y_i$ \emph{within that subsample}. Call this $\hat{f}(x)$
+  \end{itemize}
+  
+  \bigskip
+  When $n \to \infty$, we have $\hat{f}(x) \to f_0(x)$ for all values of $x$
+  \begin{itemize}
+    \item This estimator is consistent for the conditional expectation of $Y$ given $X = x$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Difficulties with this estimator}
+  This estimator is simple and works if we have \emph{really large samples}. But what if we only have a few people with a value of $X_i = x$? 
+  
+  \bigskip
+  We are taking a sample mean with a few units; it will be very noisy
+  \begin{itemize}
+    \item The relative "$n$" in the law of large numbers is the number of units with $X_i = x$
+  \end{itemize}
+
+  \pause
+  \bigskip
+  We do not use \emph{any} of the data from nearby units, $X_i = x \pm \text{\small a little}$
+  \begin{itemize}
+    \item Feels wasteful to throw out this information; do we really think $Y$ changes dramatically as we move away from $x$ a little?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Estimating Conditional Expectation}
+  \vspace*{-\bigskipamount}
+  $$
+    f_0(x) \equiv \expec{Y}{X = x}
+  $$
+
+  There are two primary strategies we will discuss in this class:
+
+  \medskip
+  \begin{enumerate}
+    \item Linear regression models {\color{zinc600}\small [this topic]}
+    \begin{itemize}
+      \item Assume a functional form for $f_0(x)$ 
+    \end{itemize}
+    
+    \medskip
+    \item Non-parametric estimators {\color{zinc600}\small [later]}
+    \begin{itemize}
+      \item The previous estimator or variants that pool over $(x - \delta, x + \delta)$
+    \end{itemize}
+  \end{enumerate}
+\end{frame}
+
+\section{Linear Models}
+
+\begin{frame}{Linear Model for the Conditioanl Expectation Function}
+  \vspace*{-\bigskipamount}
+  $$
+    f_0(x) \equiv \expec{Y}{X = x}
+  $$
+  
+  Let $X_i \equiv \begin{bmatrix}x_{i1} & \dots & x_{ip}\end{bmatrix}'$ be the vector of $p$ explanatory variables. 
+
+  \bigskip
+  Our first approach to estimating the conditional expectation function is to assume a linear model:
+  $$
+    f_0(x) = x' \beta
+  $$
+\end{frame}
+
+\begin{frame}{Linear Model for the Conditioanl Expectation Function}
+  Alternatively, you will see the model written out as
+  $$
+    Y_i = X_i' \beta + u_i
+  $$
+  with the assumption $\expec{u_i}{X_i} = 0$. 
+
+  \bigskip
+  The restriction ensures that $X_i' \beta$ \emph{is} the CEF of $Y_i$:
+  \begin{align*}
+    \expec{Y_i}{X_i = x} &= 
+    \expec{X_i' \beta + u_i}{X_i = x} \\ \pause
+    &= x' \beta +  \expec{u_i}{X_i = x} \\ \pause
+    &= x' \beta
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Regression Models}
+  Note that there are many ``linear'' models for the CEF
+  \begin{align*}
+    f_0(x) &= x_1 \beta_1 + x_2 \beta_2 \\ 
+    f_0(x) &= x_1 \beta_1 + x_2 \beta_2 + x_2^2 \beta_3 \\ 
+    f_0(x) &= g_1(x_1) \beta_1 + g_2(x_1) \beta_2 + x_2 \beta_3 
+  \end{align*}
+  where $g_1$ and $g_2$ are some known functions (polynomial term, indicator functions, etc.)
+
+  \bigskip
+  These are all \emph{linear} models for the CEF, $\expec{Y_i}{X_i = x}$
+  \begin{itemize}
+    \item ``linear model'' = linear combinations of terms
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Regression Models}
+  Perhaps a better way to write this would be to define the control variables as
+  $$
+    W_i = \begin{bmatrix}
+      g_1(X_i) &
+      \dots &
+      g_K(X_i)
+    \end{bmatrix}'
+  $$
+
+  Then, we could write out model out as
+  $$
+    Y_i = W_i' \beta + u_i
+  $$
+  with $\expec{u_i}{X_i} = 0$.
+  \begin{itemize}
+    \item This notation better distinguishes between covariates in model (e.g. polynomial of age) and variables you are conditioning on (e.g. age)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Regression Models}
+  But, a lot of explanations of regression models do not make this difference very clear; instead just writing 
+  $$
+    Y_i = X_i \beta + u_i
+  $$
+  where $X_i$ really is $W_i$, i.e. can contain functions of the underlying covariates. 
+
+  \begin{itemize}
+    \item I will try and make this distinction clear, but may fail at points
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Error term restriction}
+  The key assumption here is that in the model with 
+  $$
+    Y_i = W_i' \beta + u_i
+  $$
+  we have the conditiona mean-zero error term: $\expec{u_i}{X_i} = 0$.
+
+  \bigskip
+  This latter assumption depends on the terms included in $W_i$. Say the CEF of wages conditional on age is quadratic, but we only include the linear term
+  \begin{itemize}
+    \item Then the term $\text{age}^2 \beta_2$ will show up in the error term $u_i$. This will not be mean-zero given $\text{age}$!
+  \end{itemize}
+\end{frame}
+
+\section{Ordinary Least Squares}
+
+\begin{frame}{Fitting a regression model}
+  \vspace*{-\bigskipamount}
+  $$
+    Y_i = \underbrace{W_i' \beta}_{f_0(x)} + u_i
+  $$
+
+  After that long diatribe on defining a linear model, we are now going to discuss estimation
+
+
+\end{frame}
+
+\begin{frame}{Matrix Notation}
+  Let $Y$ be the $n \times 1$ vector of $Y_i$. Let $\bm{W}$ be the $n \times K$ matrix stacking $W_i'$:
+  $$
+    \bm{W} = \begin{bmatrix}
+      W_1' \\ 
+      \vdots \\
+      W_n'
+    \end{bmatrix}
+  $$
+  \begin{itemize}
+    \item We generally \emph{always} assume you have an intercept, i.e. $W_{i1} = 1$
+  \end{itemize}
+
+  \bigskip
+  Our model becomes 
+  $$
+    Y = \bm{W} \beta + u
+  $$
+\end{frame}
+
+\begin{frame}{Matrix Notation}
+  Take a minute to verify that the following yields the regression model we think it does
+
+  $$
+    \begin{bmatrix}Y_1 \\ \vdots \\ Y_n \end{bmatrix} =
+    \begin{bmatrix}
+      W_{11} & \dots & W_{1K} \\ 
+      \vdots & \ddots & \vdots \\ 
+      W_{n1} & \dots & W_{nK}
+    \end{bmatrix} 
+    \begin{bmatrix}\beta_1 \\ \vdots \\ \beta_K \end{bmatrix} + 
+    \begin{bmatrix}u_1 \\ \vdots \\ u_n \end{bmatrix}
+  $$  
+\end{frame}
+
+\begin{frame}{Residuals}
+  We can rearrange out model as $u = Y - \bm{W} \beta$. For a given guess at $\beta$, $b$, we have our regression residuals as
+  $$
+    \hat{u}(b) = Y - \bm{W} b
+  $$
+  \vspace*{-\bigskipamount}
+  \begin{itemize}
+    \item When evaulated at the OLS estimates $\hat{\beta}_{\text{OLS}}$, this is usually written just as $\hat{u}$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Residuals}
+  \vspace*{-\bigskipamount}
+  $$
+    \hat{u}(b) = Y - \bm{W} b
+  $$
+
+  As we discussed in our previous topic, we can not just minimize the average residual, $\frac{1}{n} \iota' \hat{u}(b)$, because positive and negative errors ``cancel out''
+  
+  \pause
+  \bigskip
+  Instead, we will use the sum of squared residuals:
+  $$
+    \hat{u}(b)' \hat{u}(b) = 
+    \left(Y - \bm{W} b \right)' \left( Y - \bm{W} b \right)
+  $$
+\end{frame}
+
+\begin{frame}{Sum of Squared Residuals}
+  As a reminder, this matrix notation is indeed the ``sum of squared residuals'': 
+  \begin{align*}
+    \hat{u}(b)' \hat{u}(b) 
+    &= 
+    \begin{bmatrix}
+      \hat{u}_1(b) & \dots & \hat{u}_n(b)
+    \end{bmatrix}
+    \begin{bmatrix}
+      \hat{u}_1(b) \\ \vdots \\ \hat{u}_n(b)
+    \end{bmatrix} \\
+    &= \sum_i \hat{u}_i(b)^2
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Ordinary Least Squares Problem}
+  So, our estimation problem is to choose a $b$ to minimize the sum of squared residuals:  
+
+  \begin{align*}
+    \hat{\beta}_{\text{OLS}} 
+    &\equiv \argmin_b \hat{u}(b)' \hat{u}(b) \\
+    &= \argmin_b  \left(Y - \bm{W} b \right)' \left( Y - \bm{W} b \right)
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Ordinary Least Squares Problem}
+  \vspace*{-\bigskipamount}
+  $$
+    \hat{\beta}_{\text{OLS}} 
+    = \argmin_b  \left(Y - \bm{W} b \right)' \left( Y - \bm{W} b \right)
+  $$
+
+  \bigskip
+  Expanding out this product yields
+  \begin{align*}
+    \left(Y - \bm{W} b \right)' \left( Y - \bm{W} b \right) 
+    &= 
+    Y' Y - b' \bm{W} Y - Y \bm{W} b + b' \bm{W}' \bm{W} b
+  \end{align*}
+
+  \bigskip
+  It might not be immediately recognizable, but this is a \emph{quadratic} function of $b$ 
+\end{frame}
+
+\begin{frame}{First-order conditions}
+  Taking the derivative and set $= 0$ will yield the minimum:
+  \begin{align*}
+    \frac{\partial}{\partial b} \left( Y' Y - b' \bm{W}' Y - Y \bm{W}' b + b' \bm{W}' \bm{W} b \right)
+  \end{align*}
+
+  \pause
+  \bigskip
+  Using our rules of matrix derivatives from Topic 1, this yields:
+  \begin{align*}
+    0 - \bm{W}' Y - \bm{W}' Y + 2 \bm{W}' \bm{W} b 
+  \end{align*}
+
+  \pause
+  \bigskip
+  Setting this equal to 0, yields our first-order condition:
+  $$
+    \left(\bm{W}' \bm{W} \right) \hat{\beta}_{\text{OLS}} = \bm{W}' Y
+  $$
+\end{frame}
+
+\begin{frame}{OLS Estimator}
+  \vspace*{-\bigskipamount}
+  $$
+    \hat{\beta}_{\text{OLS}} = \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' Y
+  $$
+
+  \bigskip
+  {\color{orange} Recap:} We have derived the OLS estimator from minimizing the sum of squared prediction errors (with the help of linear algebra)
+\end{frame}
+
+\begin{frame}{Intuition of OLS Estimator}
+  \vspace*{-\bigskipamount}
+  $$
+    \hat{\beta}_{\text{OLS}} = \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' Y
+  $$
+
+  Say we have just an intercept ($W_{i1} = 1$), so that $\bm{W} = \iota$. In this case:
+
+  \begin{itemize}
+    \item $\bm{W}' \bm{W} = \iota' \iota = n$ 
+    
+    \item $\bm{W}' Y = \iota' Y = \sum_{i=1}^n Y_i$
+  \end{itemize}
+
+  \bigskip
+  Consequently $\hat{\beta}_{\text{OLS}} = \frac{1}{n} \sum_{i=1}^n Y_i$ is the sample mean
+\end{frame}
+
+\begin{frame}{Intuition of OLS Estimator}
+  \vspace*{-\bigskipamount}
+  $$
+    \hat{\beta}_{\text{OLS}} = \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' Y
+  $$
+
+  Say we have an intercept ($W_{i1} = 1$) and a single explantory variable $W_{i2}$
+
+  \bigskip
+  It turns out (by the FWL theorem), that the regression of $Y_i$ on $1, W_{i2}$ is equivalent to the regression of $Y_i - \bar{Y}$ on $W_{i2} - \bar{W}_2$.
+\end{frame}
+
+\begin{frame}{Intuition of OLS Estimator}
+  Thinking of the regression of $Y_i - \bar{Y}$ on $W_{i2} - \bar{W}_2$:
+  \begin{itemize}
+    \item $\bm{W}' \bm{W} = \sum_i (W_{i2} - \bar{W}_2)^2$ is $(n-1)$ times the sample variance of $W_{i2}$.
+    
+    \item $\bm{W}' Y = \sum_i (W_{i2} - \bar{W}_2) (Y_{i} - \bar{Y})$ is $(n-1)$ the sample covariance
+  \end{itemize}
+
+  \bigskip
+  Consequently, we have the bivariate regression formula: $\hat{\beta}_{\text{OLS}} = \covhat{W_{i2}, Y_i} / \varhat{W_{i2}}$.
+\end{frame}
+
+\begin{frame}{Intuition of OLS Estimator}
+  More generally, when we have $K-1$ covariates and an intercept, this is equivalent to the regression where $Y$ and all the covariates are demeaned (without an intercept). Then, 
+
+  \begin{align*}
+    \hat{\beta}_{\text{OLS}} &= 
+    \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' Y \\
+    &= \left[ \varhat{W_i} \right]^{-1} \covhat{W_i, Y_i}
+  \end{align*}
+  
+  \begin{itemize}
+    \item $\varhat{W_i}^{-1}$ is the covariance matrix of all the of variables
+    
+    \item $\covhat{W_i, Y_i}$ is the $K-1$ vector of covariances between each $W_{ik}$ and $Y_i$
+  \end{itemize}
+\end{frame}
+
+% \begin{frame}{Intuition of OLS Estimator}
+%   \vspace*{-\bigskipamount}
+%   \begin{align*}
+%     \hat{\beta}_{\text{OLS}} &= 
+%     \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' Y \\
+%     &= \left[ \varhat{W_i} \right]^{-1} \covhat{W_i, Y_i}
+%   \end{align*}
+% 
+%   % TODO: Note the intuition of considering the covariance between multiple variables
+% \end{frame}
+
+
+
+\section{Statistical Properties / Inference}
+
+\begin{frame}{Sample distribution of $\hat{\beta}_{\text{OLS}}$}
+  In repeated sampling, we will get different draws of $u_i$ for each unit. This will create different estimates of $\hat{\beta}$. 
+
+  \bigskip
+  Say the true model is $y_i = W_i' \beta_0 + u_i$. Assuming we did a good job modeling the conditional expectation function, then we can assume $\expec{u_i}{X_i} = 0$
+  \begin{itemize}
+    \item Remember that $W_i$ are functions of $X_i$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Sample distribution of $\hat{\beta}_{\text{OLS}}$}{Simulation}
+  As a simple example, do a Monte Carlo simulation:
+  \begin{itemize}
+    \item $x_i \sim \mathcal{N}(1, 1)$
+    \item $\varepsilon_i \sim \mathcal{N}(0, 1.5^2)$
+    \item $y_i = x_i * 1 + \varepsilon_i$
+  \end{itemize} 
+
+  \bigskip
+  Draw $B = 2500$ different samples each with $n = 100$ observations. Estimate regression of $y_i$ on an intercept and $x_i$.
+\end{frame}
+
+\imageframe{figures/ex_inference_orig_reg.pdf}
+\imageframe{figures/ex_inference_extra_sample_1.pdf}
+\imageframe{figures/ex_inference_extra_sample_2.pdf}
+\imageframe{figures/ex_inference_extra_sample_5.pdf}
+\imageframe{figures/ex_inference_extra_sample_100.pdf}
+\imageframe{figures/ex_inference_sample_distribution.pdf}
+
+\begin{frame}{Statistical properties}
+  The true model is $y_i = W_i' \beta_0 + u_i$ with $\expec{u_i}{X_i} = 0$.
+
+  \bigskip
+  Plugging this into our OLS estimator, we have:
+  \begin{align*}
+    \hat{\beta}_{\text{OLS}} 
+    &= \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' Y \\
+    &= \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \big( \tcbhighmath[colback = bgRaspberry]{ \bm{W} \beta_0  + u } \big) \\ \pause
+    &= \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \bm{W} \beta_0 + 
+       \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' u \\
+    &= \beta_0 + \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' u \\ 
+  \end{align*}
+  % \begin{align*}
+  %   \hat{\beta}_{\text{OLS}} 
+  %   &= \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' Y \\
+  %   &= \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' (\tcbhighmath[colback = bgRaspberry]{\bm{W} \beta_0} + \tcbhighmath[colback = bgPurple]{u}) \\ \pause
+  %   &= \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \bm{W} \beta_0 + \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' u \\ \pause
+  %   &= \beta_0 + \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' u 
+  % \end{align*}
+\end{frame}
+
+\begin{frame}{Unbiasedness}
+  Our previous slide shows 
+  $$
+    \hat{\beta}_{\text{OLS}} = \beta_0 + \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' u 
+  $$
+
+  \bigskip
+  Using $\expec{u_i}{X_i} = 0$ , we can show unbiasedness of our estimator:
+  \begin{align*}
+    \expec{\hat{\beta}_{\text{OLS}}}
+    &= \beta_0 + \expec{ \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' u } \\
+    % &= \beta_0 + \expec{ \expec{ \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' u }{ \bm{W} } } \\
+    &= \beta_0
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Error-term covariance}
+  \vspace*{-\bigskipamount}
+  $$
+    \hat{\beta}_{\text{OLS}} = \beta_0 + \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' u 
+  $$
+  
+  \bigskip
+  For the distribution of $\hat{\beta}_{\text{OLS}}$, we first need to discuss the covariance of the error term.
+
+  \bigskip
+  We write the variance as $\bm{\Sigma} = \expec{u u'}$ which has typical element $\sigma_{i,j} = \expec{u_i u_j}$
+\end{frame}
+
+\begin{frame}{Independent Errors}
+  Our error term $u$ has variance:
+  $$\bm{\Sigma} = \expec{u u'}$$ 
+  
+  \bigskip
+  If each unit is independent, we have $\sigma_{i,j} = 0$ whenever $i \neq j$. If this is true, we have
+  $$
+    \bm{\Sigma} = \begin{bmatrix}
+      \sigma_1^2 & 0 & \dots & 0 \\
+      0 & \sigma_2^2 & \dots & 0 \\
+      \vdots & \vdots & \ddots & \vdots \\
+      0 & 0 & \dots & \sigma_n^2 \\
+    \end{bmatrix}
+  $$
+\end{frame}
+
+\begin{frame}{Independent Errors}
+  We could estimate this matrix using the \alert{residuals} $\hat{u}_i = y_i - W_i' \hat{\beta}_{\text{OLS}}$:
+
+  $$
+    \hat{\bm{\Sigma}} = \begin{bmatrix}
+      \hat{u}_1^2 & 0 & \dots & 0 \\
+      0 & \hat{u}_2^2 & \dots & 0 \\
+      \vdots & \vdots & \ddots & \vdots \\
+      0 & 0 & \dots & \hat{u}_n^2 \\
+    \end{bmatrix}
+  $$
+
+  \bigskip
+  This estimator is not consistent for $\bm{\Sigma}$ since $\hat{u}_i \neq u_i$, but this turns out to be okay when estimating the variance of $\hat{\beta}_{\text{OLS}}$
+\end{frame}
+
+\begin{frame}{Inference on $\hat{\beta}_{\text{OLS}}$}
+  \vspace*{-\bigskipamount}
+  $$
+    \hat{\beta}_{\text{OLS}} = \beta_0 + \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' u 
+  $$
+
+  \bigskip
+  If we write out the summation in the final term, you can see this is a weighted sum of idiosyncratic shocks, $u_i$
+  % $$
+  %   \hat{\beta}_{\text{OLS}} = \beta_0 + \left(\sum_{i=1}^n W_i W_i'\right)^{-1} \sum_{i=1}^n W_i u_i 
+  % $$
+  $$
+    \hat{\beta}_{\text{OLS}} = \beta_0 + \left( \bm{W}' \bm{W} \right)^{-1} \sum_{i=1}^n W_i u_i 
+  $$
+\end{frame}
+
+
+
+\begin{frame}{Inference on $\hat{\beta}_{\text{OLS}}$}
+  Subtracting $\beta_0$ and multiplying by $\sqrt{n}$, we have:
+  $$
+    \sqrt{n} \left( \hat{\beta}_{\text{OLS}} - \beta_0 \right) = 
+    \left( \frac{1}{n} \bm{W}' \bm{W} \right)^{-1} \tcbhighmath[colback = bgGreen]{ \frac{1}{\sqrt{n}} \sum_{i=1}^n W_i u_i }
+  $$
+  
+  % \devgrid 
+  \begin{tikzpicture}[remember picture, overlay]
+    \node [anchor = north, text width = 0.2\textwidth] at (page cs:0.67,0.38) {
+      \begin{center}
+        \setstretch{0.8}
+        {\footnotesize\color{green} apply a central-limit theorem }
+      \end{center}
+    };
+  \end{tikzpicture}
+
+
+  \bigskip\bigskip
+  The term $\frac{1}{\sqrt{n}} \sum_{i=1}^n W_i u_i$ has mean 0 (from unbiasedness) and has variance:
+  $$
+    \expec{\bm{W}' u u' \bm{W}} = \bm{W}' \bm{\Sigma} \bm{W}.
+  $$
+\end{frame}
+
+\begin{frame}{Inference on $\hat{\beta}_{\text{OLS}}$}
+  \vspace*{-\bigskipamount}
+  $$
+    \sqrt{n} \left( \hat{\beta}_{\text{OLS}} - \beta_0 \right) = 
+    \left( \frac{1}{n} \bm{W}' \bm{W} \right)^{-1} \tcbhighmath[colback = bgGreen]{ \frac{1}{\sqrt{n}} \sum_{i=1}^n W_i u_i }
+  $$
+
+  \bigskip
+  Using the central limit theorem, we have that $\frac{1}{\sqrt{n}} \bm{W}' u$ is normally distributed, and we are multiplying it by a matrix $\left( \frac{1}{n} \bm{W}' \bm{W} \right)^{-1}$, so we have: 
+
+  $$
+    \hat{\beta}_{\text{OLS}} \sim 
+    \mathcal{N}\left( \beta_0, \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \bm{\Sigma} \bm{W} \left(\bm{W}' \bm{W} \right)^{-1} \right)
+  $$
+
+  % TODO: Do I discuss $S_{\bm{W}'\bm{W}}$ that we estimate with $\frac{1}{n} \bm{W}' \bm{W}$
+\end{frame}
+
+\begin{frame}{Inference on $\hat{\beta}_{\text{OLS}}$}
+  \vspace*{-\bigskipamount}
+  $$
+    \hat{\beta}_{\text{OLS}} \sim 
+    \mathcal{N}\left( \beta_0, \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \bm{\Sigma} \bm{W} \left(\bm{W}' \bm{W} \right)^{-1} \right)
+  $$
+
+  \bigskip
+  The variance is a $K \times K$ matrix with diagonal elements $\var{\hat{\beta}_{\text{OLS}, k}}$
+  \begin{itemize}
+    \item Take square-root of diagonal elements to get standard deviation of the estimators
+
+    \pause
+    \item The off-diagonal elements tell us how slope coefficients might be correlated with one another in repeated samples
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Inference on $\hat{\beta}_{\text{OLS}}$}
+  Let $\var{\hat{\beta}_{\text{OLS}, k}}$ be the $k$-th diagonal, then we have 
+
+  $$
+    \hat{\beta}_{\text{OLS}, k} \sim 
+    \mathcal{N}\left( \beta_{0,k}, \var{\hat{\beta}_{\text{OLS}, k}} \right)
+  $$
+
+  \bigskip
+  Since we have a statistic $\hat{\beta}_{\text{OLS}, k}$ that has a sample distribution that is normally-distributed, we can do standard statistical techniques: 
+  \begin{itemize}
+    \item Confidence intervals and hypothesis testing
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Standard Errors}
+  We can take our estimate $\hat{\Sigma}$ consisting of $\hat{u}_i^2$ on the diagonals and estimate the variance of $\hat{\beta}_{\text{OLS}}$:
+  $$
+    \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \hat{\bm{\Sigma}} \bm{W} \left(\bm{W}' \bm{W} \right)^{-1}
+  $$
+
+  \begin{itemize}
+    \item This is called the `HC1' estimator (`\texttt{, r}' in Stata)
+  \end{itemize}
+
+  \pause
+  \bigskip
+  For inference on a coefficient, take square-root of the $k$-th diagonal element
+  \begin{itemize}
+    \item This is called the \alert{standard error} (our estimate for the standard deviation of $\hat{\beta}_{\text{OLS}, k}$)
+  \end{itemize}
+\end{frame}
+
+\subsection{Bivariate Regression Example}
+
+\begin{frame}{Monte Carlo example}
+  From our simulation, the true regression line is 
+  $$
+      y_i = 0 + x_i * 1 + \varepsilon_i
+  $$
+  \begin{itemize}
+    \item $\varepsilon$ is \alert{homoskedastic} so that $\sigma_i^2 = 1.5$ for all $i$
+    \item $x_i \sim \mathcal{N}(1, 1)$
+  \end{itemize}
+
+  \bigskip
+  Our regression model was $y_i = \beta_0 + x_i \beta_1 + u_i$, i.e. $W_i = (1, x_i)'$.
+\end{frame}
+
+\begin{frame}{Sample distribution}
+  In our simulation, we can derive the variance of $\hat{\beta}_{\text{OLS}}$:
+
+  $$
+    \bm{W}' \bm{W} = 
+    \begin{bmatrix}
+      \sum_i 1 & \sum_i x_i \\
+      \sum_i x_i & \sum_i x_i^2 \\
+    \end{bmatrix}
+    \approx
+    n 
+    \begin{bmatrix}
+      1 & 1 \\
+      1 & 2 \\
+    \end{bmatrix}
+  $$
+
+  And 
+  $$ 
+    \bm{W}' \Sigma \bm{W} = 
+    \begin{bmatrix}
+      \sum_i \sigma_i^2 & \sum_i x_i \sigma_i^2 \\
+      \sum_i x_i \sigma_i^2 & \sum_i x_i^2 \sigma_i^2 \\
+    \end{bmatrix}
+    \approx
+    n 
+    \begin{bmatrix}
+      1.5 & 1.5 \\
+      1.5 & 3 \\
+    \end{bmatrix}
+  $$
+\end{frame}
+
+% \begin{frame}{Math}
+%   $$
+%     (\bm{W}' \bm{W})^{-1} = 
+%     \frac{1}{n^2}
+%     \begin{bmatrix}
+%       2n & -n \\
+%       -n & n \\
+%     \end{bmatrix}
+%   $$
+% \end{frame}
+% 
+% \begin{frame}{Math}
+%   $$
+%     \big( \bm{W}' \bm{W} \big)^{-1} \bm{W}' \Sigma \bm{W} \big( \bm{W}' \bm{W} \big)^{-1} 
+%   $$
+%   $$
+%     = \frac{1}{n}
+%     \begin{bmatrix}
+%       2 & -1 \\
+%       -1 & 1 \\
+%     \end{bmatrix}
+%     n
+%     \begin{bmatrix}
+%       1.5 & 1.5\\
+%       1.5 & 3\\
+%     \end{bmatrix}
+%     \frac{1}{n}
+%     \begin{bmatrix}
+%       2 & -1 \\
+%       -1 & 1 \\
+%     \end{bmatrix}
+%   $$
+%   \bigskip
+%   $$
+%     = \frac{1}{n}
+%     \begin{bmatrix}
+%       2 & -1 \\
+%       -1 & 1 \\
+%     \end{bmatrix}
+%     \begin{bmatrix}
+%       1.5 & 0 \\
+%       0 & 1.5
+%     \end{bmatrix} =
+%     \frac{1}{n} 
+%     \begin{bmatrix}
+%       3 & -1.5 \\
+%       -1.5 & 1.5
+%     \end{bmatrix}
+%   $$
+% \end{frame}
+
+\begin{frame}{Sample distribution}
+  Taking $\big( \bm{W}' \bm{W} \big)^{-1} \bm{W}' \Sigma \bm{W} \big( \bm{W}' \bm{W} \big)^{-1}$ yields
+  $$
+    \approx \frac{1}{n} 
+    \begin{bmatrix}
+      3 & -1.5 \\
+      -1.5 & 1.5
+    \end{bmatrix}
+  $$
+
+  \begin{itemize}
+    \item Check my linear algebra for practice
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Sample distribution}
+  With our 100 observations, we have that
+  $$
+    \var{\hat{\beta}_{\text{OLS}}} \approx
+    \begin{bmatrix}
+      0.03 & -0.015 \\
+      -0.015 & 0.015
+    \end{bmatrix}
+  $$
+
+  \bigskip
+  The standard deviation of $\hat{\beta}_1$ is $\sqrt{0.015} \approx 0.1225$.
+  \begin{itemize}
+    \item 95\% of estimates should be $1 \pm 0.245$
+  \end{itemize}
+
+  \bigskip
+  Let's check that with our Monte Carlo simulations..
+\end{frame}
+
+\imageframe{figures/ex_inference_sample_distribution.pdf}
+
+% \begin{frame}{Bivaraite }
+%   The sampling distribution of $\hat{\beta}_1$ (for $n$ `big enough') is:
+%   $$
+%     \hat{\beta}_1 \sim 
+%     \mathcal{N}\left( 
+%       \beta_{1, 0}, \frac{ \sigma^2 / n }{\var{X}} 
+%     \right)
+%   $$
+% \end{frame}
+
+\begin{frame}{Sample Distribution of Regression Coefficients}
+  In general, with homoskedastic errors, the slope coefficient has distribution:
+  $$
+    \hat{\beta}_1 \sim 
+    \mathcal{N}\left( 
+      \beta_{1, 0}, \frac{1}{n} \frac{\var{\varepsilon}}{\var{X}} 
+    \right)
+  $$
+
+  \bigskip
+  The standard error has the following properties:
+  \begin{itemize}
+    \item Shrinks with sample size
+    
+    \item Grows with the variance of the error term
+    
+    \item Shrinks with the variance of $X$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Standard Error}
+  Our \alert{standard error} estimator is given by
+  $$
+    \text{SE}(\hat{\beta}_1) = \sqrt{ \frac{ \var{\hat{\varepsilon}} / n }{\var{X}} }
+  $$
+
+  \bigskip
+  $\var{\hat{\varepsilon}}$ assumes homoskedasticity; otherwise we need to use the `general' HC1 formula
+\end{frame}
+
+
+\begin{frame}{Confidence intervals for $\hat{\beta}_1$}
+  Since we have an approximately normally distributed random variable, we can form confidence intervals just like before:
+
+  $$
+    \left[
+      \hat{\beta}_1 - 1.96 * \text{SE}(\hat{\beta}_1), 
+      \hat{\beta}_1 + 1.96 * \text{SE}(\hat{\beta}_1)
+    \right]
+  $$
+
+  \pause
+  \bigskip
+  The interpretation is as before: across repeated samples, 95\% of samples' confidence intervals will contain the true value $\beta_{1, 0}$
+\end{frame}
+
+\section{Forecasting with Regression Model}
+ 
+\begin{frame}{Forecasting with our fitted model}
+  We have a model 
+  $$
+    Y = \bm{W} \beta + u
+  $$
+  that we fit using ordinary-least squares. From the previous section, we have 
+  $$
+    \hat{\beta}_{\text{OLS}} \sim 
+    \mathcal{N}\left( \beta_0, \bm{V} \right)
+  $$
+  where $\bm{V} = \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \bm{\Sigma} \bm{W} \left(\bm{W}' \bm{W} \right)^{-1}$
+\end{frame}
+
+\begin{frame}{Forecasting with our fitted model}
+  We want to evaluate this model at a particular value of $W_i$, we'll call it $w$. The forecasted value is given by
+  $$
+    \hat{Y} = w' \hat{\beta}_{\text{OLS}} = \sum_{k=1}^K w_{k} \hat{\beta}_{\text{OLS}, k}
+  $$
+
+  \bigskip
+  Uncertainty from our regression coefficients will translate to uncertainty about our $\hat{Y}$
+\end{frame}
+
+\begin{frame}{Forecasting with our fitted model}
+  We have 
+  \begin{align*}
+    \hat{Y} &= w' \hat{\beta}_{\text{OLS}} \\
+    &= \tcbhighmath[colback = bgPurple]{w' \beta_0} + w' \left( \hat{\beta}_{\text{OLS}} - \beta_0 \right)
+  \end{align*}
+
+  % \devgrid 
+  \begin{tikzpicture}[remember picture, overlay]
+    \node [anchor = north, text width = 0.25\textwidth] at (page cs:0.4,0.42) {
+      \begin{center}
+        \setstretch{0.8}
+        {\footnotesize\color{purple} $= f_0(w) = \expec{Y}{X = x}$}
+      \end{center}
+    };
+  \end{tikzpicture}
+
+  \bigskip
+  The forecasted value is the conditional expectation function (assuming our model is correct) plus noise
+\end{frame}
+
+\begin{frame}{Inference on our Forecast}
+  \vspace*{-\bigskipamount}
+  $$
+    \hat{Y} = w' \hat{\beta}_{\text{OLS}} 
+  $$
+  
+  Note that our forecast takes a normally distributed object $\hat{\beta}_{\text{OLS}}$, and mulitplies it by a row-vector, $w$. From topic $1$, we have
+  $$
+    \hat{Y} = w' \hat{\beta}_{\text{OLS}} \sim 
+    \mathcal{N}\left( w' \beta_0, w' \bm{V} w \right)
+  $$
+\end{frame}
+
+\begin{frame}{Monte Carlo simulation}
+  Let's illustrate this with our simulation. We will predict our regression model at $x = 1.5$. Recall with $n = 100$, we had:
+  $$
+    \var{\hat{\beta}_{\text{OLS}}} \approx
+    \begin{bmatrix}
+      0.03 & -0.015 \\
+      -0.015 & 0.015
+    \end{bmatrix}
+  $$
+
+  \bigskip
+  Our model has $\expec{Y_i}{X_i = 1.5} = 1 * 1.5 = 1.5$. 
+\end{frame}
+
+\begin{frame}{Monte Carlo simulation}
+  Our forecast, $\hat{Y}$ has variance
+
+  % matrix(c(1, 1.5), nrow = 1) %*% matrix(c(0.03, -0.015, -0.015, 0.015), nrow = 2) %*% matrix(c(1, 1.5), nrow = 2)
+  $$
+    \begin{bmatrix}1 & 1.5\end{bmatrix}
+    \begin{bmatrix}
+      0.03 & -0.015 \\
+      -0.015 & 0.015
+    \end{bmatrix}
+    \begin{bmatrix}1 \\ 1.5\end{bmatrix}
+    = 0.01875
+  $$
+
+  \bigskip
+  The standard deviation of our forecast is $\sqrt{0.01875} \approx 0.137$.
+  \begin{itemize}
+    \item 95\% of estimates should be $1.5 \pm 0.274$
+  \end{itemize}
+
+  \bigskip
+  Let's check that with our Monte Carlo simulations..
+\end{frame}
+
+\imageframe{figures/ex_inference_forecasts.pdf}
+
+
+
+
+
+% TODO:
+\section{Marginal Effects}
+
+\begin{frame}{Marginal (Predictive) Effects}
+  Often times, we want to compare forecasted values at two points: $w_1$ and $w_2$
+
+  \begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {2pt}{0pt}{blue}, interior hidden]
+    ``Compare two individuals, one with value $w_1$ and one with value $w_2$. How do we predict $\hat{Y}_1$ and $\hat{Y}_2$ will differ?''
+  \end{tcolorbox}
+
+  The simplest way to do this is to compare $w_1' \hat{\beta}_{\text{OLS}}$ and $w_2' \hat{\beta}_{\text{OLS}}$ directly
+\end{frame}
+
+\begin{frame}{Causation vs. Prediction}
+  \begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {2pt}{0pt}{blue}, interior hidden]
+    ``Compare two individuals, one with value $w_1$ and one with value $w_2$. How do we predict $\hat{Y}_1$ and $\hat{Y}_2$ will differ?''
+  \end{tcolorbox}
+  
+  It is important to remember that the goal of forecasting is to predict $Y$ as well as possible
+  \begin{itemize}
+    \item When units have larger $x$, maybe they tend to have larger $z_1$ and smaller $z_2$. Regression will use that information when predicting $\hat{\beta}_{\text{OLS}}$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Correct regression interpretation}
+  In general, you should use the following language:
+  
+  \begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {4pt}{0pt}{green}, interior hidden]
+    {\color{green}\Large $\checkmark$\ } Our regression model predicts that a one unit increase in $w_k$ is associated with a $\hat{\beta}_{\text{OLS},k}$ units increase/decrease in $Y$
+  \end{tcolorbox}
+
+  \bigskip
+  Do not say!!!!!! 
+  \begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {4pt}{0pt}{red}, interior hidden]
+   {\color{red}\Large $\times$\ } Increase $w_k$ by one unit increases/decreases $Y$ by $\hat{\beta}_{\text{OLS},k}$ units
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Correct regression interpretation}
+  Often we want to think about changing $X_i$ instead of changing $W_i$;
+  \begin{itemize}
+    \item E.g. if we change age ($X_i$), we change age ($W_{2,i}$) and age$^2$ ($W_{3,i}$)
+  \end{itemize}
+
+  \bigskip
+  To make this more clear, we can write our model, noting the dependence of $W$ on $X$:
+  $$
+    f(X) = W(X) \beta = \sum_{k=1}^K g_{k}(X) \beta_k
+  $$
+\end{frame}
+
+\begin{frame}{Marginal (predictive) Effects}
+  We can ask how $\hat{f}(X)$ changes when we change one element of $X$, $x_\ell$ (e.g. age).
+
+  \bigskip
+  To do so, we can take the derivative of $\hat{f}(X)$ with respect to $x_\ell$ and plug in a point $X$
+  $$
+    \frac{\partial}{\partial x_\ell} \hat{f}(X) = 
+    \sum_{k=1}^K \frac{\partial}{\partial x_\ell} g_{k}(X) \hat{\beta}_{\text{OLS}, k}
+  $$
+  
+  \bigskip
+  This is called the \alert{marginal (predictive) effect} of $x_\ell$
+  \begin{itemize}
+    \item I put predictive to emphasize this is not the \emph{causal} effect of experimentally changing $x_\ell$ for a unit 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Marginal (predictive) Effects}
+  \vspace*{-\bigskipamount}
+  $$
+    \frac{\partial}{\partial x_\ell} \hat{f}(X) = 
+    \sum_{k=1}^K \frac{\partial}{\partial x_\ell} g_{k}(X) \hat{\beta}_{\text{OLS}, k}
+  $$
+  
+  \bigskip
+  In the case where we just include each variable linearly, i.e. $g_k(X) = X_k$, then this reduces to the standard $\hat{\beta}_{\text{OLS}, k}$ being our estimated marginal effect.
+
+  \pause
+  \bigskip
+  In the next topic, we will practice this when we have other functions of variables in $g_k$
+\end{frame}
+
+\end{document}

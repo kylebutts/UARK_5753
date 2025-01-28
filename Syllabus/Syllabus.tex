@@ -67,8 +67,8 @@ Last, the course will try to highlight limitations of forecasting methods; trade
 There are two primary textbooks that will be referenced in the class. These textbooks are both available for free online. You may buy a print version, but it is \emph{not necessary} for the course. 
 
 \begin{enumerate}
-  \item Gareth, J., Daniela, W., Trevor, H., \& Robert, T. (2013). ``\href{https://www.statlearning.com}{An introduction to statistical learning: with applications in R (2nd edition)}''. Spinger.
-  \item Hyndman, R. J., \& Athanasopoulos, G. (2018). ``\href{https://otexts.com/fpp3/}{Forecasting: principles and practice (3rd edition)}''. OTexts.
+  \item \textbf{``ISLR''}: Gareth, J., Daniela, W., Trevor, H., \& Robert, T. (2013). ``\href{https://www.statlearning.com}{An introduction to statistical learning: with applications in R (2nd edition)}''. Spinger.
+  \item \textbf{``FPP3''}: Hyndman, R. J., \& Athanasopoulos, G. (2018). ``\href{https://otexts.com/fpp3/}{Forecasting: principles and practice (3rd edition)}''. OTexts.
 \end{enumerate}
 
 The \href{https://github.com/kylebutts/UARK_5753}{github repository} will assign readings from each textbook as well as additional readings that complement the textbooks.
@@ -158,7 +158,7 @@ If you have \textbf{not} yet established services through CEA, but have a docume
 \begin{itemize}
   \item Review Notes: \href{https://nbviewer.org/github/kylebutts/UARK_5753/blob/main/00-Review_Probability_and_Statistics/Review_Probability_and_Statistics.pdf}{Probability and Statistics}
 
-  \item \href{https://bookdown.org/compfinezbook/introcompfinr/Matrix-Algebra-Review.html}{Chapter 3 of Introduction to Computational Finance and Financial Econometrics with R}
+  \item \href{https://bookdown.org/compfinezbook/introcompfinr/Matrix-Algebra-Review.html}{Introduction to Computational Finance and Financial Econometrics with R}: Chapter 3
 
   \item Video: \href{https://www.youtube.com/watch?v=-l7JHalBubw}{So You Think You Know How to Take Derivatives? | Steven Johnson}
 \end{itemize}
@@ -193,24 +193,51 @@ If you have \textbf{not} yet established services through CEA, but have a docume
 \bigskip
 \noindent\emph{Readings:}
 
+\begin{itemize}
+  \item ISLR: All of 2.1, 2.2 thru 2.2.2
+\end{itemize}
 
-\subsection*{3. Cross-sectional Forecasting}
+\subsection*{3. Regression Theory}
 
 \noindent\emph{Topics:}
 
 \begin{itemize}
   \item Conditional expectation function $\mathbb{E}(y \ \vert \ X)$
+  
   \item Bivariate Regression 
   \begin{itemize}
     \item Derivation of bivariate regression
     \item Deriviation of standard errors 
-    \item Indicator variables
+  \end{itemize}
+  
+  \item Forecasting
+  \begin{itemize}
+    \item Derivation of standard errors
   \end{itemize}
 
-  \item Multivariate Linear Regression
+  \item Marginal (Predictive) Effects
+\end{itemize}
+
+\bigskip
+\noindent\emph{Readings:}
+
+\begin{itemize}
+  \item ISLR: All of 3.1, 3.2, 3.3, and 3.4
+  \item \href{https://www.econometrics-with-r.org/4.5-tsdotoe.html}{Introduction to Econometrics with R}: Section 4.5 on Sample Distribution of $\hat{\beta}$ 
+  \item \href{https://marginaleffects.com/chapters/predictions.html}{Marginal Effects Book}: Chapter 5 on Prediction
+\end{itemize}
+  
+
+\subsection*{4. Regression in Practice}
+
+\begin{itemize}
+  \item Common Regression Terms
   \begin{itemize}
+    \item Polynomials
+    \item Indicator variables
     \item Discrete variables
-    \item Polynomials and other bases
+    \item Bins 
+    \item Splines
   \end{itemize}
 
   \item Non-parametric regression of 1 explanatory variable
@@ -220,14 +247,19 @@ If you have \textbf{not} yet established services through CEA, but have a docume
 
   \item Partially linear-model
   
-  \item Logistic regression for 0/1 variables
+  \item 0/1 Outcome variables
+  \begin{itemize}
+    \item Linear probability model
+
+    \item Logistic regression
+  \end{itemize}
 \end{itemize}
 
 \bigskip
 \noindent\emph{Readings:}
 
 
-\subsection*{4. Time-series Forecasting}
+\subsection*{5. Time-series Forecasting}
 
 \noindent\emph{Topics:}
 
@@ -259,7 +291,7 @@ If you have \textbf{not} yet established services through CEA, but have a docume
 \noindent\emph{Readings:}
 
 
-\subsection*{5. Spatial Forecasting (time permitting)}
+\subsection*{6. Spatial Forecasting (time permitting)}
 
 \noindent\emph{Topics:}
 

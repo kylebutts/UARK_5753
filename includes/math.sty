@@ -122,25 +122,36 @@
 % Variance
 \NewDocumentCommand{\var}{o g g}{%
   \IfNoValueTF{#2}{%
-    \operatorname{\text{Var}}\IfValueT{#1}{_{#1}}%
+    {\text{Var}}\IfValueT{#1}{_{#1}}%
   }{%
     \IfNoValueTF{#3}{%
-      \,\operatorname{\text{Var}}\IfValueT{#1}{_{#1}}{\bp{#2}}
+      \,{\text{Var}}\IfValueT{#1}{_{#1}}{\bp{#2}}
     }{%
-      \,\operatorname{\text{Var}}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+      \,{\text{Var}}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+    }
+  }
+}
+\NewDocumentCommand{\varhat}{o g g}{%
+  \IfNoValueTF{#2}{%
+    {\widehat{\text{Var}}}\IfValueT{#1}{_{#1}}%
+  }{%
+    \IfNoValueTF{#3}{%
+      \,{\widehat{\text{Var}}}\IfValueT{#1}{_{#1}}{\bp{#2}}
+    }{%
+      \,{\widehat{\text{Var}}}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
     }
   }
 }
 
 % Covariance
-\NewDocumentCommand{\cov}{o g g}{%
+\NewDocumentCommand{\covhat}{o g g}{%
   \IfNoValueTF{#2}{%
-    \operatorname{\text{Cov}}\IfValueT{#1}{_{#1}}%
+    {\widehat{\text{Cov}}}\IfValueT{#1}{_{#1}}%
   }{%
     \IfNoValueTF{#3}{%
-      \operatorname{\text{Cov}}\IfValueT{#1}{_{#1}}{\bp{#2}}
+      {\widehat{\text{Cov}}}\IfValueT{#1}{_{#1}}{\bp{#2}}
     }{%
-      \operatorname{\text{Cov}}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+      {\widehat{\text{Cov}}}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
     }
   }
 }

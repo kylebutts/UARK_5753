@@ -136,9 +136,9 @@
 
 % Chance spacing around equations
 \AtBeginDocument{\setlength\abovedisplayskip{\medskipamount}}
-\AtBeginDocument{\setlength\belowdisplayskip{\bigskipamount}}
+\AtBeginDocument{\setlength\belowdisplayskip{\medskipamount}}
 \AtBeginDocument{\setlength\abovedisplayshortskip{\medskipamount}}
-\AtBeginDocument{\setlength\belowdisplayshortskip{\bigskipamount}}
+\AtBeginDocument{\setlength\belowdisplayshortskip{\medskipamount}}
 
 
 % Title page -------------------------------------------------------------------
@@ -168,11 +168,23 @@
 \setbeamerfont{section in toc shaded}{size = \large}
 \setbeamercolor{section in toc}{fg = zinc800}
 \setbeamertemplate{section in toc shaded}[default][60] % opacity
+\setbeamercolor{subsection in toc}{fg = zinc800}
+\setbeamertemplate{section in toc shaded}[default][60] % opacity
+
 \AtBeginSection[]{
   {
     \hypersetup{hidelinks}
     \setbeamercolor{frametitle}{bg=white}
-    \begin{frame}[noframenumbering,plain,c]{\ }
+    \begin{frame}[noframenumbering,plain,c]{}
+      \tableofcontents[currentsection]
+    \end{frame}
+  }
+}
+\AtBeginSubsection[]{
+  {
+    \hypersetup{hidelinks}
+    \setbeamercolor{frametitle}{bg=white}
+    \begin{frame}[noframenumbering,plain,c]{}
       \tableofcontents[currentsection]
     \end{frame}
   }

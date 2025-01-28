@@ -22,8 +22,8 @@ Last, the course will try to highlight limitations of forecasting methods; trade
 
 There are two primary textbooks that will be referenced in the class. These textbooks are both available for free online. You may buy a print version, but it is \emph{not necessary} for the course. 
 
-1. Gareth, J., Daniela, W., Trevor, H., \& Robert, T. (2013). "[An introduction to statistical learning: with applications in R (2nd edition)](https://www.statlearning.com)". Spinger.
-2. Hyndman, R. J., \& Athanasopoulos, G. (2018). "[Forecasting: principles and practice (3rd edition)](https://otexts.com/fpp3)". OTexts.
+1. **"ISLR"**: Gareth, J., Daniela, W., Trevor, H., \& Robert, T. (2013). "[An introduction to statistical learning: with applications in R (2nd edition)](https://www.statlearning.com)". Spinger.
+2. **"FPP3"**: Hyndman, R. J., \& Athanasopoulos, G. (2018). "[Forecasting: principles and practice (3rd edition)](https://otexts.com/fpp3)". OTexts.
 
 The course outline will assign readings from each textbook as well as additional readings that complement the textbooks.
 
@@ -96,7 +96,7 @@ If you have **not** yet established services through CEA, but have a documented 
 
 *Readings:*
 - Review Notes: [Probability and Statistics](https://nbviewer.org/github/kylebutts/UARK_5753/blob/main/00-Review_Probability_and_Statistics/Review_Probability_and_Statistics.pdf)
-- [Chapter 3 of Introduction to Computational Finance and Financial Econometrics with R](https://bookdown.org/compfinezbook/introcompfinr/Matrix-Algebra-Review.html)
+- [Introduction to Computational Finance and Financial Econometrics with R](https://bookdown.org/compfinezbook/introcompfinr/Matrix-Algebra-Review.html): Chapter 3
 - Video: [So You Think You Know How to Take Derivatives? | Steven Johnson](https://www.youtube.com/watch?v=-l7JHalBubw)
 
 
@@ -116,26 +116,44 @@ If you have **not** yet established services through CEA, but have a documented 
 - ISLR: All of 2.1, 2.2 thru 2.2.2
 
 
-### 3. Cross-sectional Forecasting
+### 3. Regression Theory
 
 *Topics:*
 - Conditional expectation function $\mathbb{E}(y \ \vert \ X)$
 - Bivariate Regression 
   - Derivation of bivariate regression
   - Deriviation of standard errors 
+- Forecasting
+  - Derivation of standard errors
+- Marginal (Predictive) Effects
+
+*Readings:*
+
+- ISLR: All of 3.1, 3.2, 3.3, and 3.4
+- [Introduction to Econometrics with R](https://www.econometrics-with-r.org/4.5-tsdotoe.html): Section 4.5 on Sample Distribution of $\hat{\beta}$ 
+- [Marginal Effects book](https://marginaleffects.com/chapters/predictions.html): Chapter 5 on Prediction
+
+
+### 4. Regression in Practice
+
+- Common Regression Terms
+  - Polynomials
   - Indicator variables
-- Multivariate Linear Regression
   - Discrete variables
-  - Polynomials and other bases
+  - Bins 
+  - Splines
 - Non-parametric regression of 1 explanatory variable
   - Trade-offs with linear regression
 - Partially linear-model
-- Logistic regression for 0/1 variables
+- 0/1 Outcome variables
+  - Linear probability model
+  - Logistic regression
 
 *Readings:*
 
 
-### 4. Time-series Forecasting
+
+### 5. Time-series Forecasting
 
 *Topics:*
 - Time-series regression
@@ -152,7 +170,7 @@ If you have **not** yet established services through CEA, but have a documented 
 *Readings:*
 
 
-### 5. Spatial Forecasting (time permitting)
+### 6. Spatial Forecasting (time permitting)
 
 *Topics:*
 - Kriging and other smoothing methods
