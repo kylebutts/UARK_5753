@@ -1,0 +1,99 @@
+---
+title: "Assignment 3"
+author: "Your Name"
+format: pdf
+---
+```{r setup}
+#| include: false
+library(ggplot2)    # install.packages("ggplot2")
+library(patchwork)  # install.packages("patchwork")
+library(mvtnorm)    # install.packages("mvtnorm")
+
+plot_ests <- function(ests) {
+  # Marginal sample distribution
+  plot_beta_1 <- ggplot() +
+    geom_histogram(aes(x = ests[, 2])) +
+    labs(x = "Estimated beta 1", y = NULL)
+  plot_beta_2 <- ggplot() +
+    geom_histogram(aes(x = ests[, 3])) +
+    labs(x = "Estimated beta 2", y = NULL)
+
+  # Joint sampling distribution of \hat{\beta}_1 and \hat{\beta}_2
+  plot_beta_joint <- ggplot() +
+    geom_bin_2d(aes(x = ests[, 2], y = ests[, 3]), bins = 50) + 
+    labs(x = "Estimated beta 1", y = "Estimated beta 2")
+
+  (plot_beta_1 + plot_beta_1) / plot_beta_joint
+}
+```
+
+## Baseline Simulation
+
+```{r}
+# BASELINE CASE (for comparison)
+B <- 10000
+n <- 100
+ests <- matrix(nrow = B, ncol = 3)
+for (b in 1:B) {
+  # Generate data
+
+
+  # Estimate OLS
+  mod <- lm(y ~ 1 + X1 + X2, data = df_b)
+  ests[b, ] <- coef(mod)
+}
+
+plot_ests(ests)
+```
+
+
+```{r}
+# Modify Here
+B <- 10000
+n <- 100
+ests <- matrix(nrow = B, ncol = 3)
+for (b in 1:B) {
+  # Generate data
+
+
+  # Estimate OLS
+  mod <- lm(y ~ 1 + X1 + X2, data = df_b)
+  ests[b, ] <- coef(mod)
+}
+
+plot_ests(ests)
+```
+
+
+## 2. Changing sample size
+
+
+
+
+## 3. Changing error term distribution
+
+
+
+
+## 4. Changing covariance matrix of $X$
+
+
+
+
+
+## 5. Intuition on extreme collinearity
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
