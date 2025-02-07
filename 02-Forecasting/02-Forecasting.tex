@@ -8,6 +8,7 @@
 \date{Sprint 2025}
 \author{Prof. Kyle Butts}
 
+
 \begin{document}
 
 % ------------------------------------------------------------------------------
@@ -277,7 +278,7 @@
   \end{align*}
 
   \bigskip
-  {\color{orange} Remember:} we do not know $f_0$, so we can not separate the two.
+  {\color{blue} Remember:} we do not know $f_0$, so we can not separate the two.
 \end{frame}
 
 \begin{frame}{Loss functions}
@@ -506,6 +507,145 @@
 \end{frame}
 
 
+\section{Sample Distribution}
+
+\begin{frame}{Estimands vs. Estimators}
+  % \bgPurple{Parameters} come from models of how observed data are generated, e.g. $y = f_0(X) + u_i$
+  % \begin{itemize}
+  %   \item The target for an empirical analysis: what we want to know
+  % \end{itemize}\pause
+  % 
+  % \bigskip
+  \textbf{\rose{Estimands}} are functions of the population data distribution. 
+  What you would estimate if you observed \emph{everyone} in your population of interest
+  \begin{itemize}
+    \item E.g. a population mean or population line of best fit
+  \end{itemize}\pause
+  
+  \bigskip
+  \textbf{\blue{Estimators}} are functions of the observed data itself (the ``sample'')
+  \begin{itemize}
+    \item E.g. a sample mean or OLS coefficients
+  \end{itemize}
+
+  \bigskip
+  Since your sample is random, so is your estimator. Each estimator has a distribution that we will call the \emph{sample distribution}
+\end{frame}
+  
+\begin{frame}{The Lay of the Land}
+  \bigskip
+  \begin{adjustbox}{width = 0.75\textwidth, center}
+    % Tikz settings optimized for causal graphs.
+    \tikzset{
+        -Latex,auto, node distance =1 cm and 1 cm, semithick,
+        state/.style ={ellipse, draw, minimum width = 0.7 cm},
+        point/.style = {circle, draw, inner sep=0.04cm,fill,node contents={}},
+        bidirected/.style={Latex-Latex,dashed},
+        el/.style = {inner sep=2pt, align=left, sloped}
+    }
+    \begin{tikzpicture}
+      % \node[purple] (theory) at (-4, 1.25) {Economic Theory};
+      % \node[state,rectangle,purple] (parameters) at (-4, 0) {Parameters};
+      
+      \node[rose] (distribution) at (-2.5, 1.25) {Population Distribution};
+      \node[state,rectangle,rose] (estimands) at (-2.5, 0) {Estimands};
+
+      \node[blue] (data) at (2.5, 1.25) {Observed Sample};
+      \node[state,rectangle,blue] (estimators) at (2.5, 0) {Estimators};
+
+      % \path[purple, thick, shorten >=4pt] (theory) edge (parameters);
+      \path[rose, thick, shorten >=4pt] (distribution) edge (estimands);
+      \path[blue, thick, shorten >=4pt] (data) edge (estimators);
+
+      % \path[thick, shorten >=4pt, shorten <=4pt] (estimands) edge[bend left= 40] node[below, el, yshift=-4pt] {Identification} (parameters);
+      \path[thick, shorten >=4pt, shorten <=4pt] (estimators) edge[bend left= 40] node[below, el, yshift=-4pt] {Statistical Inference} (estimands);
+    \end{tikzpicture}
+  \end{adjustbox}
+\end{frame}
+  
+\begin{frame}{Population Regression}
+  The OLS \blue{\emph{estimator} $\hat{\beta}_{\text{OLS}}$} consistently estimates the regression \rose{\emph{estimand} $\beta_{\text{OLS}}$} under relatively weak conditions
+
+
+  \bigskip
+  Our statistical software uses a sample to estimate $\blue{\hat{\beta}_{\text{OLS}}}$ and with our estimate we \emph{infer} about $\rose{\beta_{\text{OLS}}}$. With inference, we can say: 
+  
+  \smallskip
+  \begin{enumerate}
+    \item Our best guess at $\rose{\beta_{\text{OLS}}}$ is $\blue{\hat{\beta}_{\text{OLS}}}$
+    
+    \smallskip
+    \item With 95\% confidence, $\rose{\beta_{\text{OLS}}}$ falls within the range 
+    $$
+    [\blue{\hat{\beta}_{\text{OLS}}} - 1.96 * SE(\hat{\beta}_{\text{OLS}}), \blue{\hat{\beta}_{\text{OLS}}} + 1.96 * SE(\hat{\beta}_{\text{OLS}})]
+    $$
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Repeated Sampling}
+  When doing forecasting, we will observe \emph{a single random sample} from the population. But, for conducting inference about the population parameter, it is useful to use the \alert{repeated sampling} perspective:
+  \begin{itemize}
+    \item Imagine drawing a bunch of random samples of the sample size from the population. Let $b$ denote each random sample.
+    
+    \item For each sample, form that sample's estimate $\hat{\theta}_b$
+  \end{itemize}
+
+  \pause
+  \bigskip
+  Since each sample is different, you have a distribution of $\hat{\theta}_b$. This is called the \alert{sampling distribution} of the estimator.
+\end{frame}
+
+\begin{frame}{Sample Distribution}
+  \begin{columns}[T]
+    \begin{column}{.33\textwidth}
+    \end{column}
+    \hfill
+    \begin{column}{.67\textwidth}
+      \vspace*{-\bigskipamount}
+      \includegraphics[width = \textwidth]{figures/sample_dist.pdf}
+    \end{column}
+  \end{columns}
+  \begin{tikzpicture}[remember picture, overlay]
+    \begin{scope}[shift={(3,3.8)}] 
+      \node[anchor = east] at (0, 1) {\includegraphics[width = 0.2\textwidth]{figures/pop.png}};
+      \node[anchor = north, align = center] at (-1.5, -0.7) {\small Population mean};
+      \node[anchor = north, align = center] at (-1.5, -1.2) {\small $\mu = 3$};
+
+      % SRS size 10 lines
+      \draw[thick] (0,1.8) -- (2.5,1.8) node[pos=1,right] {$\bar{X}_1 = 2.92$};
+      \node[anchor = south, align = center] at (1.2,1.8) {\footnotesize sample of size $n$};
+
+      \draw[thick] (0,0.8) -- (2.5,0.8) node[pos=1,right] {$\bar{X}_2 = 3.18$};
+      \node[anchor = south, align = center] at (1.2,0.8) {\footnotesize sample of size $n$};
+
+      \draw[thick] (0,-0.2) -- (2.5,-0.2) node[pos=1,right] {$\bar{X}_3 = 3.02$};
+      \node[anchor = south, align = center] at (1.2,-0.2) {\footnotesize sample of size $n$};
+      
+      \node[anchor = north] at (3.3, -0.7) {$\vdots$};
+      
+      \draw[decorate, decoration = {brace, amplitude = 7pt}] (4.5, 2) -- (4.5,-0.4);
+    \end{scope}
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Sample Distribution}
+  The remarkable thing about sample distributions is that \emph{most of the time} our estimators have a sample distribution that is a \emph{normal distribution}. This is due to the \alert{central limit theorem}
+\end{frame}
+
+\begin{frame}{Unbiased Estimators}
+  An estimator is \alert{unbiased} if $\expec{\hat{\theta}_b} = \theta$, the estimator is on average (across repeated samples) equal to the estimand
+\end{frame}
+
+\begin{frame}{Consistent Estimators}
+  An estimator is \alert{consistent} if as $n \to \infty$
+  \begin{enumerate}
+    \item $\expec{\hat{\theta}_b} \to \theta$ and
+    \item the standard deviation of the sample distribution of $\hat{\theta}_b$ collapse to $0$
+  \end{enumerate} 
+
+  \bigskip
+  If you have a large enough sample, your sample estimator approaches the estimand
+\end{frame}
 
 
 

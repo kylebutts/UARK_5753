@@ -1,4 +1,4 @@
-library(tidyverse) 
+library(tidyverse)
 library(tinytable)
 library(janitor)
 
@@ -11,11 +11,12 @@ nyc_sat <- here("02-Forecasting/data/nyc_sat.csv") |>
 tab_nyc_sat <- nyc_sat |>
   select(school_id, avg_sat_math = average_score_sat_math, pct_white = percent_white, pct_black = percent_black) |>
   # select(`School ID`, Borough, `Average Score (SAT Math)`, `Percent White`) |>
-  _[3:8, ] |>
+  _[3:9, ] |>
   tt() |>
   theme_tt("striped") |>
   format_tt(escape = TRUE) |>
-  style_tt(tabularray_inner = "colsep = {1em}")
+  format_tt(i = 4, fn = \(x) "$\\vdots$") |>
+  style_tt(tabularray_inner = "colsep = {0.5em}")
 
 cat("\n\n## Cross-sectional ----\n\n")
 print(tab_nyc_sat, "latex")
@@ -46,7 +47,7 @@ tab_bikeshare <- Bikeshare |>
   tt() |>
   theme_tt("striped") |>
   format_tt(i = 4, fn = \(x) "$\\vdots$") |>
-  style_tt(tabularray_inner = "colsep = {1em}")
+  style_tt(tabularray_inner = "colsep = {0.5em}")
 
 cat("\n\n## Time-series ----\n\n")
 print(tab_bikeshare, "latex")
@@ -78,11 +79,9 @@ tab_fund <- Fund |>
   ) |>
   format_tt(i = 4, fn = \(x) "$\\vdots$") |>
   format_tt(i = 0, escape = TRUE) |>
-  style_tt(tabularray_inner = "colsep = {1em}")
+  style_tt(tabularray_inner = "colsep = {0.5em}")
 
 cat("\n\n## Panel ----\n\n")
 print(tab_fund, "latex")
 tab_fund |>
   save_tt(here("02-Forecasting/tables/data_types_ex_panel.tex"), overwrite = TRUE)
-
-
