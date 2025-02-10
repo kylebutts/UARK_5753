@@ -12,26 +12,36 @@ library(mvtnorm)    # install.packages("mvtnorm")
 plot_ests <- function(ests) {
   # Marginal sample distribution
   plot_beta_1 <- ggplot() +
-    geom_histogram(aes(x = ests[, 2])) +
-    labs(x = "Estimated beta 1", y = NULL)
+    geom_histogram(aes(x = ests[, 2]), bins = 50) +
+    labs(x = expression(beta[1]*" estimate"), y = NULL) +
+    theme_minimal()
+  
   plot_beta_2 <- ggplot() +
-    geom_histogram(aes(x = ests[, 3])) +
-    labs(x = "Estimated beta 2", y = NULL)
+    geom_histogram(aes(x = ests[, 3]), bins = 50) +
+    labs(x = expression(beta[2]*" estimate"), y = NULL) +
+    theme_minimal()
 
   # Joint sampling distribution of \hat{\beta}_1 and \hat{\beta}_2
   plot_beta_joint <- ggplot() +
     geom_bin_2d(aes(x = ests[, 2], y = ests[, 3]), bins = 50) + 
-    labs(x = "Estimated beta 1", y = "Estimated beta 2")
+    labs(
+      x = expression(beta[1]*" estimate"), y = expression(beta[2]*" estimate")
+    ) +
+    scale_fill_viridis_c(guide = "none") +
+    theme_minimal() 
 
-  (plot_beta_1 + plot_beta_1) / plot_beta_joint
+  ((plot_beta_1 + plot_beta_2) / plot_beta_joint) + 
+    plot_layout(heights = c(1, 1.5))
 }
 ```
 
 ## Baseline Simulation
 
 ```{r}
+#| fig-height: 6
+#| fig-width: 8
 # BASELINE CASE (for comparison)
-B <- 10000
+B <- 10
 n <- 100
 ests <- matrix(nrow = B, ncol = 3)
 for (b in 1:B) {
@@ -48,8 +58,10 @@ plot_ests(ests)
 
 
 ```{r}
+#| fig-height: 6
+#| fig-width: 8
 # Modify Here
-B <- 10000
+B <- 10
 n <- 100
 ests <- matrix(nrow = B, ncol = 3)
 for (b in 1:B) {

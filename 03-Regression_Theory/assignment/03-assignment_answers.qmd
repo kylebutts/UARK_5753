@@ -1,0 +1,276 @@
+---
+title: "Assignment 3"
+author: "Your Name"
+format: pdf
+---
+```{r setup}
+#| include: false
+library(ggplot2)    # install.packages("ggplot2")
+library(patchwork)  # install.packages("patchwork")
+library(mvtnorm)    # install.packages("mvtnorm")
+
+plot_ests <- function(ests) {
+  # Marginal sample distribution
+  plot_beta_1 <- ggplot() +
+    geom_histogram(aes(x = ests[, 2]), bins = 50) +
+    labs(x = expression(beta[1]*" estimate"), y = NULL) +
+    theme_minimal()
+  
+  plot_beta_2 <- ggplot() +
+    geom_histogram(aes(x = ests[, 3]), bins = 50) +
+    labs(x = expression(beta[2]*" estimate"), y = NULL) +
+    theme_minimal()
+
+  # Joint sampling distribution of \hat{\beta}_1 and \hat{\beta}_2
+  plot_beta_joint <- ggplot() +
+    geom_bin_2d(aes(x = ests[, 2], y = ests[, 3]), bins = 50) + 
+    labs(
+      x = expression(beta[1]*" estimate"), y = expression(beta[2]*" estimate")
+    ) +
+    scale_fill_viridis_c(guide = "none") +
+    theme_minimal() 
+
+  ((plot_beta_1 + plot_beta_2) / plot_beta_joint) + 
+    plot_layout(heights = c(1, 1.5))
+}
+```
+
+## Baseline Simulation
+
+```{r}
+#| fig-height: 6
+#| fig-width: 8
+# BASELINE CASE (for comparison)
+B <- 5000
+n <- 100
+ests <- matrix(nrow = B, ncol = 3)
+for (b in 1:B) {
+  # Generate data
+  Sigma_X = matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2)
+  X <- rmvnorm(n = n, mean = c(1, 1), sigma = Sigma_X)
+  X1 <- X[, 1]
+  X2 <- X[, 2]
+
+  y <- 10 + X1 * 1 + X2 * 1 + rnorm(n, mean = 0, sd = 1)
+
+  df_b <- data.frame(X1 = X1, X2 = X2, y = y)
+
+  # Estimate OLS
+  mod <- lm(y ~ 1 + X1 + X2, data = df_b)
+  ests[b, ] <- coef(mod)
+}
+
+plot_ests(ests)
+```
+
+## 2. Changing sample size
+
+
+```{r}
+#| fig-height: 6
+#| fig-width: 8
+B <- 5000
+n <- 10
+ests <- matrix(nrow = B, ncol = 3)
+for (b in 1:B) {
+    # Generate data
+  Sigma_X = matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2)
+  X <- rmvnorm(n = n, mean = c(1, 1), sigma = Sigma_X)
+  X1 <- X[, 1]
+  X2 <- X[, 2]
+
+  y <- 10 + X1 * 1 + X2 * 1 + rnorm(n, mean = 0, sd = 1)
+
+  df_b <- data.frame(X1 = X1, X2 = X2, y = y)
+
+
+  # Estimate OLS
+  mod <- lm(y ~ 1 + X1 + X2, data = df_b)
+  ests[b, ] <- coef(mod)
+}
+
+plot_ests(ests)
+```
+
+```{r}
+#| fig-height: 6
+#| fig-width: 8
+B <- 5000
+n <- 1000
+ests <- matrix(nrow = B, ncol = 3)
+for (b in 1:B) {
+    # Generate data
+  Sigma_X = matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2)
+  X <- rmvnorm(n = n, mean = c(1, 1), sigma = Sigma_X)
+  X1 <- X[, 1]
+  X2 <- X[, 2]
+
+  y <- 10 + X1 * 1 + X2 * 1 + rnorm(n, mean = 0, sd = 1)
+
+  df_b <- data.frame(X1 = X1, X2 = X2, y = y)
+
+
+  # Estimate OLS
+  mod <- lm(y ~ 1 + X1 + X2, data = df_b)
+  ests[b, ] <- coef(mod)
+}
+
+plot_ests(ests)
+```
+
+
+**Answer:**
+
+As the sample size grows, the variance of each estimated coefficient's sample distribution shrinks.
+The estimates become more precise as the number of observations grow.
+The shape of the joint distribution remains a circle since the two coefficients are uncorrelated with each other. 
+
+
+
+## 3. Changing error term distribution
+
+```{r}
+#| fig-height: 6
+#| fig-width: 8
+B <- 5000
+n <- 100
+ests <- matrix(nrow = B, ncol = 3)
+for (b in 1:B) {
+    # Generate data
+  Sigma_X = matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2)
+  X <- rmvnorm(n = n, mean = c(1, 1), sigma = Sigma_X)
+  X1 <- X[, 1]
+  X2 <- X[, 2]
+
+  y <- 10 + X1 * 1 + X2 * 1 + rnorm(n, mean = 0, sd = 1)
+
+  df_b <- data.frame(X1 = X1, X2 = X2, y = y)
+
+
+  # Estimate OLS
+  mod <- lm(y ~ 1 + X1 + X2, data = df_b)
+  ests[b, ] <- coef(mod)
+}
+
+plot_ests(ests)
+```
+
+```{r}
+#| fig-height: 6
+#| fig-width: 8
+B <- 5000
+n <- 100
+ests <- matrix(nrow = B, ncol = 3)
+for (b in 1:B) {
+    # Generate data
+  Sigma_X = matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2)
+  X <- rmvnorm(n = n, mean = c(1, 1), sigma = Sigma_X)
+  X1 <- X[, 1]
+  X2 <- X[, 2]
+
+  y <- 10 + X1 * 1 + X2 * 1 + rnorm(n, mean = 0, sd = 3)
+
+  df_b <- data.frame(X1 = X1, X2 = X2, y = y)
+
+
+  # Estimate OLS
+  mod <- lm(y ~ 1 + X1 + X2, data = df_b)
+  ests[b, ] <- coef(mod)
+}
+
+plot_ests(ests)
+```
+
+**Answer:**
+
+As the variance of the error term grows, the variance of each estimated coefficient's sample distribution grows.
+The shape of the joint distribution remains a circle since the two coefficients are uncorrelated with each other. 
+
+
+
+## 4. Changing covariance matrix of $X$
+
+```{r}
+#| fig-height: 6
+#| fig-width: 8
+B <- 5000
+n <- 100
+ests <- matrix(nrow = B, ncol = 3)
+for (b in 1:B) {
+    # Generate data
+  Sigma_X = matrix(c(1, 0.25, 0.25, 1), nrow = 2, ncol = 2)
+  X <- rmvnorm(n = n, mean = c(1, 1), sigma = Sigma_X)
+  X1 <- X[, 1]
+  X2 <- X[, 2]
+
+  y <- 10 + X1 * 1 + X2 * 1 + rnorm(n, mean = 0, sd = 1)
+
+  df_b <- data.frame(X1 = X1, X2 = X2, y = y)
+
+
+  # Estimate OLS
+  mod <- lm(y ~ 1 + X1 + X2, data = df_b)
+  ests[b, ] <- coef(mod)
+}
+
+plot_ests(ests)
+```
+
+```{r}
+#| fig-height: 6
+#| fig-width: 8
+B <- 5000
+n <- 100
+ests <- matrix(nrow = B, ncol = 3)
+for (b in 1:B) {
+    # Generate data
+  Sigma_X = matrix(c(1, 0.99, 0.99, 1), nrow = 2, ncol = 2)
+  X <- rmvnorm(n = n, mean = c(1, 1), sigma = Sigma_X)
+  X1 <- X[, 1]
+  X2 <- X[, 2]
+
+  y <- 10 + X1 * 1 + X2 * 1 + rnorm(n, mean = 0, sd = 1)
+
+  df_b <- data.frame(X1 = X1, X2 = X2, y = y)
+
+
+  # Estimate OLS
+  mod <- lm(y ~ 1 + X1 + X2, data = df_b)
+  ests[b, ] <- coef(mod)
+}
+
+plot_ests(ests)
+```
+
+**Answer:**
+
+As the covariance between the two variables get stronger, the marginal distributions get wider. 
+This is because when the two are correlated, there is less "independent" variation of each variable. 
+This makes it harder for OLS to pin down each parameter.
+
+The joint distribution of the coefficients show that the estimates are correlated with each other. 
+
+
+
+## 5. Intuition on extreme collinearity
+
+Note that in this extreme case, the OLS coefficients seem to fall on the line $\hat{\beta}_1 + \hat{\beta}_2 = 2$.
+In the case of the $Cov(X_1, X_2) = 0.99$, the two are nearly collinear. 
+Therefore, OLS is not sure if to give "credit" to $X_2$ or $X_1$. 
+But, it is able to tell that a one unit increase in $X_1$ (and therefore $\approx$ a 1 unit increase in $X_2$) yields a 2 unit increase in $y$.
+That's why $\hat{\beta}_1 + \hat{\beta}_2 = 2$.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

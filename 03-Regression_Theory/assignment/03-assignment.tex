@@ -70,7 +70,7 @@ I encourage you to try out different values and explore; this will help build yo
 I don't need all of your code for this, but do want to see at least one example.
 In other words, I would recommend having code for the "baseline" case and then a second code that you change around. That way you can make comparing to the baseline case easier.
 
-For the error term, we will draw from the normal distribution with \texttt{rnorm}. Unless otherwise stated, draw \texttt{rnorm(n, mean = 0, sd = 1)}. 
+For the error term, we will draw from the normal distribution with \texttt{rnorm}. Unless otherwise stated, draw the error term as \texttt{rnorm(n, mean = 0, sd = 1)}. 
 For the two covariates, we want to be able to change the correlation between them (zero and non-zero). 
 To do so, we will use the the \texttt{rmvnorm} function from the \texttt{mvtnorm} package.
 It requires you to pass a vector of means (in our case $[1 \ \ 1]'$) and the variance-covariance matrix of $X_1$ and $X_2$. 
