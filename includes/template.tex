@@ -1,0 +1,40 @@
+\documentclass[12pt]{article}
+\usepackage{../includes/lecture_notes}
+\usepackage{../includes/math}
+\usepackage{../includes/uark_colors}
+
+\hypersetup{
+  colorlinks = true,
+  allcolors = ozark_mountains,
+  breaklinks = true,
+  bookmarksopen = true
+}
+
+$if(highlighting-macros)$
+$highlighting-macros$
+$endif$
+
+$tightlist.tex()$
+$tables.tex()$
+$graphics.tex()$
+$citations.tex()$
+
+$for(header-includes)$
+$header-includes$
+$endfor$
+
+\begin{document}
+\begin{center}
+  {\Huge\bf $title$}
+  
+  \smallskip
+  {\large\texttt{[ECON 5753]} — \textit{University of Arkansas}}
+
+  % \medskip
+  % {\large Prof. Kyle Butts}
+\end{center}
+
+$body$
+
+
+\end{document}

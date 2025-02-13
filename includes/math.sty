@@ -144,6 +144,17 @@
 }
 
 % Covariance
+\NewDocumentCommand{\cov}{o g g}{%
+  \IfNoValueTF{#2}{%
+    {\text{Cov}}\IfValueT{#1}{_{#1}}%
+  }{%
+    \IfNoValueTF{#3}{%
+      \,{\text{Cov}}\IfValueT{#1}{_{#1}}{\bp{#2}}
+    }{%
+      \,{\text{Cov}}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+    }
+  }
+}
 \NewDocumentCommand{\covhat}{o g g}{%
   \IfNoValueTF{#2}{%
     {\widehat{\text{Cov}}}\IfValueT{#1}{_{#1}}%

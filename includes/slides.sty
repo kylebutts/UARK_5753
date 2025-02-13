@@ -45,7 +45,7 @@
 \setbeamercolor{background canvas}{bg = white}
 
 % Change text margins
-\setbeamersize{text margin left = 20pt, text margin right = 20pt}  
+\setbeamersize{text margin left = 2.5em, text margin right = 2.5em}  
 
 % \alert
 \setbeamercolor{alerted text}{fg = accent2}
@@ -105,11 +105,11 @@
 \renewcommand\appendixname{Appendix}
 
 % Button 
-\setbeamercolor{button}{bg = white, fg = zinc600!80!accent}
-\setbeamerfont{button}{family = \ttfamily}
-\setbeamercolor{button border}{fg = black}
+\setbeamercolor{button}{bg = white, fg = accent}
+\setbeamerfont{button}{family = \ttfamily, size = \footnotesize}
+% \setbeamercolor{button border}{fg = black}
 
-% Let's you put \beamerbutton in bottom right corner
+% Let's you put \beamerbutton in bottom left / right corner
 \usepackage[absolute,overlay]{textpos}
 \newcommand\bottomleft[1]{%
   \begin{textblock*}{\paperwidth}(0pt,{\dimexpr\textheight + 5pt})
@@ -140,6 +140,10 @@
 \AtBeginDocument{\setlength\abovedisplayshortskip{\medskipamount}}
 \AtBeginDocument{\setlength\belowdisplayshortskip{\medskipamount}}
 
+% Spacing between equations in \begin{align*} \\ \end{align*}
+\setlength{\jot}{0.5em}
+
+
 
 % Title page -------------------------------------------------------------------
 \setbeamercolor{title}{fg = zinc900}
@@ -169,14 +173,14 @@
 \setbeamercolor{section in toc}{fg = zinc800}
 \setbeamertemplate{section in toc shaded}[default][60] % opacity
 \setbeamercolor{subsection in toc}{fg = zinc800}
-\setbeamertemplate{section in toc shaded}[default][60] % opacity
+\setbeamertemplate{subsection in toc shaded}[default][60] % opacity
 
 \AtBeginSection[]{
   {
     \hypersetup{hidelinks}
     \setbeamercolor{frametitle}{bg=white}
     \begin{frame}[noframenumbering,plain,c]{}
-      \tableofcontents[currentsection]
+      \tableofcontents[currentsection,currentsubsection]
     \end{frame}
   }
 }
@@ -185,7 +189,7 @@
     \hypersetup{hidelinks}
     \setbeamercolor{frametitle}{bg=white}
     \begin{frame}[noframenumbering,plain,c]{}
-      \tableofcontents[currentsection]
+      \tableofcontents[currentsection,currentsubsection]
     \end{frame}
   }
 }
@@ -194,31 +198,30 @@
 
 %% Fix left-margins
 \settowidth{\leftmargini}{\usebeamertemplate{itemize item}}
-\addtolength{\leftmargini}{0.25\labelsep}
+\settowidth{\leftmarginii}{\usebeamertemplate{itemize subitem}}
+\addtolength{\leftmargini}{1.5\labelsep}
+\addtolength{\leftmarginii}{0.5\labelsep}
 
-%% enumerate item color
-\setbeamercolor{enumerate item}{fg = zinc600}
-\setbeamerfont{enumerate item}{size = \small}
+%% Item markers
 \setbeamertemplate{enumerate item}{\insertenumlabel.}
+\setbeamertemplate{itemize item}{$\rightarrow$}
+\setbeamertemplate{itemize subitem}[square]
+\setbeamertemplate{itemize subsubitem}[square]
 
-%% enumerate subitems and subsubitems
+%% Marker colors
+\setbeamercolor{enumerate item}{fg = zinc600}
 \setbeamercolor{enumerate subitem}{fg = zinc600}
 \setbeamercolor{enumerate subsubitem}{fg = zinc600}
-
-%% itemize item
 \setbeamercolor{itemize item}{fg = zinc600}
-\setbeamerfont{itemize item}{size = \small}
-\setbeamertemplate{itemize item}[circle]
-
-%% right arrow for subitems
 \setbeamercolor{itemize subitem}{fg = zinc600}
-\setbeamerfont{itemize subitem}{size = \small}
-\setbeamertemplate{itemize subitem}{$\rightarrow$}
-
-%% square for subsubitems
 \setbeamercolor{itemize subsubitem}{fg = zinc600}
+
+%% Marker size
+\setbeamerfont{enumerate item}{size = \small}
+\setbeamerfont{itemize item}{size = \small}
+\setbeamerfont{itemize subitem}{size = \small}
 \setbeamerfont{itemize subsubitem}{size = \small}
-\setbeamertemplate{itemize subsubitem}[square]
+
 
 % References -------------------------------------------------------------------
 
@@ -509,7 +512,10 @@
 \newcolumntype{R}{>{\raggedleft\arraybackslash}X}
 \newcolumntype{C}{>{\centering\arraybackslash}X}
 
-% Table notes with \note{...} or \note[Source:]{...} command
+% Table notes with:
+% - \note{...},
+% - \note[Source:]{...}, or
+% - \note[]{0.7\textwidth}{...}
 \RenewDocumentCommand{\note}{O{Notes.} m g}{%
   \IfNoValueTF{#3}{%
     \footnotesize\vspace*{\medskipamount}%
