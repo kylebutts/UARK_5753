@@ -66,9 +66,9 @@
     \operatorname{\mathbb{E}}\IfValueT{#1}{_{#1}}%
   }{%
     \IfNoValueTF{#3}{%
-      \,\mathbb{E}\IfValueT{#1}{_{#1}}{\bs{#2}}
+      \mathbb{E}\IfValueT{#1}{_{#1}}{\bs{#2}}
     }{%
-      \,\mathbb{E}\IfValueT{#1}{_{#1}}{ \bs{#2 \ |\ #3}}
+      \mathbb{E}\IfValueT{#1}{_{#1}}{ \bs{#2 \ |\ #3}}
     }
   }
 }
@@ -77,9 +77,9 @@
     \operatorname{\mathbb{E}}\IfValueT{#1}{_{#1}}%
   }{%
     \IfNoValueTF{#3}{%
-      \,\mathbb{E}\IfValueT{#1}{_{#1}}{\bs{#2}}
+      \mathbb{E}\IfValueT{#1}{_{#1}}{\bs{#2}}
     }{%
-      \,\mathbb{E}\IfValueT{#1}{_{#1}}{ \bs{#2 \ |\ #3}}
+      \mathbb{E}\IfValueT{#1}{_{#1}}{ \bs{#2 \ |\ #3}}
     }
   }
 }
@@ -101,9 +101,9 @@
     \operatorname{\mathbb{P}}\IfValueT{#1}{_{#1}}%
   }{%
     \IfNoValueTF{#3}{%
-      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bp{#2}}
+      \mathbb{P}\IfValueT{#1}{_{#1}}{\bp{#2}}
     }{%
-      \,\mathbb{P}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+      \mathbb{P}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
     }
   }
 }
@@ -112,9 +112,20 @@
     \operatorname{\mathbb{P}}\IfValueT{#1}{_{#1}}%
   }{%
     \IfNoValueTF{#3}{%
-      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bp{#2}}
+      \mathbb{P}\IfValueT{#1}{_{#1}}{\bp{#2}}
     }{%
-      \,\mathbb{P}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+      \mathbb{P}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+    }
+  }
+}
+\NewDocumentCommand{\probhat}{o g g}{%
+  \IfNoValueTF{#2}{%
+    \operatorname{\hat{\mathbb{P}}}\IfValueT{#1}{_{#1}}%
+  }{%
+    \IfNoValueTF{#3}{%
+      \,\hat{\mathbb{P}}\IfValueT{#1}{_{#1}}{\bs{#2}}
+    }{%
+      \,\hat{\mathbb{P}}\IfValueT{#1}{_{#1}}{ \bs{#2 \ |\ #3}}
     }
   }
 }
@@ -173,7 +184,7 @@
   \IfNoValueTF{#1}{
     \operatorname{\mathds{1}}
   }{%
-  \,\mathds{1}{\bs{#1}}}
+  \mathds{1}{\bs{#1}}}
 }
 
 % Trace

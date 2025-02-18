@@ -10,7 +10,7 @@ library(patchwork)
 beta_1 <- seq(-0.2, 0.2, by = 0.001)
 exp_minus_1 <- exp(beta_1) - 1
 
-(plot_pct_change_appxoimation <- 
+(plot_log_linear_marginal_effect_appxoimation <- 
   ggplot() +
   geom_line(
     aes(x = beta_1, y = exp_minus_1, color = "exact"),
@@ -29,7 +29,7 @@ exp_minus_1 <- exp(beta_1) - 1
     guide = guide_none()
   ) +
   labs(
-    title = "Comparison of {\\color[HTML]{B3114B}$\\exp(\\beta_1) - 1$} and {\\color[HTML]{0188AC}$\\beta_1$}",
+    title = "Comparison of {\\color[HTML]{B3114B}$\\exp(\\beta_1) - 1$} and {\\color[HTML]{0188AC}$\\beta_1$} for a 1 unit change in $X$",
     x = "$\\beta_1$",
     y = "\\% Change in $Y$",
     color = NULL
@@ -37,11 +37,52 @@ exp_minus_1 <- exp(beta_1) - 1
   kfbmisc::theme_kyle(base_size = 14)
 )
 
+# %% 
 kfbmisc::tikzsave(
-  here("04-Regression_in_Practice/figures/pct_change_approximation.pdf"),
-  plot_pct_change_appxoimation,
+  here("04-Regression_in_Practice/figures/log_linear_approximation.pdf"),
+  plot_log_linear_marginal_effect_appxoimation,
   width = 8, height = 4.5
 )
+
+# %% 
+# $\log$-$\log$ interpretation
+# beta <- 0.5
+beta_1 <- seq(-0.2, 0.2, by = 0.001)
+version_true <- (1 + 0.01)^beta_1 - 1
+version_approx <- beta_1 * 0.01
+
+(plot_log_log_marginal_effect_approx <- 
+  ggplot() +
+  geom_line(
+    aes(x = beta_1, y = version_true, color = "exact"),
+    linewidth = 2
+  ) +
+  geom_line(
+    aes(x = beta_1, y = version_approx, color = "approx"),
+    linewidth = 2
+  ) +
+  scale_color_manual(
+    values = c("exact" = "#B3114B", "approx" = "#0188AC"),
+    guide = guide_none()
+  ) +
+  scale_y_continuous(labels = scales::label_percent(suffix = "\\%")) +
+  labs(
+    title = "Comparison of {\\color[HTML]{B3114B}$\\left(1 + \\frac{X_1 - X_0}{X_0} \\right)^{\\beta_1} - 1$} and {\\color[HTML]{0188AC}$\\beta_1 \\frac{X_1 - X_0}{X_0}$} for 1\\% increase in $X$",
+    x = "$\\beta_1$",
+    y = "\\% Change in $Y$",
+    color = NULL
+  ) +
+  kfbmisc::theme_kyle(base_size = 14)
+)
+
+# %% 
+kfbmisc::tikzsave(
+  here("04-Regression_in_Practice/figures/log_log_approximation.pdf"),
+  plot_log_log_marginal_effect_approx,
+  width = 8, height = 4.5
+)
+
+
 
 # %%
 set.seed(20240922)
@@ -88,7 +129,7 @@ df = data.frame(sat_score = sat_score, wages = wages)
   ) + 
   labs(
     # title = "{True \\color[HTML]{FB7185}$w = \\log(\\text{SAT})$} vs. {\\color[HTML]{FFC517} Linear Approximation}",
-    title = "{\\color[HTML]{FB7185}True $\\log$ CEF} vs. {\\color[HTML]{FFC517} Linear Approximation}",
+    title = "{\\color[HTML]{FB7185}True $\\log$-linear CEF} vs. {\\color[HTML]{FFC517} Linear Approximation}",
     x = "SAT Score", 
     y = "Wages"
   ) + 

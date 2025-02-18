@@ -141,16 +141,18 @@ If you have **not** yet established services through CEA, but have a documented 
   - Indicator variables
   - Discrete variables
   - Bins 
-  - Splines
-- Non-parametric regression of 1 explanatory variable
-  - Trade-offs with linear regression
-- Partially linear-model
+  - Partially linear-model and Splines 
+- $\log$ outcome variables
 - 0/1 Outcome variables
   - Linear probability model
   - Logistic regression
 
 *Readings:*
 
+- ISLR: All of 7.1, 7.2, 7.3, and 7.4
+- $\log$ readings: [Lecture Notes on Linear Regression Models with Logarithmic Transformations](https://kenbenoit.net/assets/courses/ME104/logmodels2.pdf) and [FAQ How Do I Interpret A Regression Model When Some Variables Are Log Transformed?](https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faqhow-do-i-interpret-a-regression-model-when-some-variables-are-log-transformed/)
+- ISLR: All of 4.1, 4.2, and 4.3
+- [Marginal Effects book](https://marginaleffects.com/chapters/slopes.html): Chapter 6 on Slopes
 
 
 ### 5. Time-series Forecasting

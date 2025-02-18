@@ -8,6 +8,10 @@
 \date{Sprint 2025}
 \author{Prof. Kyle Butts}
 
+\NewDocumentCommand{\logistic}{o g}{%
+  \textrm{logistic}\IfValueT{#1}{_{#1}}{\left(#2\right)}
+}
+
 \begin{document}
 
 % ------------------------------------------------------------------------------
@@ -934,6 +938,10 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
   It's not clear yet how we should chose the bins...
 \end{frame}
 
+% \begin{frame}{Splines Are ``Local''}
+% 
+% \end{frame}
+
 \imageframe{figures/ex_bspline_few_knots.pdf}
 
 \begin{frame}{Choosing Bins}
@@ -976,13 +984,45 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 \section{\texorpdfstring{$\log$}{log} transformations}
 
+\begin{frame}{When to use $\log$ transformations}
+  You should take the $\log$ of an outcome varible when you think a 1 unit change in $X$ is related to a \% change in $Y$. 
+  
+  \pause
+  \bigskip
+  Settings with skewed distributions (e.g. home prices, GDP, population, income)
+  \begin{itemize}
+    \item Skewness makes a `unit' change in $X$ difficult to think about
+  \end{itemize}
+
+  \pause
+  \bigskip
+  $\log(Y) = X\beta$ $\iff Y = e^{X\beta}$ is fitting an `exponential' relationship. These are common in:
+  \begin{enumerate}
+    \item Financial markets where compounding returns imply $Y_t = Y_0 e^{rt}$
+    
+    \item Epidemiology where disease growth rate is exponential (it is not actually, but early growth rate is approximately)
+  \end{enumerate}
+\end{frame}
+
+\imageframe{figures/ex_log_y_raw.pdf}
+\imageframe{figures/ex_log_y_log_vs_linear.pdf}
+
+\begin{frame}{Extrapolating Exponential Relationship}
+  If you thought extrapolating with polynomials with bad... Exponential is even more extreme
+  \begin{itemize}
+    \item Things that have rapid growth often will tend to slow-down
+    
+    \item Stonks don't go to the moon...
+  \end{itemize}
+\end{frame}
+
+
 \begin{frame}{$\log$-transformation}
-  In economics, it is common to see $\log$ transformed outcomes: 
+  \vspace*{-\bigskipamount}
   $$
     \log(\text{wages}_i) = \beta_0 + \beta_1 \text{College Degree}_i + u_i
   $$
-  
-  \pause
+
   \bigskip
   This specification changes our interpretation of the slope coefficients:
 
@@ -993,6 +1033,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
   \begin{itemize}
     \item E.g. if $\beta_1 = 0.02$, then a college degree is associated with a 2\% increase in wages.
   \end{itemize}
+
 \end{frame}
 
 \begin{frame}{Derivation of $\log$-transformation interpretation}
@@ -1013,23 +1054,21 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{frame}
 
 \begin{frame}{Derivation of $\log$-transformation interpretation}
-  \vspace*{-\bigskipamount}
+  The left-hand side is our percent-change formula from high-school science class
   $$
     \frac{\text{wages}_1 - \text{wages}_0}{\text{wages}_0} = \exp(\beta_1) - 1
   $$
-  The left-hand side is our percent-change formula from high-school science class
 
   \pause
   \bigskip
-  In this case, the more \emph{precise} answer is that having a college degree is associated with an $\exp(\beta_1) - 1$ percent change in $\text{wages}$
+  In this case, the more \emph{precise} answer is that having a college degree is associated with an $(\exp(\beta_1) - 1) * 100 \%$ change in $\text{wages}$
   \begin{itemize}
     \item But for $-0.10 < \beta_1 < 0.10$, $\exp(\beta_1) - 1$ is approximately equal to $\beta_1$ so it's simpler to use the latter
   \end{itemize}
 \end{frame}
 
 \imageframe{figures/pct_change_approximation.pdf}
-\imageframe{figures/ex_log_y_raw.pdf}
-\imageframe{figures/ex_log_y_log_vs_linear.pdf}
+
 
 % \begin{frame}{Example in \texttt{R}}
 %   \begin{codeblock}
@@ -1048,24 +1087,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 %   \end{codeblock}
 % \end{frame}
 
-\begin{frame}{When to use $\log$ transformations}
-  You should take the $\log$ of an outcome varible when you think a 1 unit change in $X$ is related to a \% change in $Y$. 
 
-  \pause
-  \bigskip
-  $\log(Y)$ \textasciitilde{} $X$ is called fitting an `exponential' relationship. These are common in:
-  \begin{enumerate}
-    \item Financial markets where compounding returns imply $Y_t = Y_0 e^{rt}$
-    
-    \item Epidemiology where disease growth rate is exponential (it is not actually, but early growth rate is approximately)
-    
-    \pause
-    \item Settings with skewed distributions (e.g. home prices, GDP, population)
-    \begin{itemize}
-      \item Skewness makes a `unit' change in $X$ difficult to think about
-    \end{itemize}
-  \end{enumerate}
-\end{frame}
 
 \begin{frame}{$\log$-$\log$ transformations}
   Alternatively, you may see $\log$ transformations of both variables:
@@ -1074,28 +1096,435 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
   $$
 
   \bigskip
-  The interpretation is now simpler: a 1\% change in $X_1$ is associated with a $\beta_1$ \% change in $Y$
+  The interpretation is now simpler: a 1\% change in $X$ is associated with a $\beta_1$ \% change in $Y$
 \end{frame}
 
-% \begin{frame}{$\log$-$\log$ transformations}
-%   \begin{align*}
-%     \log(Y_1) - \log(Y_0) &= 
-%     \left( \beta_0 + \beta_1 \log(X_0) \right) - \left(\beta_0 + \beta_1 \log(X_0 + 1)\right) \\[1em]
-%     \implies \log(Y_1 / Y_0) &= \beta_1 \left( \log(\frac{X_0}{X_0 + 1}) \right) \\[1em]
-%     \implies \log(1 + \frac{Y_1 - Y_0}{Y_0}) &= \beta_1 \left( \log(\frac{X_0}{X_0 + 1} - \frac{X_0 + 1}{X_0 + 1} + 1) \right) \\[1em]
-%     \implies \log(1 + \frac{Y_1 - Y_0}{Y_0}) &= \beta_1 \left( \log(1 \frac{X_0}{X_0 + 1} - \frac{X_0 + 1}{X_0 + 1} + 1) \right) \\[1em]
-%   \end{align*}
-% \end{frame}
-% 
 
-% TODO !
+\begin{frame}{Derivation}
+  \vspace*{-1.5\bigskipamount}
+  \begin{align*}
+    \log(Y_1) - \log(Y_0) &= 
+    \left( \beta_0 + \beta_1 \log(X_1) \right) - \left( \beta_0 + \beta_1 \log(X_0) \right) \\[1.5em]
+    \implies \log(1 + \frac{Y_1 - Y_0}{Y_0}) &= 
+    \beta_1 \log(1 + \frac{X_1 - X_0}{X_0}) \\[1.5em]
+    \implies 1 + \frac{Y_1 - Y_0}{Y_0} &= 
+    \left( 1 + \frac{X_1 - X_0}{X_0} \right)^{\beta_1} 
+    \approx 1 + \beta_1 \frac{X_1 - X_0}{X_0} \\[1.5em]
+    \implies \frac{Y_1 - Y_0}{Y_0} &= \beta_1 \frac{X_1 - X_0}{X_0}
+  \end{align*}
+
+\end{frame}
+
+\imageframe{figures/log_log_approximation.pdf}
+
+\begin{frame}{Near-perfect approximation}
+  Our approximation is basically exact:
+  $$
+    \frac{Y_1 - Y_0}{Y_0} = \beta_1 \frac{X_1 - X_0}{X_0}
+  $$
+
+  \bigskip
+  So, we interpret a $T$ percent increase in $X$ as a $\beta_1 * T$ percent increase in $Y$
+\end{frame}
+ 
+
+\begin{frame}{linear-$\log$ transformations}
+  Last, we have the linear-$\log$ specification:
+  $$
+    Y_i = \beta_0 + \beta_1 \log(X_i) + u_i
+  $$
+
+  \bigskip
+  This has the interpretation a 1\% change in $X$ is associated with a $\beta_1$ unit change in $Y$
+\end{frame}
+
+
+
+\section{Binary outcomes}
+
+\begin{frame}{Binary Outcomes}
+  In many instances, our outcome of interest is a \alert{binary outcome} taking the value of 0 or 1
+  \begin{itemize}
+    \item An indicator variable, but people call it a binary variable when it's an outcome
+  \end{itemize}
+  
+  \bigskip
+  E.g. $Y_i$ denoting whether a customer purchased something from a store and $X_i$ is demographic variables
+  \begin{itemize}
+    \item Want to predict the `propensity'/`probability' that someone will buy a product 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Expectation of a Binary Outcome}
+  The expectation of a binary variable is just 
+  \begin{align*}
+    \expec{Y_i} &= 
+    1 * \prob{Y_i = 1} + 0 * \prob{Y_i = 0} \\
+    &= \prob{Y_i = 1}
+  \end{align*}
+  
+  \bigskip
+  This can be estimated by the sample proportion of times $Y_i = 1$:
+  $$
+    \hat{p} = \frac{1}{n} \sum_i Y_i
+  $$
+\end{frame}
+
+\begin{frame}{Conditional Expectation Function of a Binary Outcome}
+  The conditional expectation of a binary outcome can be found similarly:
+  \begin{align*}
+    \expec{Y_i}{X_i = x} &= 
+    1 * \prob{Y_i = 1}{X_i = x} + 0 * \prob{Y_i = 0}{X_i = x} \\
+    &= \prob{Y_i = 1}{X_i = x}
+  \end{align*}
+  
+  \bigskip
+  We can estimate the CEF of a binary outcome at a point $x$ in the same way:
+  \begin{itemize}
+    \item Subset to people with $X_i = x$
+    \item Take the sample proportion of $Y_i = 1$ \emph{within that subsample}. Call this $\hat{f}(x)$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Conditional Expectation Function of a Binary Outcome}
+  Note that this procedure faces the same benefits and costs as with a continuous outcome variable:
+  \begin{itemize}
+    \item The estimator is unbiased and consistent 
+    
+    \item But the curse of dimensionality makes this estimator noisy when $X_i$ has a large number of variables
+  \end{itemize}
+  
+  \pause
+  \bigskip
+  This motivates us to study a linear model for the conditional expectation function:
+  $$
+    \expec{Y_i}{X_i = x} = \prob{Y_i = 1}{X_i = x} = W_i' \beta
+  $$
+  for some $W_i = g(X_i)$
+\end{frame}
+
+\begin{frame}{Linear Probability Model}
+  This motivates us to study a linear model for the conditional expectation function:
+  $$
+    \expec{Y_i}{X_i = x} = \prob{Y_i = 1}{X_i = x} = W_i' \beta
+  $$
+  for some $W_i = g(X_i)$
+
+  \bigskip\bigskip
+  This is called a \alert{linear probability model} and predicts the proportion of $1$s you would observe in the population given $X_i = x$
+  \begin{itemize}
+    \item Can be estimated in the exact same way $\hat{\beta}_{\text{OLS}} = \left( \bm{W}' \bm{W} \right)^{-1} \bm{W}' \bm{Y}$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Marginal Effect Interpretation}
+  Our marginal predictive effects take the same form:
+  $$
+    \frac{\partial}{\partial x_\ell} \probhat{Y_i = 1}{X_i = x} = \sum_{k=1}^K \frac{\partial}{\partial x_\ell} g_{k}(X) \hat{\beta}_{\text{OLS}, k}
+  $$
+  
+  \bigskip
+  You should reword the interpretation to reflect that you are estimating the conditional probability of $Y_i = 1$:
+
+  \begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {2pt}{0pt}{zinc600}, interior hidden]
+    ``On average, a one unit increase in $x_\ell$ is associated with a $\hat{\beta}_1$ larger/smaller probability of $Y_i = 1$ \emph{\color{blue} holding all else equal}''
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Problems with Linear Probability Model}
+  \vspace*{-\bigskipamount}
+  $$
+    \expec{Y_i}{X_i = x} = \prob{Y_i = 1}{X_i = x} = W_i' \beta
+  $$
+
+  \bigskip
+  Probabilities must fall between 0 and 1. When we estimate our model, we do not impose that \emph{restriction}
+  \begin{itemize}
+    \item For given values of $x$, $w' \hat{\beta}_{\text{OLS}}$ can be less than 0 or greater than 1
+  \end{itemize}
+
+  \bigskip
+  Though, it is worth saying that this is \emph{not} true when you \emph{only} use indicator variables in $W_i$
+\end{frame}
+
+\begin{frame}{Logistic Regression}
+  Instead, we will use a \alert{logistic transformation} to model the conditional probability:
+  \bigskip
+  $$
+    \expec{Y_i}{X_i = x} = \prob{Y_i = 1}{X_i = x} = 
+    \tcbhighmath[colback = bgGreen]{\textrm{logistic}} 
+    \left(\tcbhighmath[colback = bgPurple]{W_i' \beta}\right)
+  $$
+
+  % \devgrid
+  \begin{tikzpicture}[remember picture, overlay]
+    \node [anchor = north, text width = 0.25\textwidth] at (page cs:0.65,0.365) {
+      \begin{center}
+        \setstretch{0.8}
+        {\footnotesize\color{green} ``transformation''}
+      \end{center}
+    };
+    \node [anchor = south, text width = 0.25\textwidth] at (page cs:0.73,0.325) {
+      \begin{center}
+        \setstretch{0.8}
+        {\footnotesize\color{purple} ``Linear Index''}
+      \end{center}
+    };
+  \end{tikzpicture}
+
+  \smallskip
+  where $\logistic{W_i'\beta} = \frac{e^{W_i'\beta}}{e^{W_i'\beta} + 1}$ and $W_i' \beta$ is called the (linear) `index function'
+
+  \pause
+  \begin{itemize}
+    \item The $\textrm{logistic}$ function ensures that the forecasted probabilities fall within 0 and 1
+  \end{itemize}
+\end{frame}
+
+\imageframe{figures/logistic_link_function.pdf}
+
+\begin{frame}{Binary Choice Model}
+  One way to arrive at the logistic model is to assume a \alert{latent index model} where:
+  $$
+    Y_{i}^* = \tcbhighmath[colback = bgPurple]{W_i' \beta} + \varepsilon_i
+  $$
+
+  \bigskip
+  When the `utility' $Y_i^*$ is high-enough, we switch from $0$ to $1$. 
+  We observe $Y_i \equiv \one{Y_i^* \geq 0}$.
+\end{frame}
+
+\begin{frame}{Binary Choice Model $\implies$ Logistic CEF}
+  \vspace*{-\bigskipamount}
+  $$
+    Y_{i}^* = \tcbhighmath[colback = bgPurple]{W_i' \beta} + \varepsilon_i 
+    \quad \text{ and } \quad 
+    Y_i \equiv \one{Y_i^* \geq 0}
+  $$
+
+  \bigskip
+  When $\varepsilon_i$ follows the \alert{logistic distribution}, this implies 
+  $$
+    \prob{Y_i = 1}{X_i} = 
+    \prob{\varepsilon_i \leq - \tcbhighmath[colback = bgPurple]{W_i' \beta}} = 
+    \frac{e^{W_i'\beta}}{e^{W_i'\beta} + 1}
+  $$
+
+  \pause
+  \bigskip
+  \bigskip
+  That is, our latent-index model and a logistic error term implies our logistic transformation
+  \begin{itemize}
+    \item If we assume $\varepsilon_i$ is normally distributed, then we end up with a ``probit''
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{``Likelihood''}
+  \vspace*{-\bigskipamount}
+  $$
+    \prob{Y_i = 1}{X_i} = 
+    \prob{\varepsilon_i \leq - \tcbhighmath[colback = bgPurple]{W_i' \beta}} = 
+    \frac{e^{W_i'\beta}}{e^{W_i'\beta} + 1}
+  $$
+
+  \bigskip
+  With this, we can think of each $Y_i$ as a Bernoulli random variable with probability of success of $\pi_i \equiv \frac{e^{W_i'\beta}}{e^{W_i'\beta} + 1}$
+
+  \pause
+  \bigskip
+  \bigskip
+  The \alert{likelihood} of observing $Y_i = 1$ is $\pi_i$ and the \alert{likelihood} of observing $Y_i = 0$ is $1 - \pi_i$
+  \begin{itemize}
+    \item The $\pi_i$ depends on our choice of $\beta$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Maximum-Likelihood Estimation}
+  If our outcomes, $Y_i$, are independent, then our likelihood of observing the full vector $Y$ given $\beta$ is
+  $$
+    \mathcal{L}(\beta \ \vert \ Y, \bm{X}) = \prod_{i=1}^n 
+    \ \tcbhighmath[colback = bgGreen]{\pi_i^{Y_i}} \
+    \tcbhighmath[colback = bgPurple]{(1 - \pi_i)^{1 - Y_i}}
+  $$
+
+  Recall $\pi_i \equiv e^{W_i'\beta} / ( e^{W_i'\beta} + 1 )$
+
+  % \devgrid
+  \begin{tikzpicture}[remember picture, overlay]
+    \node [anchor = north, text width = 0.25\textwidth] at (page cs:0.59,0.405) {
+      \begin{center}
+        \setstretch{0.8}
+        {\footnotesize\color{green} $= 1$ when $Y_i = 0$}
+      \end{center}
+    };
+    \node [anchor = south, text width = 0.25\textwidth] at (page cs:0.65,0.36) {
+      \begin{center}
+        \setstretch{0.8}
+        {\footnotesize\color{purple} $= 1$ when $Y_i = 1$}
+      \end{center}
+    };
+  \end{tikzpicture}
+
+  \pause
+  \bigskip
+  The goal then is to find the best $\beta$ to \emph{maximize} the \emph{likelihood} of observing the data $Y$ we did observe
+\end{frame}
+
+\begin{frame}{Maximum-Likelihood Estimation In R}
+  Luckily, our \texttt{fixest} package also makes performing logistic regression simple: 
+  
+  \texttt{feglm(fmla, data, family = "logit")}
+
+  This performs maximum-likelihood estimation of $\hat{\beta}$
+\end{frame}
+
+\begin{frame}{Forecasting probabilities}
+  With our estimated $\hat{\beta}$, we can form forecasts of 
+  $$
+    \hat{\pi}_i \equiv e^{W_i' \hat{\beta}} / ( e^{W_i' \hat{\beta}} + 1 )
+  $$
+
+  \bigskip
+  Note here, we are predicting \emph{the probability} that $Y_i = 1$ given that $X_i = x$. 
+  \begin{itemize}
+    \item Often, this is interesting (60\% of people buy this product when $X_i = x$)
+    \item If we were forced, could chose a rule like $\hat{Y}_i = 1$ if $\hat{\pi}_i \geq 0.5$
+  \end{itemize}
+
+  \pause
+  \bigskip
+  Forecasting can be done easily as well with our \texttt{predict} function and possibly with the \texttt{newdata} argument
+\end{frame}
+
+\begin{frame}{Marginal Effects Of Logistic Transformation}
+  Remember that our ``index'' is given by our linear function $U_i = W_i' \beta$. 
+
+  \bigskip
+  We know how to calculate marginal effects of $U_i$ with respect to some $x_{i,\ell}$: 
+  $$
+    \frac{\partial}{\partial x_{\ell}} \hat{U}_i = \sum_k \frac{\partial}{\partial x_{\ell}} g_k(\ell) \hat{\beta}_\ell
+  $$
+
+  \pause
+  \bigskip
+  But, $\hat{\pi}_i = e^{\hat{U}_i} / ( e^{\hat{U}_i} + 1 )$ is a transformation of $\hat{U}_i$
+  \begin{itemize}
+    \item How does $\hat{\pi}_i$ change with $\hat{U}_i$?
+  \end{itemize}
+\end{frame}
+
+\imageframe{figures/logistic_marginal_effect.pdf}
+
+\begin{frame}{Marginal Effects Of Logistic Transformation}
+  \vspace*{-\bigskipamount}
+  $$
+    \hat{\pi}_i = e^{\hat{U}_i} / ( e^{\hat{U}_i} + 1 )
+  $$
+  
+  \bigskip
+  % https://en.wikipedia.org/wiki/Logistic_function#Derivative
+  The partial derivative can be estimated via the chain-rule:
+  $$
+    \frac{\partial}{\partial x_{\ell}} \hat{\pi}_i =
+    \frac{e^{\hat{U}_i}}{(e^{\hat{U}_i} + 1)^2} * 
+    \frac{\partial}{\partial x_{\ell}} \hat{U}_i
+  $$
+\end{frame}
+
+\begin{frame}{\texttt{marginaleffects} Package In R}
+  This would be a bit of a pain to estimate by hand
+  \begin{itemize}
+    \item And even more annoying would be getting standard errors!
+  \end{itemize}
+
+  \bigskip
+  But, the \texttt{marginaleffects} package makes this really easy (and works with fixest!)
+  \begin{itemize}
+    \item See \url{https://marginaleffects.com/chapters/slopes.html} for details
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Marginal Effects}
+  Once we calculate the marginal effect, $\frac{\partial}{\partial x_{\ell}} \hat{\pi}_i$, we would interpret it as 
+
+  \begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {2pt}{0pt}{zinc600}, interior hidden]
+    ``On average, for a unit with $X_i = x$, a one unit larger $x_{i, \ell}$ is associated with an increased probability of $Y_i = 1$ of \# \emph{\color{blue} holding all else equal}''
+  \end{tcolorbox}
+
+  \pause
+  \bigskip
+  Notice now the marginal effect depends on the full set of covariates $X_i = x$ (because they all impact $W_i' \beta$), we need to specify all of this when we talk about marginal effects
+\end{frame}
+
+\begin{frame}{Interpreting Marginal Effects}
+  Notice now the marginal effect depends on the full set of covariates $X_i = x$ (because they all impact $W_i' \beta$), we need to specify all of this when we talk about marginal effects
+
+  \bigskip
+  Two options people use:
+  \begin{itemize}
+    \item Specify $x$ to be the sample mean of each $X_i$; 
+    \begin{itemize}
+      \item ``At the mean of $X$, the marginal effect is $\dots$''
+    \end{itemize}
+
+    \medskip
+    \item Average the marginal effect across the sample or a particular sub-sample
+    \begin{itemize}
+      \item ``On average for men, the marginal effect of increasing $x_{i,\ell}$ is $\dots$''
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{R Example -- Estimation}
+  \begin{codeblock}
+library(fixest)
+est <- feglm(am ~ mpg, data = mtcars, family = "logit")
+print(est)
+#> GLM estimation, family = binomial(link = "logit"), Dep. Var.: am
+#> Observations: 32
+#> Standard-errors: IID 
+#>              Estimate Std. Error  z value  Pr(>|z|)    
+#> (Intercept) -6.603527   2.390311 -2.76262 0.0057339 ** 
+#> mpg          0.307028   0.116740  2.63002 0.0085380 ** 
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+  \end{codeblock}
+\end{frame}
+
+\imageframe{figures/mtcars_forecast.pdf}
+
+\begin{frame}[fragile]{R Example -- Forecasting}
+  \begin{codeblock}
+head(predict(est))
+#> [1] 0.46109512 0.46109512 0.59789839 0.49171990 0.29690087 
+
+predict(est, newdata = data.frame(mpg = c(20, 25, 30)))
+#> [1] 0.3862832 0.7450109 0.9313311
+  \end{codeblock}
+\end{frame}
+
+\begin{frame}[fragile]{R Example -- Marginal Effects}
+  \begin{codeblock}
+library(marginaleffects)
+slopes(
+  est, variables = "mpg",
+  newdata = data.frame(mpg = c(20, 25, 30))
+)
+#> Estimate  Std. Error     z  Pr(>|z|)     S     2.5 %  97.5 %
+#>   0.0728      0.0285  2.55    0.0108   6.5   0.01684  0.1287
+#>   0.0583      0.0144  4.05    <0.001  14.2   0.03007  0.0866
+#>   0.0196      0.0144  1.36    0.1738   2.5  -0.00866  0.0479
+  \end{codeblock}
+\end{frame}
+
+\imageframe{figures/mtcars_forecast.pdf}
 
 
 
 
-\section{0/1 outcomes}
 
-% TODO !
+
 
 
 
