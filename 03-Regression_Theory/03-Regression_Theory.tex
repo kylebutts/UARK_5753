@@ -830,6 +830,16 @@
   \end{itemize}
 \end{frame}
 
+% \begin{frame}{Multicollinearity and Standard Errors}
+%   Consider a regression of SAT scores among middle and high-school students. Imagine regressing SAT score on the age of the student and the student's grade
+% 
+%   \bigskip
+%   Age and a student's grade are highly correlated, so it's very hard to distinguish between the two 
+%   
+%   $\implies$ the standard errors on each will be very large
+% \end{frame}
+
+
 \subsection{Bivariate Regression Example}
 
 \begin{frame}{Monte Carlo example}
@@ -1151,18 +1161,28 @@
 \end{frame}
 
 \begin{frame}{Correct regression interpretation}
-  In general, you should use the following language:
+  Avoid making causal claims that \emph{changing} $w_k$ \emph{causes} a change in $Y$
   
   \begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {4pt}{0pt}{green}, interior hidden]
     {\color{green}\Large $\checkmark$\ } Our regression model predicts that a one unit increase in $w_k$ is associated with a $\hat{\beta}_{\text{OLS},k}$ units increase/decrease in $Y$
   \end{tcolorbox}
 
-  \bigskip
-  Do not say!!!!!! 
+  \begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {4pt}{0pt}{green}, interior hidden]
+    {\color{green}\Large $\checkmark$\ } Compare two people, one with a value of $w_k = \tilde{w}$ and one with $w_k = \tilde{w} + 1$. 
+    Our regression model predicts the latter has $\hat{\beta}_{\text{OLS},k}$ increase/decrease in $Y$.
+  \end{tcolorbox}
+
   \begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {4pt}{0pt}{red}, interior hidden]
    {\color{red}\Large $\times$\ } Increase $w_k$ by one unit increases/decreases $Y$ by $\hat{\beta}_{\text{OLS},k}$ units
   \end{tcolorbox}
 \end{frame}
+
+\begin{frame}{Correct regression interpretation}
+  In general, you should use the following language:
+
+\end{frame}
+
+
 
 \begin{frame}{Correct regression interpretation}
   Often we want to think about changing $X_i$ instead of changing $W_i$;
@@ -1208,5 +1228,21 @@
   \bigskip
   In the next topic, we will practice this when we have other functions of variables in $g_k$
 \end{frame}
+
+\begin{frame}{Marginal Effects}
+  $$
+    \frac{\partial}{\partial x_\ell} \hat{f}(X) = \sum_{k=1}^K \frac{\partial}{\partial x_\ell} g_{k}(X) \hat{\beta}_{\text{OLS}, k}
+  $$
+  
+  \bigskip
+  This is holding fixed all the other valuables at the original covariate values: $x_{1,i}, \dots, x_{K,i}$ and only changing $x_{\ell}$
+  \begin{itemize}
+    \item multiple $W_k$ can change from changing a particular $x_{\ell}$ 
+  \end{itemize}
+\end{frame}
+
+\imageframe{figures/ex_linear_cef.pdf}
+\imageframe{figures/ex_quadratic_cef.pdf}
+\imageframe{figures/ex_plogis_cef.pdf}
 
 \end{document}
