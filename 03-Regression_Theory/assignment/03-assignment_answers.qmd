@@ -223,7 +223,7 @@ B <- 5000
 n <- 100
 ests <- matrix(nrow = B, ncol = 3)
 for (b in 1:B) {
-    # Generate data
+  # Generate data
   Sigma_X = matrix(c(1, 0.99, 0.99, 1), nrow = 2, ncol = 2)
   X <- rmvnorm(n = n, mean = c(1, 1), sigma = Sigma_X)
   X1 <- X[, 1]
@@ -232,7 +232,6 @@ for (b in 1:B) {
   y <- 10 + X1 * 1 + X2 * 1 + rnorm(n, mean = 0, sd = 1)
 
   df_b <- data.frame(X1 = X1, X2 = X2, y = y)
-
 
   # Estimate OLS
   mod <- lm(y ~ 1 + X1 + X2, data = df_b)
@@ -256,9 +255,9 @@ The joint distribution of the coefficients show that the estimates are correlate
 
 Note that in this extreme case, the OLS coefficients seem to fall on the line $\hat{\beta}_1 + \hat{\beta}_2 = 2$.
 In the case of the $Cov(X_1, X_2) = 0.99$, the two are nearly collinear. 
-Therefore, OLS is not sure if to give "credit" to $X_2$ or $X_1$. 
+Therefore, OLS is not sure if to give "credit" to $X_2$ or $X_1$ and OLS distributes their combined effect arbitrarily between the two betas. 
 But, it is able to tell that a one unit increase in $X_1$ (and therefore $\approx$ a 1 unit increase in $X_2$) yields a 2 unit increase in $y$.
-That's why $\hat{\beta}_1 + \hat{\beta}_2 = 2$.
+This means that when $\hat{\beta}_1$ is large $\hat{\beta}_2$ must be small or negative to compensate and make $\hat{\beta}_1 + \hat{\beta}_2 = 2$.
 
 
 

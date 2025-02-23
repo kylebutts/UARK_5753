@@ -1,9 +1,10 @@
 ---
-title: "R Day Topic 3"
+title: "Assignment 3"
 author: "Your Name"
 format: pdf
 ---
 ```{r setup}
+#| include: false
 library(ggplot2)    # install.packages("ggplot2")
 library(fixest)     # install.packages("fixest")
 ```
@@ -20,11 +21,12 @@ This function accepts a string containing the file path of the wage data.
 You might have to change your working directory in RStudio to the folder where this file and the csv are located.
 
 ```{r}
+# setwd("03-Regression_Theory/r-day/")
 df <- read.csv("wage_data_sim.csv")
 head(df)
 ```
 
- 
+
 ## Running a regression by-hand
 
 In this section, we are going to run a regression completely by hand.
@@ -37,6 +39,8 @@ Second, grab the outcome with `y <- df$wage` to match the notation we used in th
 
 ```{r}
 W <- cbind(1, df$age, df$age^2)
+head(W)
+
 y <- df$wage
 ```
 
@@ -56,7 +60,7 @@ Let's use these to solve for the OLS coefficients
 
 ```{r}
 beta_hat <- solve(t(W) %*% W) %*% (t(W) %*% y)
-# beta_hat <- solve(t(W)%*%W)%*%t(W)%*%y
+beta_hat
 ```
 
 Great! We have estimated our first regression by hand. 
@@ -74,19 +78,18 @@ We can use `yhat <- as.numeric(W %*% beta_hat)` to convert to a vector.
 yhat <- as.numeric(W %*% beta_hat)
 resid <- y - yhat
 
-# head(cbind(y, yhat, resid))
+head(data.frame(y, yhat, resid))
 ```
 
 
 ### Estimating Standard Errors
 
 First, form the estimate of $\Sigma$ consisting of a diagonal matrix with $\hat{u}_i^2$ on the diagonal. 
-You can create this matrix using `diag(resid^2)`. 
+You can create this matrix using `diag(resid)`. 
 Store this in a variable called `Sigma_hat`.
 
 ```{r}
 Sigma_hat <- diag(resid^2)
-Sigma_hat[1:5, 1:5]
 ```
 
 Now, we can calculate our variance-covariance matrix as 
@@ -97,15 +100,13 @@ $$
 Do that below and store in a variable called `vcov_hat`
 
 ```{r}
-# HC1 - heteroskedasticity-robust standard error (version 1)
 N <- nrow(W)
 K <- ncol(W)
 vcov_hat <- 
-  (N / (N - K)) *
-  solve(t(W) %*% W) %*%
-  (t(W) %*% Sigma_hat %*% W) %*%
+  N / (N - K) * 
+  solve(t(W) %*% W) %*% 
+  (t(W) %*% Sigma_hat %*% W) %*% 
   solve(t(W) %*% W)
-vcov_hat
 ```
 
 To get the standard errors, we want to grab the diagonal elements of $Var(\hat{\beta})$. 
@@ -114,10 +115,7 @@ The standard errors are the square-root of the diagonal elements.
 Save these to a variable called `se`.
 
 ```{r}
-# diag(vcov_hat) 
-# estimated variance of the sample distribution of \hat{\beta}_{OLS}
 se <- sqrt(diag(vcov_hat))
-se
 ```
 
 Technically, the `HC1` standard error does a degree-of-freedome correction where we multiply `vcov_hat` by $N / (N-K)$. 
@@ -134,12 +132,7 @@ Do that now to create `ci_lower` and `ci_upper` for the slope coefficient on `ag
 ```{r}
 ci_lower <- beta_hat[2] - 1.96 * se[2]
 ci_upper <- beta_hat[2] + 1.96 * se[2]
-cat(paste0(
-  "The confidence interval for the coefficient on age is (", 
-  round(ci_lower, 3), ", ", 
-  round(ci_upper, 3), 
-  ")." 
-))
+cat(paste0("The 95% confidence interval is (", round(ci_lower, 3), ", ", round(ci_upper, 3), ")"))
 ```
 
 
@@ -150,7 +143,7 @@ One way to visually assess this is to create a plot of a key $X$ variable on the
 Do that using `plot(x = age, y = resid)`below and see if you notice any systematic pattern between `age` and `resid`
 
 ```{r}
-plot(x = df$age, y = resid)
+plot(x = age, y = resid)
 ```
 
 If you notice a pattern, go above and add an additional term to `W` to better model the CEF $\mathbb{E}(\text{wage} \vert \text{age})$. 
@@ -180,27 +173,29 @@ Call this `yhat_i`
 
 ```{r}
 yhat_i <- as.numeric(t(W_i) %*% beta_hat)
-yhat_i
+cat(paste0("Our predicted wage for a 40 year old worker is ", round(yhat_i, 2), "."))
 ```
 
 Last, let's estimate the variance of our forecast by using
 $$
-  W_i' V_{\hat{\beta}_{\text{OLS}}} W_i,
+  W_i' V W_i,
 $$
 where $V$ is our `vcov_hat`.
 Take the square-root of this to get the standard error on our forecasted `yhat_i`.
 
 ```{r}
-var_yhat_i <- t(W_i) %*% vcov_hat %*% W_i
-se_yhat_i <- sqrt(diag(var_yhat_i))
-se_yhat_i
+vcov_yhat_i <- t(W_i) %*% vcov_hat %*% W_i
+se_yhat_i <- sqrt(diag(vcov_yhat_i))
+cat(paste0("Our predicted wage for a 40 year old worker is ", round(yhat_i, 2), " with standard error ", round(se_yhat_i, 2), "."))
 ```
 
 
 Form a 95% confidence interval on your forecasted wage. 
 
 ```{r}
-# 
+ci_forecast_lower <- yhat_i - 1.96 * se_yhat_i
+ci_forecast_upper <- yhat_i + 1.96 * se_yhat_i
+cat(paste0("The 95% confidence interval for our forecast is (", round(ci_forecast_lower, 3), ", ", round(ci_forecast_upper, 3), ")"))
 ```
 
 
@@ -225,12 +220,11 @@ Estimate this regression and store the results in `est`.
 The easiest way to view the results is to call `print(est)`.
 
 ```{r}
-setFixest_vcov(no_FE = "hc1")
 est <- feols(
-  wage ~ 1 + age + I(age^2), 
+  wage ~ 1 + age + age^2,
   data = df, vcov = "hc1"
 )
-print(est, fitstat = c("r2", "f"))
+print(est)
 ```
 
 Do the results match what you found by hand? What happens if you delete `vcov = "hc1"`?
@@ -246,11 +240,9 @@ Let's redo our exercise of forming a confidence interval around the coefficient 
 We can access the coefficients from our estimate using `coef(est)` and the standard errors using `se(est)`.
 
 ```{r}
-ci_lower <- coef(est) - 1.96 * se(est)
-ci_upper <- coef(est) + 1.96 * se(est)
-cbind(coef(est), ci_lower, ci_upper)
-
-# t(W_i) %*% coef(est)
+cbind(
+  coef(est) - 1.96 * se(est), coef(est) + 1.96 * se(est)
+)
 ```
 
 Or, more easily, we can use `confint(est)`:
@@ -268,15 +260,9 @@ Then calling `predict(est, newdata = df_i)` will give us our prediction.
 Add `se.fit = TRUE` to the `predict` call to get standard error as well.
 
 ```{r}
-df_i <- data.frame(age = c(20, 25, 30, 35, 40, 45, 50))
+df_i <- data.frame(age = 40)
 predict(est, newdata = df_i)
-
-df_grid <- data.frame(age = 22:65)
-df_grid <- cbind(
-  df_grid, predict(est, newdata = df_grid, se.fit = TRUE)
-)
-head(df_grid)
-plot(df_grid$age, df_grid$fit)
+predict(est, newdata = df_i, se.fit = TRUE)
 ```
 
 Do the results match what you found by hand?
@@ -295,7 +281,11 @@ You can create an indicator (or set of indicators) using the `i()` function in a
 Print out the results using `print()`
 
 ```{r}
-# 
+est <- feols(
+  wage ~ 1 + age + age^2 + age^3 + factor(college),
+  data = df, vcov = "hc1"
+)
+print(est)
 ```
 
 Review questions:
@@ -313,7 +303,7 @@ Review questions:
 3. What do we predict the average earnings for a 35 year old worker with a college degree to be?
 
 ```{r}
-# 
+predict(est, newdata = data.frame(age = 35, college = 1))
 ```
 
 **Answer:**
@@ -323,7 +313,8 @@ Review questions:
 4. How much higher/lower do we expect a 35 year old with a college degree to earn relative to a 30 year old person without a college degree?
 
 ```{r}
-# 
+predict(est, newdata = data.frame(age = 35, college = 1)) -
+  predict(est, newdata = data.frame(age = 30, college = 0))
 ```
 
 **Answer:**
