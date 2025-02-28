@@ -190,15 +190,16 @@ This is a tentative schedule. This is the first time I've taught this course, so
 <!-- Schedule -->
 | Week | Dates | Tuesday | Thursday |
 |----|----|----|----|
-| 1 | 01/14 - 01/16 | Syllabus and Linear Algebra | Linear Algebra |
-| 2 | 01/21 - 01/23 | Introduction to Forecasting | Introduction to Forecasting |
-| 3 | 01/28 - 01/30 | Conditional Expectation | Bivariate Regression |
-| 4 | 02/04 - 02/06 | Bivariate Regression | Bivariate Regression |
-| 5 | 02/11 - 02/13 | R Day | Multivariate Regression |
-| 6 | 02/18 - 02/20 | Multivariate Regression | Nonparametrics and Partially Linear |
-| 7 | 03/04 - 03/06 | R Day | Logistic Regression |
-| 8 | 03/11 - 03/13 | Logistic Regression | Midterm Exam |
-| 9 | 03/18 - 03/20 | Cross-sectional Project | Cross-sectional Project |
+| 01 | 01/14 - 01/16 | Syllabus and Linear Algebra | Linear Algebra |
+| 02 | 01/21 - 01/23 | Introduction to Forecasting | Introduction to Forecasting |
+| 03 | 01/28 - 01/30 | Conditional Expectation | Bivariate Regression |
+| 04 | 02/04 - 02/06 | Bivariate Regression | Bivariate Regression |
+| 05 | 02/11 - 02/13 | R Day | Multivariate Regression |
+| 06 | 02/18 - 02/20 | Multivariate Regression | Nonparametrics and Partially Linear |
+| 07 | 02/25 - 02/27 | R Day | Log Transformations |
+| 08 | 03/04 - 03/06 | Logistic Regression | R Day |
+| 09 | 03/11 - 03/13 | Clustering(?) | Cross-sectional Project |
+| 10 | 03/18 - 03/20 | Midterm Exam | Cross-sectional Project |
 | 11 | 04/01 - 04/03 | Time-series Regression | Time-series Regression |
 | 12 | 04/08 - 04/10 | R Day | Smoothing Methods |
 | 13 | 04/15 - 04/17 | Smoothing Methods | Smoothing Methods |

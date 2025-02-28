@@ -5,8 +5,8 @@ format: pdf
 ---
 ```{r setup}
 library(ggplot2) # install.packages("ggplot2")
-library(fixest) # install.packages("fixest")
-library(arrow) # install.packages("arrow")
+library(fixest)  # install.packages("fixest")
+library(arrow)   # install.packages("arrow")
 ```
 
 ## Intro
@@ -43,7 +43,7 @@ Comment on the distribution.
 
 
 Now, let's look at a few explanatory variables. 
-Use the `table` function to explore the distribution of `n_rooms` and make a histogram of `lot_size_acres`. 
+Use the `table` function to explore the distribution of `n_rooms` and make a histogram of `z_mls_acres`. 
 
 ```{r}
 
