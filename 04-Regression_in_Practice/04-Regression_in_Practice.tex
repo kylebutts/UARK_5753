@@ -1524,9 +1524,226 @@ slopes(
 
 
 
+% ------------------------------------------------------------------------------
+\section{Cluster-robust Standard Errors}
+% ------------------------------------------------------------------------------
+
+\begin{frame}{`Robust' Inference}
+  In topic 3, we discussed `robust' or `HC1' standard errors for our OLS coefficients.
+
+  \bigskip
+  It depended on \alert{independent errors} in the regression model:
+  $y_i = W_i' \beta + u_i$
+  \begin{itemize}
+    \item A shock to one unit is unrelated to \emph{all} other units
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Independent Errors}
+  For independent errors, we have: 
+  $$
+    \bm{\Sigma} = \expec{u u'} = 
+    \begin{bmatrix}
+      \sigma_1^2 & 0 & \dots & 0 \\
+      0 & \sigma_2^2 & \dots & 0 \\
+      \vdots & \vdots & \ddots & \vdots \\
+      0 & 0 & \dots & \sigma_n^2 \\
+    \end{bmatrix}
+  $$
+
+  \begin{itemize}
+    \item $\sigma_i^2$ can vary across units (\alert{heteroskedasticity})
+    \item $\sigma_{i,j} = 0$ whenever $i \neq j$ (\alert{independence})
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Is independence plausible?}
+  In many settings, we do not believe in independent errors because unit-level shocks are \alert{correlated}, e.g.
+  \begin{itemize}
+    \item students in same school,
+    
+    \item workers in the same labor market,
+    
+    \item and patients at the same hospital
+  \end{itemize}
+  
+  \pause
+  \bigskip
+  When errors are correlated across units, our `robust' standard errors are going to typically be \emph{too small}
+  \begin{itemize}
+    \item Intuition: correlated errors imply we have fewer `observations' than $n$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Within-cluster correlation}
+  The most common way of addressing this is to model the errors as being \alert{clustered}
+  \begin{itemize}
+    \item Units within the same `cluster' are allowed to have arbitrarily correlated errors
+    
+    \item But, units in different cluster have 0 correlation
+  \end{itemize}
+
+  \pause
+  \bigskip
+  Let $g_i$ denote the cluster / group that unit $i$ belongs to. 
+  \begin{itemize}
+    \item $\sigma_{i,j} = 0$ whenever $g_i \neq g_j$ (\alert{cluster independence})
+    \item $\sigma_{i,j}$ is unrestricted when $g_i = g_j$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Clustered $\Sigma$}
+  Rearranging rows of our data so that units in the same group are blocked together, we can write out error-term variance covariance matrix as
+
+  $$
+    \bm{\Sigma} = \expec{u u'} = 
+    \begin{bmatrix}
+      \bm{\Sigma}_{1} & \bm{0}          & \dots  & \bm{0} \\
+      \bm{0}          & \bm{\Sigma}_{2} & \dots  & \bm{0} \\
+      \vdots          & \vdots          & \ddots & \vdots \\
+      \bm{0}          & \bm{0}          & \dots  & \bm{\Sigma}_{G} \\
+    \end{bmatrix},
+  $$
+  
+  \medskip
+  where $\bm{\Sigma}_{g}$ is the $n_g \times n_g$ matrix of $\sigma_{i,j}$
+  % \pause
+  % \begin{itemize}
+  %   \item We can estimate each $\sigma_{i,j}$ as the product of regression residuals $\hat{u}_i \hat{u}_j$
+  % \end{itemize}
+\end{frame}
 
 
+\begin{frame}{Cluster Robust Standard Errors}
+  $\bm{\Sigma}_{g}$ is the $n_g \times n_g$ matrix of $\sigma_{i,j}$
+  \begin{itemize}
+    \item We can estimate each $\sigma_{i,j}$ as the product of regression residuals $\hat{u}_i \hat{u}_j$
+  \end{itemize}
 
+  \bigskip
+  For example,
+  $$
+    \hat{\bm{\Sigma}}_1 = \begin{bmatrix}
+      \hat{u}_1^2 & \hat{u}_1 \hat{u}_2 & \dots  & \hat{u}_1 \hat{u}_{n_1} \\
+      \hat{u}_2 \hat{u}_1 & \hat{u}_2^2 & \dots  & \hat{u}_2 \hat{u}_{n_1} \\
+      \vdots          & \vdots          & \ddots & \vdots \\
+      \hat{u}_{n_1} \hat{u}_1 & \hat{u}_{n_1} \hat{u}_2 & \dots & \hat{u}_{n_1}^2 \\
+    \end{bmatrix},
+  $$
+\end{frame}
+
+
+\begin{frame}{Cluster Robust Standard Errors}
+  \vspace*{-\bigskipamount}
+  $$
+    \hat{\beta}_{\text{OLS}} \sim 
+    \mathcal{N}\left( \beta_0, \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \hat{\bm{\Sigma}} \bm{W} \left(\bm{W}' \bm{W} \right)^{-1} \right)
+  $$
+
+  \bigskip
+  The cluster robust standard errors are formed using the \alert{block-diagonal matrix}
+  $$
+    \begin{bmatrix}
+      \hat{\bm{\Sigma}}_{1} & \bm{0}          & \dots  & \bm{0} \\
+      \bm{0}          & \hat{\bm{\Sigma}}_{2} & \dots  & \bm{0} \\
+      \vdots          & \vdots          & \ddots & \vdots \\
+      \bm{0}          & \bm{0}          & \dots  & \hat{\bm{\Sigma}}_{G} \\
+    \end{bmatrix}
+  $$
+\end{frame}
+
+\begin{frame}{Fixed effects vs. clustering}
+  The motivation for using clustered standard errors is to allow for common shocks to the units within a cluster (class, labor market, etc.)
+
+  \bigskip
+  We could include a set of indicator variables for cluster membership
+  $$
+    y_{i} = \alpha_{g_i} + \beta x_{i} + \epsilon_{i}
+  $$
+  
+  \begin{itemize}
+    \item $\alpha_g$ is the common effect impacting all units in the same group (`fixed effect')
+  \end{itemize}
+
+  \bigskip
+  So why would we cluster our standard errors?
+\end{frame}
+
+\begin{frame}{Fixed effects vs. clustering}
+  Fixed effects are a very specific type of effect
+  \begin{itemize}
+    \item \emph{All units} in the group are effected and \emph{by the same amount}
+  \end{itemize}
+
+  \pause
+  \bigskip
+  But, there can be more general forms of correlated errors in a group
+  \begin{itemize}
+    \item Might have within-cluster shocks (e.g. clustered at school level, common shocks by classroom)
+    
+    \item Some people are more impacted by shocks than other
+  \end{itemize}
+
+  \bigskip
+  Clustered standard errors can still be necessary \emph{even if} using cluster fixed-effects !!
+\end{frame}
+
+\begin{frame}[fragile]{IID Standard Errors}
+  \bigskip
+  \begin{codeblock}
+feols(mpg ~ i(am), data = mtcars)
+#> Observations: 32
+#> Standard-errors: IID
+#>             Estimate Std. Error  t value   Pr(>|t|)    
+#> (Intercept) 17.14737    1.12460 15.24749 1.1340e-15 ***
+#> am::1        7.24494    1.76442  4.10613 2.8502e-04 ***
+  \end{codeblock}
+\end{frame}
+\begin{frame}[fragile]{HC1 Standard Errors}
+  \bigskip
+  \begin{codeblock}
+feols(mpg ~ i(am), data = mtcars, vcov = "HC1")
+#> Observations: 32
+#> Standard-errors: Heteroskedasticity-robust 
+#>             Estimate Std. Error  t value   Pr(>|t|)    
+#> (Intercept) 17.14737   0.884189 19.39332  < 2.2e-16 ***
+#> am::1        7.24494   1.913596  3.78603 0.00068505 ***
+  \end{codeblock}
+\end{frame}
+
+\begin{frame}[fragile]{Clustered Standard Errors}
+  \bigskip
+  \begin{codeblock}
+feols(mpg ~ i(am), data = mtcars, cluster = ~cyl)
+#> Observations: 32
+#> Standard-errors: Clustered (cyl) 
+#>             Estimate Std. Error t value Pr(>|t|)    
+#> (Intercept) 17.14737    2.06574 8.30085 0.014204 *  
+#> am::1        7.24494    2.34091 3.09492 0.090458 .  
+  \end{codeblock}
+\end{frame}
+
+\begin{frame}{Correct ``$n$''}
+  The intuition for why standard errors are typically larger for cluster-robust standard errors is that we have fewer ``distinct'' observations when error terms can be correlated within group
+
+  \bigskip
+  That raises the question, how many `$n$' do we have?
+  \begin{itemize}
+    \item In the worst-case scenario (extreme correlation), you only have $G$ observations (one for each group)
+
+    \item In the best-case scenario (independence within cluster), you have $n$ observations
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Correct ``$n$''}
+  The rule of thumb is you want at least 20-30 groups, each with multiple observations
+  \begin{itemize}
+    \item If you have a smaller number of groups, then you want to use `wild cluster bootstrap' 
+  \end{itemize}
+
+  \bigskip
+  See \texttt{fwildclusterboot} package when you have a few groups
+\end{frame}
 
 
 \end{document}
