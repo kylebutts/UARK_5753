@@ -1,0 +1,50 @@
+---
+format: pdf
+---
+## Heart Disease Codebook
+The dataset consists of patient-level anonymized data from a hospital in Cleveland. 
+The data contains a lot of attributes about the patient and the key variable of interest is `has_heart_problem`. 
+This variable equals `1` if they were diagnosed with a heart problem. 
+This data was downloaded from the [UCI ML Data Repository](https://archive.ics.uci.edu/dataset/45/heart+disease) and lightly cleaned.
+
+`age`:
+patients age
+
+`is_male`:
+An indicator for being a male patient
+
+`chest_pain`:
+a string containing one of four possible values for reported chest pain: "typical angina", "atypical angina", "non-anginal pain", "asymptomatic"
+
+`resting_blood_pressure`:
+The patients resting blood pressure (on admission to the hospital)
+
+`cholestoral`:
+The patients cholestoral level
+
+`has_high_fasting_blood_pressure`:
+The patient's blood pressure while fasting. Equals 1 if fasting blood sugar > 120 mg/dl.
+
+`maximum_heart_rate_achieved`:
+The maximum heart-rate achieved during an exercise test
+
+`exercise_induced_angina`:
+Did the exercise test induce angina
+
+`heart_diagnosis`:
+The presence of heart disease in the patient. It is integer valued from 0 (no presence) to 4
+
+`has_heart_problem`:
+An indicator version of `heart_diagnosis` that equals 1 if any disease is present (`heart_diagnosis` >= 1).
+Experiments with the Cleveland database have concentrated on simply attempting to distinguish presence (values 1, 2, 3, 4) from absence (value 0).  
+
+\newpage
+## Data Info
+
+```{r}
+#| echo: false
+suppressPackageStartupMessages(library(tidyverse))
+df <- read_csv("data/heart_disease.csv")
+glimpse(df)
+```
+

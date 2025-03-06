@@ -1,0 +1,107 @@
+---
+title: "Binary Outcome Regression"
+author: "Your Name"
+format: pdf
+---
+```{r setup}
+library(ggplot2) # install.packages("ggplot2")
+library(fixest)  # install.packages("fixest")
+```
+
+## Intro
+
+This R day is going to have you practice running regressions with *binary outcomes*. 
+The dataset we are working with today consists of patient-level anonymized data from a hospital in Cleveland. 
+The data contains a lot of attributes about the patient and the key variable of interest is ``has_heart_problem``. 
+This variable equals `1` if they were diagnosed with a heart problem. 
+This data was downloaded from the [UCI ML Data Repository](https://archive.ics.uci.edu/dataset/45/heart+disease) and lightly cleaned. 
+
+See the codebook for details on the available covariates. 
+
+```{r}
+# setwd("04-Regression_in_Practice/R-day/Binary_Outcomes/")
+df <- read.csv("data/heart_disease.csv")
+df$age_decade <- floor(df$age / 10) * 10 # Create age decades
+head(df)
+```
+
+
+## Linear Probability Model
+### Linear Probability Model using Discrete Variable
+
+Estimate a linear probability model where `has_heart_problem` is regressed on indicators for age bins (`i(age_decade)`). Interpret the coefficients. Are there any noticeable trends in the probability of having a heart problem across age decades? Use robust standard errors (vcov = "HC1").
+
+```{r}
+
+```
+
+Answer:
+
+
+
+### Linear Probability Model using Continuous Variables
+
+Estimate a linear probability model of `has_heart_problem` using `age`, `is_male`, `cholestoral`, `chest_pain`, and `resting_blood_pressure`. 
+Obtain predicted probabilities for your sample using `predict()`. 
+Do any of the predicted probabilities fall outside the 0-1 range? If so, what does this indicate about the limitations of the linear probability model?
+
+```{r}
+
+```
+
+Answer:
+
+
+
+## Logistic Regression
+### Logistic Regression using a single variable
+
+Estimate a logistic regression model of `has_heart_problem` using only age. Create a prediction grid (`pred_grid`) with a sequence of ages (e.g., `seq(min(df$age), max(df$age), by = 1)`. Predict probabilities using `predict(..., type = "response")` and plot the fitted probabilities against `age`.
+
+```{r}
+
+```
+
+
+
+### Interacton between age and gender
+
+Repeat the logistic regression from Question 3, but now estimate separate relationships for males and females. 
+You can do this in a single regression using `has_heart_problem ~ 1 + age + i(is_male) + i(is_male, age)`. 
+Let's make a new prediction grid using `pred_grid <- expand.grid(is_male = c(0, 1), age = seq(min(df$age), max(df$age), by = 1))`. 
+Pass this to `predict` and plot the fitted probabilities for males and females separately on the same plot. 
+Use different colors for males and females. 
+How does the effect of age on the probability of having a heart problem differ between males and females based on the fitted lines?
+
+```{r}
+
+```
+
+Answer:
+
+
+
+### Evaluating predictions
+
+Estimate a logistic regression model including a `age`, `is_male`, `cholestoral`, `chest_pain`, and `resting_blood_pressure`. 
+First find fitted probabilities of having a heart problem for each patient in your sample. 
+Predict `has_heart_problem_hat` based on whether the predicted probability exceeds $0.5$. 
+
+Next, evaluate how your classifications compare to the true values. 
+Use `table(df$has_heart_problem_hat, df$has_heart_problem, dnn = c("Prediction", "Has Heart Problem"))` to create a cross-tab. 
+
+```{r}
+
+```
+
+Questions:
+1. What is the percent of cases with false positives? false negatives?
+2. If you wanted to be more cautious (fewer false negatives), how should you change your classification procedure?
+
+Answer:
+
+
+
+
+
+

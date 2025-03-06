@@ -1396,6 +1396,133 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
   Forecasting can be done easily as well with our \texttt{predict} function and possibly with the \texttt{newdata} argument
 \end{frame}
 
+
+\begin{frame}[fragile]{R Example -- Estimation}
+  \begin{codeblock}
+library(fixest)
+est <- feglm(am ~ mpg, data = mtcars, family = "logit")
+print(est)
+#> GLM estimation, family = binomial(link = "logit"), Dep. Var.: am
+#> Observations: 32
+#> Standard-errors: IID 
+#>              Estimate Std. Error  z value  Pr(>|z|)    
+#> (Intercept) -6.603527   2.390311 -2.76262 0.0057339 ** 
+#> mpg          0.307028   0.116740  2.63002 0.0085380 ** 
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+  \end{codeblock}
+\end{frame}
+
+\imageframe{figures/mtcars_forecast.pdf}
+
+\begin{frame}[fragile]{R Example -- Forecasting}
+  \begin{codeblock}
+head(predict(est))
+#> [1] 0.46109512 0.46109512 0.59789839 0.49171990 0.29690087 
+
+predict(est, newdata = data.frame(mpg = c(20, 25, 30)))
+#> [1] 0.3862832 0.7450109 0.9313311
+  \end{codeblock}
+\end{frame}
+
+\begin{frame}{Classification}
+  \vspace*{-\bigskipamount}
+  $$
+    \hat{\pi}_i \equiv \probhat{Y_i = 1}{X_i = x}
+  $$
+
+  \bigskip
+  With our predicted probabilities, we can perform \alert{classifcation} using some \emph{rule}
+  \begin{itemize}
+    \item The obvious rule is forecast $\hat{Y}_i = \one{\hat{\pi}_i \geq 0.5}$ 
+    
+    \item Or, could use some other cutoff $\hat{Y}_i = \one{\hat{\pi}_i \geq 0.25}$ 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Evalutating classification} 
+  \begin{columns}
+    \begin{column}{.4\textwidth}
+      % From heart classification assignemnt
+      \vspace*{-\bigskipamount}
+      \begin{table}
+        \renewcommand{\arraystretch}{1.2}
+        \caption{Confusion Matrix}
+        
+        \begin{tabular}{@{\extracolsep{0pt}} c @{\extracolsep{16pt}} c @{\extracolsep{12pt}} c @{\extracolsep{0pt}}}
+          & \multicolumn{2}{c}{$Y_i$} \\
+          \cmidrule{2-3}
+          $\hat{Y}_i$ & \cellcolor{blue!25!white} 0 & \cellcolor{blue!25!white} 1 \\
+          \midrule
+          
+          \cellcolor{blue!25!white} 0  & 135 & 29 \\[4pt]
+          \cellcolor{blue!25!white} 1 & 31 & 108 \\
+          
+          \bottomrule
+        \end{tabular}
+        
+      \end{table}
+    \end{column}
+    \hfill
+    \begin{column}{.6\textwidth}
+
+      Four possibilities:
+
+      \begin{enumerate}
+        \item $Y_i = 0$, $\hat{Y}_i = 0$: true negative
+        \item $Y_i = 1$, $\hat{Y}_i = 0$: false negative
+        \item $Y_i = 0$, $\hat{Y}_i = 1$: false positive
+        \item $Y_i = 1$, $\hat{Y}_i = 1$: true positive
+      \end{enumerate}
+
+      \bigskip
+      Usually \emph{rates} are presented:
+      \begin{itemize}
+        \item E.g. false-positive rate is $\frac{\text{\# false positives}}{n}$
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Deciding on Classification Rules}
+  \vspace*{-\bigskipamount}
+  $$\hat{Y}_i = \one{\hat{\pi}_i \geq \text{cutoff}}$$
+  
+  \bigskip
+  How do you choose a cutoff rule?
+  \begin{itemize}
+    \item Given an unbiased logistic model, a cutoff of $0.5$ would maximize the \% of correct classifications (in expectation)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Deciding on Classification Rules}
+  \vspace*{-\bigskipamount}
+  $$\hat{Y}_i = \one{\hat{\pi}_i \geq \text{cutoff}}$$
+
+  \bigskip
+  If you are a medical doctor, you might want to have few false-negatives
+  \begin{itemize}
+    \item Would you want a smaller or larger cutoff?
+    
+    \pause
+    \item A smaller cut-off would yield fewer false negatives, at the cost of more false positives
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Deciding on Classification Rules}
+  \vspace*{-\bigskipamount}
+  $$\hat{Y}_i = \one{\hat{\pi}_i \geq \text{cutoff}}$$
+
+  \bigskip
+  If you are targeting ads at consumers, it is costly to buy ads, so you want to have few false positives
+  \begin{itemize}
+    \item Would you want a smaller or larger cutoff?
+    
+    \pause
+    \item A larger cut-off would yield fewer false positives, at the cost of more false negatives
+  \end{itemize}
+\end{frame}
+
 \begin{frame}{Marginal Effects Of Logistic Transformation}
   Remember that our ``index'' is given by our linear function $U_i = W_i' \beta$. 
 
@@ -1406,7 +1533,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
   $$
 
   \pause
-  \bigskip
+  \bigskip\bigskip
   But, $\hat{\pi}_i = e^{\hat{U}_i} / ( e^{\hat{U}_i} + 1 )$ is a transformation of $\hat{U}_i$
   \begin{itemize}
     \item How does $\hat{\pi}_i$ change with $\hat{U}_i$?
@@ -1429,18 +1556,9 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     \frac{e^{\hat{U}_i}}{(e^{\hat{U}_i} + 1)^2} * 
     \frac{\partial}{\partial x_{\ell}} \hat{U}_i
   $$
-\end{frame}
 
-\begin{frame}{\texttt{marginaleffects} Package In R}
-  This would be a bit of a pain to estimate by hand
   \begin{itemize}
-    \item And even more annoying would be getting standard errors!
-  \end{itemize}
-
-  \bigskip
-  But, the \texttt{marginaleffects} package makes this really easy (and works with fixest!)
-  \begin{itemize}
-    \item See \url{https://marginaleffects.com/chapters/slopes.html} for details
+    \item The second term is the marginal effect on the \emph{index}, $U_i$
   \end{itemize}
 \end{frame}
 
@@ -1476,32 +1594,17 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{frame}
 
 
-\begin{frame}[fragile]{R Example -- Estimation}
-  \begin{codeblock}
-library(fixest)
-est <- feglm(am ~ mpg, data = mtcars, family = "logit")
-print(est)
-#> GLM estimation, family = binomial(link = "logit"), Dep. Var.: am
-#> Observations: 32
-#> Standard-errors: IID 
-#>              Estimate Std. Error  z value  Pr(>|z|)    
-#> (Intercept) -6.603527   2.390311 -2.76262 0.0057339 ** 
-#> mpg          0.307028   0.116740  2.63002 0.0085380 ** 
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-  \end{codeblock}
-\end{frame}
+\begin{frame}{\texttt{marginaleffects} Package In R}
+  This would be a bit of a pain to estimate by hand
+  \begin{itemize}
+    \item And even more annoying would be getting standard errors!
+  \end{itemize}
 
-\imageframe{figures/mtcars_forecast.pdf}
-
-\begin{frame}[fragile]{R Example -- Forecasting}
-  \begin{codeblock}
-head(predict(est))
-#> [1] 0.46109512 0.46109512 0.59789839 0.49171990 0.29690087 
-
-predict(est, newdata = data.frame(mpg = c(20, 25, 30)))
-#> [1] 0.3862832 0.7450109 0.9313311
-  \end{codeblock}
+  \bigskip
+  But, the \texttt{marginaleffects} package makes this really easy (and works with fixest!)
+  \begin{itemize}
+    \item See \url{https://marginaleffects.com/chapters/slopes.html} for details
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{R Example -- Marginal Effects}
@@ -1519,7 +1622,6 @@ slopes(
 \end{frame}
 
 \imageframe{figures/mtcars_forecast.pdf}
-
 
 
 
