@@ -1,0 +1,69 @@
+---
+title: "College Scorecard"
+format: gfm
+---
+
+```{r}
+#| include: false
+library(tidyverse)
+library(tinytable)
+library(here)
+colleges <- here("Projects/Cross_Sectional/data/college_scorecard/college_scorecard.csv") |>
+  read_csv(show_col_types = FALSE)
+```
+
+The [College Scorecard](https://collegescorecard.ed.gov/data/) is a dataset created by the US Education Department. 
+The dataset was created to allow for potential college students to easily understand the cost-benefit of different colleges.
+
+
+
+```{r}
+#| echo: false
+#| results: 'asis'
+codebook <- tribble(
+  ~variable, ~description,
+  "`institution`", "Name of Institution",
+  "`state`", "State of where the school is",
+  "`region`", "Region of where the school is",
+  "`ownership`", "Ownership structure of school (public, non-profit, and for-profit)",
+  "`hbcu`", "=1 if the school is a historically black college or university",
+  "`predominetly_black_institution`", "=1 if the school mainly serves Black students",
+  "`admission_rate`", "Admission rate of college",
+  "`sat_verbal_first_quartile`", "25th percentile of SAT Verbal score for admitted students",
+  "`sat_verbal_median`", "Median of SAT Verbal score for admitted students",
+  "`sat_verbal_third_quartile`", "75th percentile of SAT Verbal score for admitted students",
+  "`sat_math_first_quartile`", "25th percentile of SAT Math score for admitted students",
+  "`sat_math_median`", "Median of SAT Math score for admitted students",
+  "`sat_math_third_quartile`", "75th percentile of SAT Math score for admitted students",
+  "`online_only`", "=1 if the school is online only",
+  "`n_students`", "The number of students enrolled",
+  "`n_students_white`", "The number of White students enrolled",
+  "`n_students_black`", "The number of Black students enrolled",
+  "`n_students_hispanic`", "The number of Hispanic students enrolled",
+  "`n_students_asian`", "The number of Asian students enrolled",
+  "`n_students_native`", "The number of Native American students enrolled",
+  "`share_low_income`", "The percent of students whose family income is less than $30,000",
+  "`avg_cost_attendance`", "The average annual total cost of attendance including tuition and fees, books and supplies, and living expenses, minus the average grant/scholarship aid.",
+  "`tuition_in_state`", "In-state tuition and fees",
+  "`tuition_out_of_state`", "Out-of-state tuition and fees",
+  "`completion_rate`", "The proportion of full-time, first-time undergraduates who completed a degree at the institution within 6 years",
+  "`completion_rate_white`", "The proportion of full-time, first-time White undergraduates who completed a degree at the institution within 6 years",
+  "`completion_rate_black`", "The proportion of full-time, first-time Black undergraduates who completed a degree at the institution within 6 years",
+  "`completion_rate_hispanic`", "The proportion of full-time, first-time Hispanic undergraduates who completed a degree at the institution within 6 years",
+  "`completion_rate_asian`", "The proportion of full-time, first-time Asian undergraduates who completed a degree at the institution within 6 years",
+  "`completion_rate_native`", "The proportion of full-time, first-time Native American undergraduates who completed a degree at the institution within 6 years",
+  "`load_default_rate_3yr`", "The percentage of a school's borrowers who default on their loans within 3 years.",
+  "`mean_earnings_10yr_after`", "Mean earnings of students working and not enrolled 10 years after entry",
+  "`median_earnings_10yr_after`", "Median earnings of students working and not enrolled 10 years after entry",
+)
+
+tinytable::tt(codebook) |>
+  print(output = "markdown")
+```
+
+Preview of data:
+```{r}
+#| echo: false
+glimpse(colleges)
+```
+

@@ -1,4 +1,5 @@
 .DS_Store
+*.env
 
 # Textbooks
 Textbooks/*
@@ -27,3 +28,6 @@ Textbooks/*
 *.*-SAVE-ERROR
 *.listing
 *.vrb
+
+# Raw data that is too big
+Projects/Cross_Sectional/raw-data/movies/movie_data.csv

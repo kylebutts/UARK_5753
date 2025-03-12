@@ -1,0 +1,46 @@
+---
+title: "Community Population Survey"
+format: gfm
+---
+
+```{r}
+#| include: false
+library(tidyverse)
+library(tinytable)
+library(here)
+cps <- here("Projects/Cross_Sectional/data/community_population_survey/cps.csv") |>
+  read_csv(show_col_types = FALSE)
+```
+
+The [CPS](https://github.com/kylebutts/UARK_5753/tree/main/Projects/Cross_Sectional/data/community_population_survey) contains survey data on workers collected by the US Government. I downloaded this from [IPUMS](https://cps.ipums.org/) using 2017, 2018, and 2019 data. Then I slightly cleaned it to create some useful variables. 
+
+
+```{r}
+#| echo: false
+#| results: 'asis'
+codebook <- tribble(
+  ~variable, ~description,
+  "`year`", "Survey year",
+  "`statefip`", "State FIPS code of state where surveyed person lives",
+  "`hhincome`", "Total household income",
+  "`incwage`", "The surveyed person's annual income/wages",
+  "`age`", "Person's age",
+  "`race`", "String identifying a person's race/ethnicity",
+  "`male`", "=1, if the surveyed person a male",
+  "`marital_status`", "String identifying a person's marital status",
+  "`veteran_status`", "=1, if the surveyed person is a veteran",
+  "`citizen_status`", "=1, if the surveyed person is a U.S. citizen (including naturalized)",
+  "`has_college_experience`", "=1, if the surveyed person has at least some years of college attendance",
+  "`years_educ`", "The number of years a person was educated for",
+)
+
+tinytable::tt(codebook) |>
+  print(output = "markdown")
+```
+
+Preview of data:
+```{r}
+#| echo: false
+glimpse(cps)
+```
+

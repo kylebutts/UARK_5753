@@ -1,0 +1,74 @@
+---
+title: "TITLE HERE"
+author: "YOUR NAME"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+format: pdf
+---
+```{r setup}
+#| include: false
+# Don't touch this chunk. This is setup code to hide your code chunks automatically (without needing to specify options on each chunk)
+knitr::opts_chunk$set(
+  # do not show code chunks
+  echo = FALSE,
+  # do not print warnings / console messages from code
+  warning = FALSE,
+  message = FALSE,
+  # better looking default plot dimensions
+  fig.width = 8,
+  fig.height = 5,
+  dpi = 200
+)
+library(fixest)
+library(ggplot2)
+```
+
+```{r}
+# Load data
+```
+
+
+
+
+
+<!-- DELETE THIS AND BELOW -->
+
+*This is an example section to give you an idea of how your results should look. Make sure not to include this in your final report.*
+
+## How does a car's mpg relate to its horespower?
+
+I am analyzing a dataset consisting of different models of cars and their characteristics. 
+I wanted to see how a car's horsepower and their mileage relate to one other. 
+
+```{r}
+corr_mpg_hp <- cor(x = mtcars$hp, y = mtcars$mpg)
+```
+```{r}
+est <- feols(mpg ~ hp, data = mtcars)
+marginal_effect_of_50hp <- round(abs(coef(est)["hp"] * 50), 1)
+```
+
+In @fig-hp-vs-mpg, I am plotting the car's horespower and their miles per gallon. 
+You can see a strong negative correlation between the two meaning that cars with higher horespower have lower miles per gallon.
+This correlation is strong with an estimated correlation of `r round(corr_mpg_hp, 2)`.
+A simple regression analysis suggests that a car with an extra 50 horsepower on average is predicted to have `r marginal_effect_of_50hp` lower miles per gallon.
+
+
+```{r}
+#| fig.cap: "Relationship between Horsepower and Miles per gallon"
+#| label: fig-hp-vs-mpg
+ggplot() +
+  geom_point(
+    aes(x = hp, y = mpg),
+    data = mtcars
+  ) +
+  labs(
+    x = "Car's horsepower",
+    y = "Car's miles per gallon",
+    title = "Cars with higher horsepower have lower mileage"
+  ) +
+  theme_light(base_size = 14)
+```
+
+
+
+

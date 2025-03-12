@@ -1,0 +1,70 @@
+---
+title: "Movie Ratings and Box Office"
+format: gfm
+---
+
+```{r}
+#| include: false
+library(tidyverse)
+library(tinytable)
+library(here)
+movies <- here("Projects/Cross_Sectional/data/movies/movies.csv") |>
+  read_csv(show_col_types = FALSE)
+```
+
+The movie dataset combines two datasets:
+1. [Scraped Letterboxd Review](https://www.kaggle.com/datasets/samlearner/letterboxd-movie-ratings-data)
+2. Information on the movie from [The Movie Database](https://www.themoviedb.org)
+
+```{r}
+#| echo: false
+#| results: 'asis'
+codebook <- tribble(
+  ~variable, ~description,
+  "`movie_title`", "Title of movie",
+  "`tmdb_id`", "The Movie Database Unique (TMDB) ID",
+  "`imdb_id`", "The Internet Movie Database Unique ID",
+  "`tmdb_link`", "The Movie Database Film Link",
+  "`runtime`", "The film's runtime",
+  "`year_released`", "The film's release year",
+  "`release_date`", "The film's release date",
+  "`letterboxd_vote_average`", "The average rating on letterboxd (1-10)",
+  "`letterboxd_vote_count`", "The number of reviews on letterboxd (at time of scraping)",
+  "`popularity`", "The film's popularity on tmdb",
+  "`original_language`", "The film's original language",
+  "`genre_1`", "The film's first listed genre",
+  "`genre_2`", "The film's second listed genre",
+  "`genre_3`", "The film's third listed genre",
+  "`genre_4`", "The film's fourth listed genre",
+  "`genre_5`", "The film's fifth listed genre",
+  "`production_country_1`", "The film's first listed country of production",
+  "`production_country_2`", "The film's second listed country of production",
+  "`production_country_3`", "The film's third listed country of production",
+  "`production_country_4`", "The film's fourth listed country of production",
+  "`production_country_5`", "The film's fifth listed country of production",
+  "`spoken_language_1`", "The film's first listed spoken language",
+  "`spoken_language_2`", "The film's second listed spoken language",
+  "`tmdb_title`", "The film's title on TMDB",
+  "`tmdb_runtime`", "The film's runtime on TMDB",
+  "`tmdb_status`", "The film's release status on TMDB",
+  "`tmdb_is_adult_movie`", "If the film an adult movie according to TMDB",
+  "`tmdb_popularity`", "The film's popularity on TMDB",
+  "`tmdb_release_date`", "The film' release date on TMDB",
+  "`tmdb_budget`", "The film's listed budget on TMDB",
+  "`tmdb_revenue`", "The film's listed revenue on TMDB",
+  "`tmdb_vote_count`", "The film's rating vote count on TMDB",
+  "`tmdb_vote_average`", "The film's average rating on TMDB",
+  "`tmdb_production_company_name`", "The film's first listed production company on TMDB",
+  "`tmdb_production_company_country`", "The operating country of the film's first listed production company on TMDB",
+)
+
+tinytable::tt(codebook) |>
+  print(output = "markdown")
+```
+
+
+Preview of data:
+```{r}
+#| echo: false
+glimpse(movies)
+```

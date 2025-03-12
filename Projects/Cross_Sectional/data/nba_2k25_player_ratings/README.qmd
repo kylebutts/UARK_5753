@@ -1,0 +1,92 @@
+---
+title: "NBA 2K25 Player Ratings"
+format: gfm
+---
+
+```{r}
+#| include: false
+library(tidyverse)
+library(tinytable)
+library(here)
+nba <- here("Projects/Cross_Sectional/data/nba_2k25_player_ratings/players.csv") |>
+  read_csv(show_col_types = FALSE)
+```
+
+The NBA 2k25 information about a player (team, salary, years in nba) and their ratings.
+
+```{r}
+#| echo: false
+#| results: 'asis'
+codebook <- tribble(
+  ~variable, ~description,
+  "`name`",  "Player's name",
+  "`team`",  "Player's team",
+  "`nationality_1`",  "Player's nationality",
+  "`jersey_number`", "Player's jersey number",
+  "`position_1`",  "Player's main position",
+  "`position_2`",  "Player's secondary position",
+  "`archetype`", "String containing player's 'archetype'",
+  "`height_ft`", "Player's height in feet",
+  "`weight_lb`", "Player's weight in pounds",
+  "`wingspan_ft`", "Player's wingspan in feet",
+  "`season_salary`",  "Player's annual salary",
+  "`years_in_the_nba`",  "How long a player has played in the NBA",
+  "`birthdate`",  "Player's birthdate",
+  "`rating_overall`", "Player's rating in 'Overall'",
+  "`rating_close_shot`", "Player's rating in 'Close Shot'",
+  "`rating_mid_range_shot`", "Player's rating in 'Mid Range Shot'",
+  "`rating_three_point_shot`", "Player's rating in 'Three Point Shot'",
+  "`rating_free_throw`", "Player's rating in 'Free Throw'",
+  "`rating_shot_iq`", "Player's rating in 'Shot Iq'",
+  "`rating_speed`", "Player's rating in 'Speed'",
+  "`rating_agility`", "Player's rating in 'Agility'",
+  "`rating_strength`", "Player's rating in 'Strength'",
+  "`rating_stamina`", "Player's rating in 'Stamina'",
+  "`rating_overall_durability`", "Player's rating in 'Overall Durability'",
+  "`rating_pass_accuracy`", "Player's rating in 'Pass Accuracy'",
+  "`rating_ball_handle`", "Player's rating in 'Ball Handle'",
+  "`rating_pass_iq`", "Player's rating in 'Pass Iq'",
+  "`rating_group_defense`", "Player's rating in 'Group Defense'",
+  "`rating_interior_defense`", "Player's rating in 'Interior Defense'",
+  "`rating_perimeter_defense`", "Player's rating in 'Perimeter Defense'",
+  "`rating_steal`", "Player's rating in 'Steal'",
+  "`rating_block`", "Player's rating in 'Block'",
+  "`rating_offensive_rebound`", "Player's rating in 'Offensive Rebound'",
+  "`rating_defensive_rebound`", "Player's rating in 'Defensive Rebound'",
+  "`age`", "Player's age",
+  "`points`", "Player's number of points scored in 23-24 season",
+  "`games_played`", "Player's number of games played in 23-24 season",
+  "`games_started`", "Player's number of games started in 23-24 season",
+  "`minutes_played`", "Player's number of minutes played in 23-24 season",
+  "`field_goals`", "Player's number of field goals scored in 23-24 season",
+  "`field_goal_attempts`", "Player's number of field goals attempted in 23-24 season",
+  "`field_goal_percentage`", "Player's field goal percentage in 23-24 season",
+  "`three_pointers`", "Player's number of three pointers scored in 23-24 season",
+  "`three_point_attempts`", "Player's number of three pointers attempted in 23-24 season", 
+  "`three_point_percentage`", "Player's three pointer percentage in 23-24 season",
+  "`two_pointers`",  "Player's number of two pointers scored in 23-24 season",
+  "`two_point_attempts`", "Player's number of two pointers attempted in 23-24 season", 
+  "`two_point_percentage`", "Player's two pointer percentage in 23-24 season",
+  "`effective_field_goal_percentage`", "Player's effective field goal percentage in 23-24 season",
+  "`free_throws`",  "Player's number of free point shots scored in 23-24 season",
+  "`free_throw_attempts`", "Player's number of free point shots attempted in 23-24 season", 
+  "`free_throw_percentage`", "Player's free point shot percentage in 23-24 season",
+  "`offensive_rebounds`", "Player's number of offensive rebounds in 23-24 season",
+  "`defensive_rebounds`", "Player's number of defensive rebounds in 23-24 season",
+  "`total_rebounds`", "Player's number of total rebounds in 23-24 season",
+  "`assists`", "Player's number of assists in 23-24 season",
+  "`steals`", "Player's number of steals in 23-24 season",
+  "`blocks`", "Player's number of blocks in 23-24 season",
+  "`turnovers`", "Player's number of turnovers in 23-24 season",
+  "`personal_fouls`", "Player's number of personal fouls in 23-24 season",
+)
+
+tinytable::tt(codebook) |>
+  print(output = "markdown")
+```
+
+Preview of data:
+```{r}
+#| echo: false
+glimpse(nba)
+```
