@@ -1,12 +1,18 @@
 ---
 title: "Community Population Survey"
-format: gfm
+format: 
+  pdf:
+    engine: latexmk
+    keep-tex: true
+    template: /Users/kbutts/Documents/Teaching/UARK_5753/includes/template.tex
+  gfm: default
 ---
 
 ```{r}
 #| include: false
 library(tidyverse)
 library(tinytable)
+options(tinytable_latex_preamble = FALSE)
 library(here)
 cps <- here("Projects/Cross_Sectional/data/community_population_survey/cps.csv") |>
   read_csv(show_col_types = FALSE)
@@ -15,9 +21,10 @@ cps <- here("Projects/Cross_Sectional/data/community_population_survey/cps.csv")
 The [CPS](https://github.com/kylebutts/UARK_5753/tree/main/Projects/Cross_Sectional/data/community_population_survey) contains survey data on workers collected by the US Government. I downloaded this from [IPUMS](https://cps.ipums.org/) using 2017, 2018, and 2019 data. Then I slightly cleaned it to create some useful variables. 
 
 
+
 ```{r}
-#| echo: false
 #| results: 'asis'
+#| echo: false
 codebook <- tribble(
   ~variable, ~description,
   "`year`", "Survey year",
@@ -34,8 +41,27 @@ codebook <- tribble(
   "`years_educ`", "The number of years a person was educated for",
 )
 
-tinytable::tt(codebook) |>
-  print(output = "markdown")
+if (knitr::is_latex_output()) {
+  codebook |>
+    mutate(
+      variable = variable |>
+        str_replace("`(.*)`", "\\\\texttt{\\1}") |>
+        str_replace_all("_", "\\\\_")
+    ) |>
+    tt(width = 1, caption = "Codebook") |>
+    theme_tt("multipage") |>
+    print(output = "latex")
+} else {
+  tt(codebook) |> print(output = "markdown")
+}
+```
+
+```{r}
+#| results: 'asis'
+#| echo: false
+if (knitr::is_latex_output()) {
+  cat("\\newpage")
+}
 ```
 
 Preview of data:
@@ -43,4 +69,3 @@ Preview of data:
 #| echo: false
 glimpse(cps)
 ```
-

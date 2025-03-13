@@ -1,12 +1,17 @@
 ---
 title: "Nashville AirBnB Listings"
-format: gfm
+format: 
+  gfm: default
+  pdf:
+    engine: latexmk
+    template: /Users/kbutts/Documents/Teaching/UARK_5753/includes/template.tex
 ---
 
 ```{r}
 #| include: false
 library(tidyverse)
 library(tinytable)
+options(tinytable_latex_preamble = FALSE)
 library(here)
 listings <- here("Projects/Cross_Sectional/data/airbnb_nashville/airbnb_nashville_listings.csv") |>
   read_csv(show_col_types = FALSE)
@@ -19,8 +24,8 @@ A full [codebook](https://docs.google.com/spreadsheets/d/1iWCNJcSutYqpULSQHlNyGI
 
 
 ```{r}
-#| echo: false
 #| results: 'asis'
+#| echo: false
 codebook <- tribble(
   ~variable, ~description,
   "`name`", "Name of listing",
@@ -48,8 +53,27 @@ codebook <- tribble(
   "`calculated_host_listings_count`", "The (estimated) number of listings the host rungs",
 )
 
-tinytable::tt(codebook) |>
-  print(output = "markdown")
+if (knitr::is_latex_output()) {
+  codebook |>
+    mutate(
+      variable = variable |>
+        str_replace("`(.*)`", "\\\\texttt{\\1}") |>
+        str_replace_all("_", "\\\\_")
+    ) |>
+    tt(width = 1, caption = "Codebook") |>
+    theme_tt("multipage") |>
+    print(output = "latex")
+} else {
+  tt(codebook) |> print(output = "markdown")
+}
+```
+
+```{r}
+#| results: 'asis'
+#| echo: false
+if (knitr::is_latex_output()) {
+  cat("\\newpage")
+}
 ```
 
 Preview of data:
@@ -57,4 +81,6 @@ Preview of data:
 #| echo: false
 glimpse(listings)
 ```
+
+
 

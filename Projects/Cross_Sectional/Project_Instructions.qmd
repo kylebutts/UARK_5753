@@ -1,11 +1,8 @@
 ---
 title: "Cross-sectional Analysis Project"
 format:
-  # html: default
   pdf:
     template: ../../includes/template.tex
-    keep-tex: false
-    pdf-engine: latexmk
 ---
 
 \bigskip

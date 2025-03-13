@@ -1,10 +1,13 @@
 # Movie Ratings and Box Office
 
 
-The movie dataset combines two datasets: 1. [Scraped Letterboxd
-Review](https://www.kaggle.com/datasets/samlearner/letterboxd-movie-ratings-data)
-2. Information on the movie from [The Movie
-Database](https://www.themoviedb.org)
+The movie dataset combines two datasets:
+
+1.  [Scraped Letterboxd
+    Review](https://www.kaggle.com/datasets/samlearner/letterboxd-movie-ratings-data)
+
+2.  Information on the movie from [The Movie
+    Database](https://www.themoviedb.org)
 
 | variable | description |
 |----|----|
@@ -46,7 +49,7 @@ Database](https://www.themoviedb.org)
 
 Preview of data:
 
-    Rows: 500
+    Rows: 25,813
     Columns: 35
     $ movie_title                     <chr> "Desperately Seeking Santa", "A Deadly…
     $ tmdb_id                         <dbl> 81330, 343921, 420644, 106717, 37821, …

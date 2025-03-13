@@ -1,12 +1,17 @@
 ---
 title: "NBA 2K25 Player Ratings"
-format: gfm
+format: 
+  pdf:
+    engine: latexmk
+    template: /Users/kbutts/Documents/Teaching/UARK_5753/includes/template.tex
+  gfm: default
 ---
 
 ```{r}
 #| include: false
 library(tidyverse)
 library(tinytable)
+options(tinytable_latex_preamble = FALSE)
 library(here)
 nba <- here("Projects/Cross_Sectional/data/nba_2k25_player_ratings/players.csv") |>
   read_csv(show_col_types = FALSE)
@@ -15,8 +20,8 @@ nba <- here("Projects/Cross_Sectional/data/nba_2k25_player_ratings/players.csv")
 The NBA 2k25 information about a player (team, salary, years in nba) and their ratings.
 
 ```{r}
-#| echo: false
 #| results: 'asis'
+#| echo: false
 codebook <- tribble(
   ~variable, ~description,
   "`name`",  "Player's name",
@@ -81,8 +86,27 @@ codebook <- tribble(
   "`personal_fouls`", "Player's number of personal fouls in 23-24 season",
 )
 
-tinytable::tt(codebook) |>
-  print(output = "markdown")
+if (knitr::is_latex_output()) {
+  codebook |>
+    mutate(
+      variable = variable |>
+        str_replace("`(.*)`", "\\\\texttt{\\1}") |>
+        str_replace_all("_", "\\\\_")
+    ) |>
+    tt(width = 1, caption = "Codebook") |>
+    theme_tt("multipage") |>
+    print(output = "latex")
+} else {
+  tt(codebook) |> print(output = "markdown")
+}
+```
+
+```{r}
+#| results: 'asis'
+#| echo: false
+if (knitr::is_latex_output()) {
+  cat("\\newpage")
+}
 ```
 
 Preview of data:
@@ -90,3 +114,5 @@ Preview of data:
 #| echo: false
 glimpse(nba)
 ```
+
+

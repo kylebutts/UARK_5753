@@ -1,8 +1,22 @@
 \documentclass[12pt]{article}
+
+% `tinytable` support
+\usepackage{tabularray}[=v2024]
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\UseTblrLibrary{booktabs}
+\UseTblrLibrary{siunitx}
+\newcommand{\tinytableTabularrayUnderline}[1]{\underline{#1}}
+\newcommand{\tinytableTabularrayStrikeout}[1]{\sout{#1}}
+\NewTableCommand{\tinytableDefineColor}[3]{\definecolor{#1}{#2}{#3}}
+
+
 % because quarto renders from `.qmd' file directory by default, need `../../includes/'
-\usepackage{../../includes/lecture_notes}
-\usepackage{../../includes/math}
-\usepackage{../../includes/uark_colors}
+\usepackage{/Users/kbutts/Documents/Teaching/UARK_5753/includes/lecture_notes}
+\usepackage{/Users/kbutts/Documents/Teaching/UARK_5753/includes/math}
+\usepackage{/Users/kbutts/Documents/Teaching/UARK_5753/includes/uark_colors}
 
 \hypersetup{
   colorlinks = true,
@@ -17,12 +31,29 @@ $endif$
 
 $tightlist.tex()$
 $tables.tex()$
-$graphics.tex()$
 $citations.tex()$
 
 $for(header-includes)$
 $header-includes$
 $endfor$
+
+$if(graphics)$
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+$endif$
 
 \begin{document}
 \begin{center}

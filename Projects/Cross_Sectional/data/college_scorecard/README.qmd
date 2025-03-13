@@ -1,12 +1,17 @@
 ---
 title: "College Scorecard"
-format: gfm
+format: 
+  gfm: default
+  pdf:
+    engine: latexmk
+    template: /Users/kbutts/Documents/Teaching/UARK_5753/includes/template.tex
 ---
 
 ```{r}
 #| include: false
 library(tidyverse)
 library(tinytable)
+options(tinytable_latex_preamble = FALSE)
 library(here)
 colleges <- here("Projects/Cross_Sectional/data/college_scorecard/college_scorecard.csv") |>
   read_csv(show_col_types = FALSE)
@@ -16,10 +21,9 @@ The [College Scorecard](https://collegescorecard.ed.gov/data/) is a dataset crea
 The dataset was created to allow for potential college students to easily understand the cost-benefit of different colleges.
 
 
-
 ```{r}
-#| echo: false
 #| results: 'asis'
+#| echo: false
 codebook <- tribble(
   ~variable, ~description,
   "`institution`", "Name of Institution",
@@ -57,8 +61,27 @@ codebook <- tribble(
   "`median_earnings_10yr_after`", "Median earnings of students working and not enrolled 10 years after entry",
 )
 
-tinytable::tt(codebook) |>
-  print(output = "markdown")
+if (knitr::is_latex_output()) {
+  codebook |>
+    mutate(
+      variable = variable |>
+        str_replace("`(.*)`", "\\\\texttt{\\1}") |>
+        str_replace_all("_", "\\\\_")
+    ) |>
+    tt(width = 1, caption = "Codebook") |>
+    theme_tt("multipage") |>
+    print(output = "latex")
+} else {
+  tt(codebook) |> print(output = "markdown")
+}
+```
+
+```{r}
+#| results: 'asis'
+#| echo: false
+if (knitr::is_latex_output()) {
+  cat("\\newpage")
+}
 ```
 
 Preview of data:
@@ -66,4 +89,5 @@ Preview of data:
 #| echo: false
 glimpse(colleges)
 ```
+
 
