@@ -200,9 +200,9 @@ This is a tentative schedule. This is the first time I've taught this course, so
 | 08 | 03/04 - 03/06 | Logistic Regression | R Day |
 | 09 | 03/11 - 03/13 | Clustering(?) | Cross-sectional Project |
 | 10 | 03/18 - 03/20 | Midterm Exam | Cross-sectional Project |
-| 11 | 04/01 - 04/03 | Time-series Regression | Time-series Regression |
-| 12 | 04/08 - 04/10 | R Day | Smoothing Methods |
-| 13 | 04/15 - 04/17 | Smoothing Methods | Smoothing Methods |
+| 11 | 04/01 - 04/03 | R Day | Smoothing Methods |
+| 12 | 04/08 - 04/10 | Smoothing Methods | Time-series Regression |
+| 13 | 04/15 - 04/17 | Time-series Regression | Time-series Regression |
 | 14 | 04/22 - 04/24 | R Day | Prophet |
 | 15 | 04/29 - 05/01 | Time-series Project | Time-series Project |
 <!-- Schedule -->

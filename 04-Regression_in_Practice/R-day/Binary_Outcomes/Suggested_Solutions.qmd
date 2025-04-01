@@ -3,6 +3,7 @@ title: "Binary Outcome Regression"
 author: "Your Name"
 format: pdf
 ---
+
 ```{r setup}
 library(ggplot2) # install.packages("ggplot2")
 library(fixest) # install.packages("fixest")
