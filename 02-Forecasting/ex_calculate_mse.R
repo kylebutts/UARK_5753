@@ -10,7 +10,11 @@ mse_ex <- tibble(
 
 tab_mspe_example <- mse_ex |>
   select(y, y_hat, eps) |>
-  rename(`$y_i$` = y, `$\\hat{y}_i$` = y_hat, `$\\hat{\\varepsilon}_i$` = eps) |>
+  rename(
+    `$y_i$` = y,
+    `$\\hat{y}_i$` = y_hat,
+    `$\\hat{\\varepsilon}_i$` = eps
+  ) |>
   tt() |>
   format_tt(j = 3, fn = function(col) {
     sprintf("\\only<2>{%s}", col)
@@ -34,6 +38,7 @@ mspe_calculation_string <- sprintf(
   mspe_caculation_sum,
   mean(mse_ex$eps^2)
 )
-cat(mspe_calculation_string,
+cat(
+  mspe_calculation_string,
   file = here("02-Forecasting/inputs/mspe_calculation_ex.tex")
 )

@@ -82,11 +82,17 @@ predictions$y_hat_bins_10 <- tmp_df |>
   ggplot() +
   geom_point(
     aes(x, y),
-    data = tmp_df, size = 1.5, shape = 19, alpha = 0.05
+    data = tmp_df,
+    size = 1.5,
+    shape = 19,
+    alpha = 0.05
   ) +
   geom_point(
     aes(x, y),
-    data = tmp_df, size = 1.5, shape = 1, alpha = 0.2
+    data = tmp_df,
+    size = 1.5,
+    shape = 1,
+    alpha = 0.2
   ) +
   labs(x = NULL, y = NULL, title = "Examples of $\\hat{f}$: ") +
   kfbmisc::theme_kyle(base_size = 14) +
@@ -105,18 +111,22 @@ title_parts <- c(
 (plot_pred_1 <- plot_basic +
   geom_line(
     aes(x = x, y = y_hat_linear),
-    data = predictions, linewidth = 1.5,
+    data = predictions,
+    linewidth = 1.5,
     color = kfbmisc::kyle_color("purple")
   ) +
   labs(
-    title = paste0("Examples of $\\hat{f}$: ", paste(title_parts[1], collapse = ", "))
-  )
-)
+    title = paste0(
+      "Examples of $\\hat{f}$: ",
+      paste(title_parts[1], collapse = ", ")
+    )
+  ))
 
 (plot_pred_2 <- plot_pred_1 +
   geom_line(
     aes(x = x, y = y_hat_poly_4),
-    data = predictions, linewidth = 1.5,
+    data = predictions,
+    linewidth = 1.5,
     color = kfbmisc::kyle_color("rose")
   ) +
   # geom_line(
@@ -125,42 +135,56 @@ title_parts <- c(
   #   color = kfbmisc::kyle_color("magenta")
   # ) +
   labs(
-    title = paste0("Examples of $\\hat{f}$: ", paste(title_parts[1:2], collapse = ", "))
-  )
-)
+    title = paste0(
+      "Examples of $\\hat{f}$: ",
+      paste(title_parts[1:2], collapse = ", ")
+    )
+  ))
 
 (plot_pred_3 <- plot_pred_2 +
   geom_line(
     aes(x = x, y = y_hat_bins_10, group = x_bins_10),
-    data = predictions, linewidth = 1.5,
+    data = predictions,
+    linewidth = 1.5,
     color = kfbmisc::kyle_color("blue")
   ) +
   labs(
-    title = paste0("Examples of $\\hat{f}$: ", paste(title_parts[1:3], collapse = ", "))
-  )
-)
+    title = paste0(
+      "Examples of $\\hat{f}$: ",
+      paste(title_parts[1:3], collapse = ", ")
+    )
+  ))
 
 (plot_pred_4 <- plot_pred_3 +
   geom_line(
     aes(x = x, y = y_hat_knn_100),
-    data = predictions, linewidth = 1.5,
+    data = predictions,
+    linewidth = 1.5,
     color = kfbmisc::kyle_color("green")
   ) +
   labs(
-    title = paste0("Examples of $\\hat{f}$: ", paste(title_parts[1:4], collapse = ", "))
-  )
-)
+    title = paste0(
+      "Examples of $\\hat{f}$: ",
+      paste(title_parts[1:4], collapse = ", ")
+    )
+  ))
 
 # %%
 (plot_dgp <-
   ggplot() +
   geom_point(
     aes(x, y),
-    data = tmp_df, size = 1.5, shape = 19, alpha = 0.05
+    data = tmp_df,
+    size = 1.5,
+    shape = 19,
+    alpha = 0.05
   ) +
   geom_point(
     aes(x, y),
-    data = tmp_df, size = 1.5, shape = 1, alpha = 0.2
+    data = tmp_df,
+    size = 1.5,
+    shape = 1,
+    alpha = 0.2
   ) +
   geom_line(
     aes(x = x, y = y_systematic),
@@ -185,17 +209,24 @@ title_parts <- c(
 (plot_overfitting <- ggplot() +
   geom_point(
     aes(x, y),
-    data = tmp_df, size = 1.5, shape = 19, alpha = 0.05
+    data = tmp_df,
+    size = 1.5,
+    shape = 19,
+    alpha = 0.05
   ) +
   geom_point(
     aes(x, y),
-    data = tmp_df, size = 1.5, shape = 1, alpha = 0.2
+    data = tmp_df,
+    size = 1.5,
+    shape = 1,
+    alpha = 0.2
   ) +
   geom_line(
     aes(x = x, y = y_systematic),
     data = tmp_df |> arrange(x),
     color = kfbmisc::tailwind_color("zinc800"),
-    linewidth = 1, alpha = 0.6
+    linewidth = 1,
+    alpha = 0.6
   ) +
   labs(x = NULL, y = NULL, title = " ") +
   kfbmisc::theme_kyle(base_size = 14) +
@@ -204,56 +235,72 @@ title_parts <- c(
   ) +
   geom_line(
     aes(x = x, y = y_hat_linear),
-    data = predictions, linewidth = 1, alpha = 0.6,
+    data = predictions,
+    linewidth = 1,
+    alpha = 0.6,
     color = kfbmisc::kyle_color("purple")
   ) +
   geom_line(
     aes(x = x, y = y_hat_knn_100),
-    data = predictions, linewidth = 1, alpha = 0.6,
+    data = predictions,
+    linewidth = 1,
+    alpha = 0.6,
     color = kfbmisc::kyle_color("yellow")
   ) +
   geom_line(
     aes(x = x, y = y_hat_knn_5),
-    data = predictions, linewidth = 1, alpha = 0.6,
+    data = predictions,
+    linewidth = 1,
+    alpha = 0.6,
     color = kfbmisc::kyle_color("blue")
   ) +
   labs(
     title = paste0("", paste(title_parts, collapse = ", "))
-  )
-)
+  ))
 
 
 # %%
 kfbmisc::tikzsave(
   here("02-Forecasting/figures/f_examples_plot_raw.pdf"),
-  plot = plot_basic, width = 8, height = 3.8
+  plot = plot_basic,
+  width = 8,
+  height = 3.8
 )
 
 kfbmisc::tikzsave(
   here("02-Forecasting/figures/f_examples_plot_pred_1.pdf"),
-  plot = plot_pred_1, width = 8, height = 3.8
+  plot = plot_pred_1,
+  width = 8,
+  height = 3.8
 )
 kfbmisc::tikzsave(
   here("02-Forecasting/figures/f_examples_plot_pred_2.pdf"),
-  plot = plot_pred_2, width = 8, height = 3.8
+  plot = plot_pred_2,
+  width = 8,
+  height = 3.8
 )
 kfbmisc::tikzsave(
   here("02-Forecasting/figures/f_examples_plot_pred_3.pdf"),
-  plot = plot_pred_3, width = 8, height = 3.8
+  plot = plot_pred_3,
+  width = 8,
+  height = 3.8
 )
 kfbmisc::tikzsave(
   here("02-Forecasting/figures/f_examples_plot_pred_4.pdf"),
-  plot = plot_pred_4, width = 8, height = 3.8
+  plot = plot_pred_4,
+  width = 8,
+  height = 3.8
 )
 
 kfbmisc::tikzsave(
   here("02-Forecasting/figures/f_examples_plot_dgp.pdf"),
-  plot = plot_dgp, width = 8, height = 3.8
+  plot = plot_dgp,
+  width = 8,
+  height = 3.8
 )
 kfbmisc::tikzsave(
   here("02-Forecasting/figures/f_examples_overfitting.pdf"),
-  plot = plot_overfitting, width = 8, height = 3.8
+  plot = plot_overfitting,
+  width = 8,
+  height = 3.8
 )
-
-
-

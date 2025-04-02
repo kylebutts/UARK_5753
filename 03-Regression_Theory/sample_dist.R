@@ -23,7 +23,7 @@ coef_to_ggplot_line <- function(coef, alpha = 0.05) {
   geom_abline(
     intercept = coef["(Intercept)"],
     slope = coef["x"],
-    linewidth = 1.2, 
+    linewidth = 1.2,
     color = kfbmisc::kyle_color("purple"),
     alpha = alpha
   )
@@ -40,21 +40,26 @@ beta_1s <- unlist(map(reg_samples, \(coef) coef[["x"]]))
 
 eval_x <- 1.5
 y_0 <- 1.5
-forecasts <- unlist(lapply(reg_samples, function(coef) coef[["(Intercept)"]] + coef[["x"]] * eval_x))
-
-
-# %% 
-# \var{\hat{\beta}}
-100 * var(do.call(
-  "rbind", reg_samples
+forecasts <- unlist(lapply(
+  reg_samples,
+  function(coef) coef[["(Intercept)"]] + coef[["x"]] * eval_x
 ))
+
+
+# %%
+# \var{\hat{\beta}}
+100 *
+  var(do.call(
+    "rbind",
+    reg_samples
+  ))
 
 W = cbind(1, df$x)
 Sigma = 1.5 * diag(nrow = 1000)
 crossprod(W) / 1000
 (t(W) %*% Sigma %*% W) / 1000
-vcov = solve(t(W) %*% W) %*% 
-  (t(W) %*% Sigma %*% W) %*% 
+vcov = solve(t(W) %*% W) %*%
+  (t(W) %*% Sigma %*% W) %*%
   solve(t(W) %*% W)
 
 std_errors = sqrt(diag(vcov))
@@ -69,11 +74,13 @@ std_errors = sqrt(diag(vcov))
   geom_abline(
     intercept = fit["(Intercept)"],
     slope = fit["x"],
-    linewidth = 1.2, color = kfbmisc::kyle_color("purple")
+    linewidth = 1.2,
+    color = kfbmisc::kyle_color("purple")
   ) +
   labs(
     title = "Original Sample",
-    x = NULL, y = NULL
+    x = NULL,
+    y = NULL
   ) +
   kfbmisc::theme_kyle(base_size = 14) +
   theme(
@@ -103,7 +110,10 @@ plot_extra_samples_2 <- plot_orig_reg +
   coef_to_ggplot_line(reg_samples[[5]], alpha = 0.25) +
   labs(title = "Original Sample + 5 Extra Samples"))
 
-ggplot_reg_lines <- lapply(reg_samples, function(coef) coef_to_ggplot_line(coef, alpha = 0.25))
+ggplot_reg_lines <- lapply(
+  reg_samples,
+  function(coef) coef_to_ggplot_line(coef, alpha = 0.25)
+)
 
 (plot_extra_samples_100 <- plot_orig_reg +
   ggplot_reg_lines[1:100] +
@@ -124,10 +134,9 @@ ggplot_reg_lines <- lapply(reg_samples, function(coef) coef_to_ggplot_line(coef,
     y = "Count",
     title = "Original Sample + 2500 Extra Samples"
   ) +
-  kfbmisc::theme_kyle(base_size = 14)
-)
+  kfbmisc::theme_kyle(base_size = 14))
 
-(plot_forecasts <-  ggplot() +
+(plot_forecasts <- ggplot() +
   geom_histogram(
     aes(x = forecasts),
     bins = 60,
@@ -141,42 +150,48 @@ ggplot_reg_lines <- lapply(reg_samples, function(coef) coef_to_ggplot_line(coef,
     y = "Count",
     title = "Original Sample + 2500 Extra Samples"
   ) +
-  kfbmisc::theme_kyle(base_size = 14)
-)
+  kfbmisc::theme_kyle(base_size = 14))
 
 # %%
 kfbmisc::tikzsave(
   here("03-Regression/figures/ex_inference_orig_reg.pdf"),
   plot_orig_reg,
-  width = 8, height = 4
+  width = 8,
+  height = 4
 )
 kfbmisc::tikzsave(
   here("03-Regression/figures/ex_inference_extra_sample_1.pdf"),
   plot_extra_samples_1,
-  width = 8, height = 4
+  width = 8,
+  height = 4
 )
 kfbmisc::tikzsave(
   here("03-Regression/figures/ex_inference_extra_sample_2.pdf"),
   plot_extra_samples_2,
-  width = 8, height = 4
+  width = 8,
+  height = 4
 )
 kfbmisc::tikzsave(
   here("03-Regression/figures/ex_inference_extra_sample_5.pdf"),
   plot_extra_samples_5,
-  width = 8, height = 4
+  width = 8,
+  height = 4
 )
 kfbmisc::tikzsave(
   here("03-Regression/figures/ex_inference_extra_sample_100.pdf"),
   plot_extra_samples_100,
-  width = 8, height = 4
+  width = 8,
+  height = 4
 )
 kfbmisc::tikzsave(
   here("03-Regression/figures/ex_inference_sample_distribution.pdf"),
   plot_sample_distribution,
-  width = 8, height = 4
+  width = 8,
+  height = 4
 )
 kfbmisc::tikzsave(
   here("03-Regression/figures/ex_inference_forecasts.pdf"),
   plot_forecasts,
-  width = 8, height = 4
+  width = 8,
+  height = 4
 )

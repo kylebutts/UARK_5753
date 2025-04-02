@@ -54,6 +54,7 @@ A simple regression analysis suggests that a car with an extra 50 horsepower on 
 
 
 ```{r}
+#| echo: false
 #| fig.cap: "Relationship between Horsepower and Miles per gallon"
 #| label: fig-hp-vs-mpg
 ggplot() +

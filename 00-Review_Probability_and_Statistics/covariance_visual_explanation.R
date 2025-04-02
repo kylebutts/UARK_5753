@@ -19,6 +19,16 @@ df <- tibble(x = x, y = y) |>
   )
 
 (cov_explanation <- ggplot(df, aes(x = x, y = y)) +
+  geom_hline(
+    yintercept = ybar,
+    linetype = "dashed",
+    color = kfbmisc::tailwind_color("zinc-600")
+  ) +
+  geom_vline(
+    xintercept = xbar,
+    linetype = "dashed",
+    color = kfbmisc::tailwind_color("zinc-600")
+  ) +
   geom_rect(
     aes(
       xmin = ifelse(dev_x > 0, xbar, x),
@@ -33,23 +43,14 @@ df <- tibble(x = x, y = y) |>
   geom_point(
     color = kfbmisc::tailwind_color("zinc-600")
   ) +
-  geom_hline(
-    yintercept = ybar,
-    linetype = "dashed",
-    color = kfbmisc::tailwind_color("zinc-400")
-  ) +
-  geom_vline(
-    xintercept = xbar,
-    linetype = "dashed",
-    color = kfbmisc::tailwind_color("zinc-400")
-  ) +
+
   annotate(
     "label",
     label = "$x > \\bar{x}$ and $y > \\bar{y}$",
     x = max(df$x) + 0.1,
     y = max(df$y) + 0.1,
     size = 4,
-    label.size = NA,
+    label.size = 0,
     hjust = 1,
     vjust = 0
   ) +
@@ -59,7 +60,7 @@ df <- tibble(x = x, y = y) |>
     x = min(df$x) - 0.1,
     y = min(df$y) - 0.1,
     size = 4,
-    label.size = NA,
+    label.size = 0,
     hjust = 0,
     vjust = 1
   ) +
@@ -69,7 +70,7 @@ df <- tibble(x = x, y = y) |>
     x = max(df$x) + 0.1,
     y = min(df$y) - 0.1,
     size = 4,
-    label.size = NA,
+    label.size = 0,
     hjust = 1,
     vjust = 1
   ) +
@@ -79,7 +80,7 @@ df <- tibble(x = x, y = y) |>
     x = min(df$x) - 0.1,
     y = max(df$y) + 0.1,
     size = 4,
-    label.size = NA,
+    label.size = 0,
     hjust = 0,
     vjust = 0
   ) +

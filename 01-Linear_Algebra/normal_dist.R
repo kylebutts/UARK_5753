@@ -4,35 +4,50 @@ library(kfbmisc)
 library(patchwork)
 
 fs::dir_create(here("01-Linear_Algebra/figures/"))
-pkgs <- system.file(c("tikzsave/paper.sty", "tikzsave/math.sty"), package = "kfbmisc")
-options(tikzMetricPackages = c(
-  "\\usepackage[utf8]{inputenc}",
-  "\\usepackage[T1]{fontenc}",
-  "\\usetikzlibrary{calc}",
-  sprintf("\\usepackage{%s}", xfun::sans_ext(pkgs))
-))
+pkgs <- system.file(
+  c("tikzsave/paper.sty", "tikzsave/math.sty"),
+  package = "kfbmisc"
+)
+options(
+  tikzMetricPackages = c(
+    "\\usepackage[utf8]{inputenc}",
+    "\\usepackage[T1]{fontenc}",
+    "\\usetikzlibrary{calc}",
+    sprintf("\\usepackage{%s}", xfun::sans_ext(pkgs))
+  )
+)
 
 
 ## Examples of normal distribution ---------------------------------------------
 (plot_ex_normal_dist <- ggplot() +
   stat_function(
     fun = function(x) dnorm(x, mean = 0, sd = 1),
-    color = kfbmisc::kyle_color("green"), linewidth = 1.5, n = 300
+    color = kfbmisc::kyle_color("green"),
+    linewidth = 1.5,
+    n = 300
   ) +
   stat_function(
     fun = function(x) dnorm(x, mean = 3, sd = 1),
-    color = kfbmisc::kyle_color("purple"), linewidth = 1.5, n = 300
+    color = kfbmisc::kyle_color("purple"),
+    linewidth = 1.5,
+    n = 300
   ) +
   stat_function(
     fun = function(x) dnorm(x, mean = 0, sd = 2),
-    color = kfbmisc::kyle_color("magenta"), linewidth = 1.5, n = 300
+    color = kfbmisc::kyle_color("magenta"),
+    linewidth = 1.5,
+    n = 300
   ) +
   stat_function(
     fun = function(x) dnorm(x, mean = 0, sd = 3),
-    color = kfbmisc::kyle_color("rose"), linewidth = 1.5, n = 300
+    color = kfbmisc::kyle_color("rose"),
+    linewidth = 1.5,
+    n = 300
   ) +
   scale_x_continuous(
-    limits = c(-10, 10), breaks = seq(-10, 10, by = 2), expand = expansion(0, 0)
+    limits = c(-10, 10),
+    breaks = seq(-10, 10, by = 2),
+    expand = expansion(0, 0)
   ) +
   scale_y_continuous(limits = c(0, 0.5), expand = expansion(0, 0)) +
   labs(
@@ -42,16 +57,18 @@ options(tikzMetricPackages = c(
   theme_kyle(base_size = 14) +
   theme(
     plot.title = element_text(
-      face = "plain", size = rel(1 / 1.125),
+      face = "plain",
+      size = rel(1 / 1.125),
       margin = margin(0, 0, 32, 0)
     ),
-  )
-)
+  ))
 
 
 kfbmisc::tikzsave(
   here("01-Linear_Algebra/figures/ex_normal_dist.pdf"),
-  plot = plot_ex_normal_dist, width = 8, height = 3.8
+  plot = plot_ex_normal_dist,
+  width = 8,
+  height = 3.8
 )
 
 
@@ -64,7 +81,7 @@ draws_independent <- mvtnorm::rmvnorm(
   sigma = Sigma_independent
 )
 draws_independent <- draws_independent |>
-  as_tibble() |>
+  as.data.frame() |>
   setNames(c("x1", "x2"))
 
 Sigma_weak_pos_corr <- matrix(c(1, 0.25, 0.25, 1), nrow = 2, byrow = TRUE)
@@ -73,7 +90,7 @@ draws_weak_pos_corr <- mvtnorm::rmvnorm(
   sigma = Sigma_weak_pos_corr
 )
 draws_weak_pos_corr <- draws_weak_pos_corr |>
-  as_tibble() |>
+  as.data.frame() |>
   setNames(c("x1", "x2"))
 
 Sigma_strong_neg_corr <- matrix(c(1, -0.75, -0.75, 1), nrow = 2, byrow = TRUE)
@@ -82,7 +99,7 @@ draws_strong_neg_corr <- mvtnorm::rmvnorm(
   sigma = Sigma_strong_neg_corr
 )
 draws_strong_neg_corr <- draws_strong_neg_corr |>
-  as_tibble() |>
+  as.data.frame() |>
   setNames(c("x1", "x2"))
 
 
@@ -93,7 +110,8 @@ draws_strong_neg_corr <- draws_strong_neg_corr |>
     bins = 50
   ) +
   labs(
-    x = NULL, y = NULL,
+    x = NULL,
+    y = NULL,
     title = "$\\begin{bmatrix}x_1 \\\\ x_2\\end{bmatrix} \\sim \\mathcal{N}\\left(\\begin{bmatrix}0 \\\\ 0\\end{bmatrix}, \\begin{bmatrix}1 & 0 \\\\ 0 & 1\\end{bmatrix}\\right)$"
   ) +
   guides(fill = guide_none()) +
@@ -102,14 +120,17 @@ draws_strong_neg_corr <- draws_strong_neg_corr |>
   theme_kyle(base_size = 14) +
   theme(
     plot.title = element_text(
-      face = "plain", size = rel(1 / 1.125),
-      margin = margin(16, 0, 32, 0), hjust = 0.5
+      face = "plain",
+      size = rel(1 / 1.125),
+      margin = margin(16, 0, 32, 0),
+      hjust = 0.5
     ),
-  )
-)
+  ))
 kfbmisc::tikzsave(
   here("01-Linear_Algebra/figures/mvnorm_heatmap_independent.pdf"),
-  plot = heatmap_independent, width = 5, height = 5.5
+  plot = heatmap_independent,
+  width = 5,
+  height = 5.5
 )
 
 
@@ -120,7 +141,8 @@ kfbmisc::tikzsave(
     bins = 50
   ) +
   labs(
-    x = NULL, y = NULL,
+    x = NULL,
+    y = NULL,
     title = "$\\begin{bmatrix}x_1 \\\\ x_2\\end{bmatrix} \\sim \\mathcal{N}\\left(\\begin{bmatrix}0 \\\\ 0\\end{bmatrix}, \\begin{bmatrix}1 & 0.25 \\\\ 0.25 & 1\\end{bmatrix}\\right)$"
   ) +
   guides(fill = guide_none()) +
@@ -129,14 +151,17 @@ kfbmisc::tikzsave(
   theme_kyle(base_size = 14) +
   theme(
     plot.title = element_text(
-      face = "plain", size = rel(1 / 1.125),
-      margin = margin(16, 0, 32, 0), hjust = 0.5
+      face = "plain",
+      size = rel(1 / 1.125),
+      margin = margin(16, 0, 32, 0),
+      hjust = 0.5
     ),
-  )
-)
+  ))
 kfbmisc::tikzsave(
   here("01-Linear_Algebra/figures/mvnorm_heatmap_weak_pos_corr.pdf"),
-  plot = heatmap_weak_pos_corr, width = 5, height = 5.5
+  plot = heatmap_weak_pos_corr,
+  width = 5,
+  height = 5.5
 )
 
 
@@ -147,7 +172,8 @@ kfbmisc::tikzsave(
     bins = 50
   ) +
   labs(
-    x = NULL, y = NULL,
+    x = NULL,
+    y = NULL,
     title = "$\\begin{bmatrix}x_1 \\\\ x_2\\end{bmatrix} \\sim \\mathcal{N}\\left(\\begin{bmatrix}0 \\\\ 0\\end{bmatrix}, \\begin{bmatrix}1 & -0.75 \\\\ -0.75 & 1\\end{bmatrix}\\right)$"
   ) +
   guides(fill = guide_none()) +
@@ -156,12 +182,15 @@ kfbmisc::tikzsave(
   theme_kyle(base_size = 14) +
   theme(
     plot.title = element_text(
-      face = "plain", size = rel(1 / 1.125),
-      margin = margin(16, 0, 32, 0), hjust = 0.5
+      face = "plain",
+      size = rel(1 / 1.125),
+      margin = margin(16, 0, 32, 0),
+      hjust = 0.5
     ),
-  )
-)
+  ))
 kfbmisc::tikzsave(
   here("01-Linear_Algebra/figures/mvnorm_heatmap_strong_neg_corr.pdf"),
-  plot = heatmap_strong_neg_corr, width = 5, height = 5.5
+  plot = heatmap_strong_neg_corr,
+  width = 5,
+  height = 5.5
 )

@@ -1,27 +1,31 @@
-# %% 
+# %%
 library(tidyverse)
 library(here)
 library(kfbmisc)
 library(patchwork)
 set.seed(20240210)
 
-pkgs <- system.file(c("tikzsave/paper.sty", "tikzsave/math.sty"), package = "kfbmisc")
-options(tikzMetricPackages = c(
-  "\\usepackage[utf8]{inputenc}",
-  "\\usepackage[T1]{fontenc}",
-  "\\usetikzlibrary{calc}",
-  sprintf("\\usepackage{%s}", xfun::sans_ext(pkgs))
-))
+# Setup TikzDevice
+tikzDevice::setTikzDefaults()
+default_packages <- getOption("tikzLatexPackages")
+packages <- c(
+  system.file("tikzsave/paper.sty", package = "kfbmisc"),
+  system.file("tikzsave/math.sty", package = "kfbmisc")
+)
+pkg_tex <- sprintf("\\usepackage{%s}", fs::path_ext_remove(packages))
+options(
+  "tikzLatexPackages" = c(default_packages, "\\usepackage{bm}\n", pkg_tex)
+)
 
 # `with` + tidy-evaluation
 # with_data <- function(data, expr) {
 #   quo <- rlang::enquo(expr)
 #   rlang::eval_tidy(quo, data)
 # }
-# df |> 
+# df |>
 #   with_data(.data$age)
 
-# %% 
+# %%
 # Linear CEF
 N <- 250
 age <- pmin(pmax(rnorm(n = N, mean = 38, sd = 13), 22), 67)
@@ -44,63 +48,68 @@ df <- data.frame(
   wage = wage
 )
 
-(plot_linear_cef <- ggplot() + 
+(plot_linear_cef <- ggplot() +
   geom_point(
     aes(x = age, y = wage),
-    data = df, 
-    shape = 21, size = 2.5,
+    data = df,
+    shape = 21,
+    size = 2.5,
     color = kfbmisc::tailwind_color("zinc-600")
-  ) + 
+  ) +
   stat_function(
     fun = linear_cef,
-    linewidth = 2, 
+    linewidth = 2,
     color = kfbmisc::kyle_color("blue")
-  ) + 
-  annotate("label",
+  ) +
+  annotate(
+    "label",
     x = 66,
     y = linear_cef(65) - 5,
     hjust = 1,
     color = kfbmisc::kyle_color("blue"),
     label = "$\\expec{w_i}{\\text{Age}_i}$",
-    size = 5, label.size = NA, fill = NA
+    size = 5,
+    label.size = 0,
+    fill = NA
   ) +
   scale_x_continuous(limits = c(22, 67), expand = c(0, 1)) +
   labs(x = NULL, y = "$w_i$") +
-  kfbmisc::theme_kyle(base_size = 14, grid_minor = "v")
-)
+  kfbmisc::theme_kyle(base_size = 14, grid_minor = "v"))
 
-(plot_marginal_effect <- ggplot() + 
+(plot_marginal_effect <- ggplot() +
   stat_function(
     fun = D_linear_cef,
-    linewidth = 2, 
+    linewidth = 2,
     color = kfbmisc::kyle_color("blue")
-  ) + 
-  annotate("label",
+  ) +
+  annotate(
+    "label",
     x = 55,
     y = D_linear_cef(62) + 0.2,
     hjust = 0,
     color = kfbmisc::kyle_color("blue"),
     label = "$\\frac{\\partial}{\\partial \\text{age}}\\expec{w_i}{\\text{Age}_i}$",
-    size = 5, label.size = NA, fill = NA
+    size = 5,
+    label.size = 0,
+    fill = NA
   ) +
   scale_x_continuous(limits = c(22, 67), expand = c(0, 1)) +
-  scale_y_continuous(limits = c(0, 1)) + 
+  scale_y_continuous(limits = c(0, 1)) +
   labs(x = NULL, y = "Marginal Effect") +
-  kfbmisc::theme_kyle(base_size = 14, grid_minor = "v")
-)
+  kfbmisc::theme_kyle(base_size = 14, grid_minor = "v"))
 
-(plot_combined <- (plot_linear_cef / plot_marginal_effect) + 
-  plot_layout(heights = c(1, 0.5))
-)
+(plot_combined <- (plot_linear_cef / plot_marginal_effect) +
+  plot_layout(heights = c(1, 0.5)))
 
 kfbmisc::tikzsave(
   here("04-Regression_in_Practice/figures/ex_linear_cef"),
-  plot_combined, width = 8, height = 5
+  plot_combined,
+  width = 8,
+  height = 5
 )
 
 
-
-# %% 
+# %%
 # Quadratic CEF
 N <- 250
 age <- pmin(pmax(rnorm(n = N, mean = 38, sd = 13), 22), 67)
@@ -108,11 +117,11 @@ age <- round(age)
 # college <- sample(c(0, 1), size = N, prob = c(0.7, 0.3), replace = TRUE)
 
 quadratic_cef <- function(age) {
-  Ey <- -30 + 3 * age - 1.5/45 * age^2
+  Ey <- -30 + 3 * age - 1.5 / 45 * age^2
   return(Ey)
 }
 D_quadratic_cef <- function(age) {
-  d <- 3 - 3/45 * age
+  d <- 3 - 3 / 45 * age
   return(d)
 }
 wage <- quadratic_cef(age) + rnorm(N, mean = 0, sd = 2)
@@ -123,60 +132,66 @@ df <- data.frame(
   wage = wage
 )
 
-(plot_quadratic_cef <- ggplot() + 
+(plot_quadratic_cef <- ggplot() +
   geom_point(
     aes(x = age, y = wage),
-    data = df, 
-    shape = 21, size = 2.5,
+    data = df,
+    shape = 21,
+    size = 2.5,
     color = kfbmisc::tailwind_color("zinc-600")
-  ) + 
+  ) +
   stat_function(
     fun = quadratic_cef,
-    linewidth = 2, 
+    linewidth = 2,
     color = kfbmisc::kyle_color("blue")
-  ) + 
-  annotate("label",
+  ) +
+  annotate(
+    "label",
     x = 63,
     y = quadratic_cef(65) - 2,
     hjust = 1,
     color = kfbmisc::kyle_color("blue"),
     label = "$\\expec{w_i}{\\text{Age}_i}$",
-    size = 5, label.size = NA, fill = NA
+    size = 5,
+    label.size = 0,
+    fill = NA
   ) +
   scale_x_continuous(limits = c(22, 67), expand = c(0, 1)) +
   labs(x = NULL, y = "$w_i$") +
-  kfbmisc::theme_kyle(base_size = 14, grid_minor = "v")
-)
+  kfbmisc::theme_kyle(base_size = 14, grid_minor = "v"))
 
-(plot_marginal_effect <- ggplot() + 
+(plot_marginal_effect <- ggplot() +
   stat_function(
     fun = D_quadratic_cef,
-    linewidth = 2, 
+    linewidth = 2,
     color = kfbmisc::kyle_color("blue")
-  ) + 
-  annotate("label",
+  ) +
+  annotate(
+    "label",
     x = 55,
     y = D_quadratic_cef(62) + 1,
     hjust = 0,
     color = kfbmisc::kyle_color("blue"),
     label = "$\\frac{\\partial}{\\partial \\text{age}}\\expec{w_i}{\\text{Age}_i}$",
-    size = 5, label.size = NA, fill = NA
+    size = 5,
+    label.size = 0,
+    fill = NA
   ) +
   scale_x_continuous(limits = c(22, 67), expand = c(0, 1)) +
   labs(x = NULL, y = "Marginal Effect") +
-  kfbmisc::theme_kyle(base_size = 14, grid_minor = "v")
-)
+  kfbmisc::theme_kyle(base_size = 14, grid_minor = "v"))
 
-(plot_combined <- (plot_quadratic_cef / plot_marginal_effect) + 
-  plot_layout(heights = c(1, 0.5))
-)
+(plot_combined <- (plot_quadratic_cef / plot_marginal_effect) +
+  plot_layout(heights = c(1, 0.5)))
 
 kfbmisc::tikzsave(
   here("04-Regression_in_Practice/figures/ex_quadratic_cef"),
-  plot_combined, width = 8, height = 5
+  plot_combined,
+  width = 8,
+  height = 5
 )
 
-# %% 
+# %%
 # `plogis` CEF
 N <- 250
 age <- pmin(pmax(rnorm(n = N, mean = 38, sd = 13), 22), 67)
@@ -187,7 +202,7 @@ plogis_cef <- function(age) {
   Ey <- 10 + 30 * plogis(-1 + 0.5 * (age - 44.5) / 3)
 
   return(Ey)
-  # %% 
+  # %%
   # library(marginaleffects)
   # set.seed(48103)
   # N <- 250
@@ -209,57 +224,61 @@ df <- data.frame(
   wage = wage
 )
 
-(plot_plogis_cef <- ggplot() + 
+(plot_plogis_cef <- ggplot() +
   geom_point(
     aes(x = age, y = wage),
-    data = df, 
-    shape = 21, size = 2.5,
+    data = df,
+    shape = 21,
+    size = 2.5,
     color = kfbmisc::tailwind_color("zinc-600")
-  ) + 
+  ) +
   stat_function(
     fun = plogis_cef,
-    linewidth = 2, 
+    linewidth = 2,
     color = kfbmisc::kyle_color("blue")
-  ) + 
-  annotate("label",
+  ) +
+  annotate(
+    "label",
     x = 63,
     y = plogis_cef(65) + 1,
     hjust = 1,
     color = kfbmisc::kyle_color("blue"),
     label = "$\\expec{w_i}{\\text{Age}_i}$",
-    size = 5, label.size = NA, fill = NA
+    size = 5,
+    label.size = 0,
+    fill = NA
   ) +
   scale_x_continuous(limits = c(22, 67), expand = c(0, 1)) +
   labs(x = NULL, y = "$w_i$") +
-  kfbmisc::theme_kyle(base_size = 14, grid_minor = "v")
-)
+  kfbmisc::theme_kyle(base_size = 14, grid_minor = "v"))
 
-(plot_marginal_effect <- ggplot() + 
+(plot_marginal_effect <- ggplot() +
   stat_function(
     fun = D_plogis_cef,
-    linewidth = 2, 
+    linewidth = 2,
     color = kfbmisc::kyle_color("blue")
-  ) + 
-  annotate("label",
+  ) +
+  annotate(
+    "label",
     x = 57,
     y = D_plogis_cef(62) + 0.6,
     hjust = 0,
     color = kfbmisc::kyle_color("blue"),
     label = "$\\frac{\\partial}{\\partial \\text{age}}\\expec{w_i}{\\text{Age}_i}$",
-    size = 5, label.size = NA, fill = NA
+    size = 5,
+    label.size = 0,
+    fill = NA
   ) +
   scale_x_continuous(limits = c(22, 67), expand = c(0, 1)) +
   labs(x = NULL, y = "Marginal Effect") +
-  kfbmisc::theme_kyle(base_size = 14, grid_minor = "v")
-)
+  kfbmisc::theme_kyle(base_size = 14, grid_minor = "v"))
 
-(plot_combined <- (plot_plogis_cef / plot_marginal_effect) + 
-  plot_layout(heights = c(1, 0.5))
-)
+(plot_combined <- (plot_plogis_cef / plot_marginal_effect) +
+  plot_layout(heights = c(1, 0.5)))
 
 kfbmisc::tikzsave(
   here("04-Regression_in_Practice/figures/ex_plogis_cef"),
-  plot_combined, width = 8, height = 5
+  plot_combined,
+  width = 8,
+  height = 5
 )
-
-
