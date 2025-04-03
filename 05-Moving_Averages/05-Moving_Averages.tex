@@ -1,0 +1,584 @@
+\documentclass[aspectratio=169,t,11pt,table]{beamer}
+\usepackage{../includes/slides,../includes/math}
+\definecolor{accent}{HTML}{2B5269}
+\definecolor{accent2}{HTML}{9D2235}
+
+\title{Regression Methods}
+\subtitle{\it  ECON 5753 — University of Arkansas}
+\date{Sprint 2025}
+\author{Prof. Kyle Butts}
+
+\NewDocumentCommand{\logistic}{o g}{%
+  \textrm{logistic}\IfValueT{#1}{_{#1}}{\left(#2\right)}
+}
+
+\begin{document}
+
+% ------------------------------------------------------------------------------
+\begin{frame}[noframenumbering,plain]
+\maketitle
+\end{frame}
+% ------------------------------------------------------------------------------
+
+\section{Introduction to Time-Series}
+
+\begin{frame}{Time-series}
+  \alert{Time-series} data is a set of observations $y_t$ that occur for a single unit measured over the course of time
+  \begin{itemize}
+    \item In general, we call $t$ the `period'
+    
+    \medskip
+    \item If the time-series is spaced evenly over time without missing, it is called \alert{regular}. 
+    \begin{itemize}
+      \item Some methods require regular time intervals, and will do weird things if you give it irregular time series
+    \end{itemize}
+    
+    \medskip
+    \item If you observe many units' time-series, this is called \alert{panel data}
+    \begin{itemize}
+      \item Panel data that is regular is called a \alert{balanced panel}
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Examples}
+  Examples include:
+  \begin{itemize}
+    \item Annual data on the DGP of a country
+    \item Hourly stock price for a company
+    \item Annual data on cigarette consumption per capita in a state 
+    \item A sport's teams number of points scored in games (unequally spaced)
+  \end{itemize}
+
+  \bigskip
+  For each example, think through:
+  \begin{enumerate}
+    \item Is this a regular time-series?
+    
+    \item Is this a panel dataset?
+  \end{enumerate}
+\end{frame}
+
+\imageframe{figures/unemployment_rate.pdf}
+\imageframe{figures/arkansas_2023_football.pdf}
+\imageframe{figures/apple_stock.pdf}
+% \imageframe{figures/smoking_california.pdf}
+\imageframe{figures/smoking_a_few_states.pdf}
+
+\begin{frame}{What is special about time-series?}
+  In our previous topics, we have been thinking about \alert{cross-sectional} data
+  \begin{itemize}
+    \item Each person in your dataset is an independent draw that provides us with unique information
+  \end{itemize}
+
+  \bigskip
+  In cross-sectional data, knowing about one indivdiual does not really tell me much information about another
+  \begin{itemize}
+    \item This is not \emph{entirely true}; e.g. worker's in same firm have common experiences, kids in same school have same teacher quality, etc. (hence why we might cluster our standard errors)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{What is special about time-series?}
+  In time-series data, knowing last period's value of $y_{t-1}$ is often very useful for this period's value of $y_{t}$
+  \begin{itemize}
+    \item This property is essential in forecasting; following a variable over time might let us predict future values
+    
+    \item Shocks that happened last period probably still impact me today(!) 
+  \end{itemize}
+
+  \pause
+  \bigskip
+  Another way of saying this, is if we randomly shuffled time-series data, we would lose information!
+  \begin{itemize}
+    \item This is not true of a cross-sectional dataset; we can reshuffle rows without problem 
+  \end{itemize}
+\end{frame}
+
+\imageframe{figures/unemployment_rate.pdf}
+\imageframe{figures/unemployment_rate_rand_shuffle.pdf}
+
+\begin{frame}{Thinking about inference with time-series}
+  We have a bit of a problem with our time-series:
+  $$
+    y_1, y_2, \dots, y_T
+  $$
+  \vspace*{-\bigskipamount}
+  \begin{itemize}
+    \item $y_1$ is related to $y_2$ 
+    \item $y_2$ is related to $y_3$
+    \item and so on...
+  \end{itemize}
+
+  \bigskip
+  In some sense, we have only a `single' observation 
+\end{frame}
+
+\imageframe{figures/time_series_sampling_orig.pdf}
+\imageframe{figures/time_series_sampling_extra_sample_1.pdf}
+\imageframe{figures/time_series_sampling_extra_sample_2.pdf}
+\imageframe{figures/time_series_sampling_extra_sample_5.pdf}
+\imageframe{figures/time_series_sampling_and_mu.pdf}
+
+\begin{frame}{Thinking about inference with time-series}
+  \vspace*{-\bigskipamount}
+  $$
+    y_1, y_2, \dots, y_T
+  $$
+  
+  \bigskip
+  While every observation might be related to one another, we are typically willing to assume that as you move away in time, observations become less and less correlated.
+  
+
+  % TODO: golden rule of time-series (golden rule of spatial statistics)
+  \begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {2pt}{0pt}{blue}, interior hidden]
+    ``''
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Thinking about inference with time-series}
+  \vspace*{-\bigskipamount}
+  $$
+    y_1, y_2, \dots, y_T
+  $$
+  
+  Hence, statistical inference is quite a bit more challenging in time-series and requires weak dependency central limit theorems
+  \begin{itemize}
+    \item The intuition is that as you have larger and larger $T$, the information you have increases
+  \end{itemize}
+
+  \pause
+  \bigskip
+  But, we will not spend much time discussing that in this class:
+  \begin{itemize}
+    \item If you are running time-series regressions, default to Newey West standard errors; in \texttt{fixest}, use \texttt{vcov = NW(lag = \#)}
+  \end{itemize}
+\end{frame}
+
+
+\section{Learning from Time-Series}
+
+\begin{frame}{What we can gain from using time-series}
+  Time-series forecasting can be useful to:
+  \begin{itemize}
+    \item Predict future values based on past data
+
+    \item Inform decision-making by anticipating changes over time
+
+    \item Identify patterns like trends or seasonality
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Two goals of time-series}
+  There are two possible goals that we can tackle when working with time-series data:
+  \begin{enumerate}
+    \item Learn about \emph{persistent} patterns in how $y_t$ evolves over time while ignoring random fluctuations (inference)
+    \begin{itemize}
+      \item E.g. learn about seasonality, trends, etc.
+    \end{itemize}
+    
+    \medskip
+    \item Predict future values of $y_t$ (forecasting)
+    \begin{itemize}
+      \item The above step might be useful in predicting future $y$, but not necessary (only care about prediction)
+    \end{itemize}
+  \end{enumerate}
+
+  \bigskip
+  Will try to clarify when we are discussing forecasting vs. describing time-series patterns (inference)
+\end{frame}
+
+\begin{frame}{Learning from time-series}
+  We observe a set of time-series observations $y_t$. Think of the observed $y$ as being generated by 
+  $$
+    y_t = {\color[HTML]{B3114B} \mu_t} + \varepsilon_t
+  $$
+  \begin{itemize}
+    \item ${\color[HTML]{B3114B} \mu_t}$ is the `typical' or `systematic' value of $y$ at time $t$
+    
+    \item $\varepsilon_t$ is a random fluctuation
+  \end{itemize}
+
+  \bigskip
+  Of course, we do not know which fluctuations are due to $\mu_t$ changing over time or $\varepsilon_t$ changing over time
+  \begin{itemize}
+    \item Without any more structure, this is is an impossible task
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Learning from time-series}
+  \vspace*{-\bigskipamount}
+  $$
+    y_t = {\color[HTML]{B3114B} \mu_t} + \varepsilon_t
+  $$
+
+  Say we assume $\expec{\varepsilon_t} = 0$
+  \begin{itemize}
+    \item On average over different draws of the time-series, the error term is on average 0
+  \end{itemize}
+
+  \bigskip
+  But, our observed time-series is a single draw, so it's not obvious that the noise will `average away'
+  \begin{itemize}
+    \item Is the bump in the time-series just a shock that affected the unit for multiple periods or a systematic component
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Learning from time-series}
+  \vspace*{-\bigskipamount}
+  $$
+    y_t = {\color[HTML]{B3114B} \mu_t} + \varepsilon_t
+  $$
+
+  \bigskip
+  Two options for solving this:
+  \begin{enumerate}
+    \item Assume that $\varepsilon_t$ is not too persistent, and use some kind of `smoothing' method to smooth out noise
+    
+    \item Rely on functional form assumptions and run a time-series regression 
+    \begin{itemize}
+      \item By pooling over time, we are averaging out noise (but requires us to model ${\color[HTML]{B3114B} \mu_t}$ well)
+    \end{itemize}
+  \end{enumerate}
+\end{frame}
+
+\imageframe{figures/time_series_sampling_and_mu.pdf}
+
+\begin{frame}{}
+  $$
+    y_t = {\color[HTML]{B3114B} \mu_t} + \varepsilon_t
+  $$
+  
+  Here are some examples of what we can hope to learn using time-series data:
+  \begin{enumerate}
+    \item Identify \alert{seasonality} in data 
+    \begin{itemize}
+      \item Does the change in ${\color[HTML]{B3114B} \mu_t}$ over the year follow a standard pattern?
+      \item E.g. retail sales increasing in December
+    \end{itemize}
+    
+    \medskip
+    \item Detect long-term \alert{trends} and \alert{short-term shocks}
+    \begin{itemize}
+      \item How does ${\color[HTML]{B3114B} \mu_t}$ change over time? 
+
+      \item E.g. trends in GDP changing over time?
+      
+      \item E.g. recessions
+    \end{itemize}
+    
+    \medskip
+    \item Assess how \alert{strongly autocorrelated} the data is 
+    \begin{itemize}
+      \item How `sticky' shocks are from past periods are
+    \end{itemize}
+  \end{enumerate}
+\end{frame}
+
+
+\begin{frame}{Key insight in time-series forecasting}
+  \alert{Key Insight}: By analyzing the changes across time, we reveal structure and patterns that help in making better predictions. 
+  For example:
+  \begin{itemize}
+    \item Does yesterday's sales help us learn about what products people will buy today?
+    \item Do we see an up-swing in jacket sales every October?
+  \end{itemize}
+  
+  \pause
+  \bigskip
+  Of course, this can fail if the underlying structure of the world changes over time
+  \begin{itemize}
+    \item If we are using data from early 2000s on homes, we will surely fail at forecasting during the Great Recession
+    
+    % TODO: Check this !!!
+    \item Assumptions on the stability of the time-series is called \alert{stationarity} 
+  \end{itemize}  
+\end{frame}
+
+\begin{frame}{Evaluating forecasting methods}
+  As usual, we can use the mean-squared prediction error to evaluate our models:
+  $$
+    \text{MSE} = \frac{1}{T} \sum_{t=1}^T (y_t - \hat{y}_t)^2
+  $$
+
+  \begin{itemize}
+    \item Typically, will evaluate on the time-series data you do observe
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Plotting residuals}
+  It is also common in time-series methods to plot the residuals over time:
+  $t$ on x-axis and $y_t - \hat{y}_t$ on y-axis.
+  \begin{itemize}
+    \item If your forecast is doing a good job, then you should see no pattern in the residuals (``eyeball test'')
+  \end{itemize}
+
+  \bigskip
+  Beware!! Just because there's no remaining patterns in the residuals, does not mean your model is well fit. You could be overfitted!!
+\end{frame}
+
+\begin{frame}{Evaluating forecasting methods}
+  Time-series forecasting is particularly difficult to evaluate
+  \begin{itemize}
+    \item Our training data is past-values up until today
+    \item Our testing data is values in the future
+  \end{itemize}
+
+  \bigskip
+  If the structure of the world changes over time, then our testing data \emph{can} look fundamentally different over time
+  \begin{itemize}
+    \item Consumer preferences change over time can make predicting future sales hard
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Over-fitting}
+  For this reason, we have to be \emph{very} careful when using forecasting methods on time-series
+  \begin{itemize}
+    \item Over-fitting the past data makes us learn `false' time-series relationships
+  \end{itemize}
+\end{frame}
+
+% TODO: Example of zillow forecasting gone wrong
+
+
+
+
+
+
+\section{Time-series Statistics}
+
+\begin{frame}{Statistics of Time-series}
+  For the next few slides, we will discuss some \alert{statistics} of time-series data that we might be interested in
+
+  \bigskip
+  To review, in cross-sectional data, we mainly cared about:
+  \begin{itemize}
+    \item the \alert{mean} and the \alert{variance} of a single variable, and
+    \item the \alert{correlation} between two variables
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Autocovariance}
+  \alert{Autocovariance} measures the covariance between a variable and a lagged version of itself over successive time periods.
+
+  \bigskip
+  In formal terms, the autocovariance at lag $k$ is defined as:
+  $$
+    \gamma_k = \cov{y_t, y_{t-k}} = \expec{(y_t - \mu)(y_{t-k} - \mu)}
+  $$
+  where:
+  \begin{itemize}
+    \item $\mu$ is the mean of $y_t$,
+    \item $\cov{y_t, y_{t-k}}$ is the covariance between $y_t$ and $y_{t-k}$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Autocovariance}
+  \vspace*{-\bigskipamount}
+  $$
+    \gamma_k = \cov{y_t, y_{t-k}} = \expec{(y_t - \mu)(y_{t-k} - \mu)}
+  $$
+
+  \bigskip
+  \emph{Intuition}: Autocovariance helps quantify how much the past values of $y$ move together with its current value.
+  \begin{itemize}
+    \item When $y_{t-k}$ was above the mean, was $y_t$ typically above it's mean?
+  \end{itemize}
+
+  \bigskip
+  \pause
+  In most settings, it is likely that $\gamma_1 \geq \gamma_2 \geq \dots$
+  \begin{itemize}
+    \item More-recent `shocks' (in say $t-1$) tend to persist for a little and then fade-out
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Autocovariance}
+  \vspace*{-\bigskipamount}
+  $$
+    \gamma_k = \cov{y_t, y_{t-k}} = \expec{(y_t - \mu)(y_{t-k} - \mu)}
+  $$
+
+  \bigskip
+  As an aside, note that when $k = 0$, 
+  $$
+    \gamma_0 = \cov{y_t, y_t} = \var{y_t}
+  $$
+\end{frame}
+
+\begin{frame}{Autocorrelation}
+  \alert{Autocorrelation} is the normalized version of autocovariance. It measures the correlation of a variable with its lagged values.
+
+  \bigskip
+  The autocorrelation at lag $k$ is defined as:
+  $$
+    \rho_k = \frac{\gamma_k}{\var{y_t}} = \frac{\cov{y_t, y_{t-k}}}{\var{y_t}}
+  $$
+  where:
+  \begin{itemize}
+    \item $\gamma_k$ is the autocovariance at lag $k$,
+    \item $\gamma_0$ is the variance of $y_t$ (i.e., autocovariance at lag 0).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Autocorrelation}
+  \vspace*{-\bigskipamount}
+  $$
+    \rho_k = \frac{\gamma_k}{\var{y_t}} = \frac{\cov{y_t, y_{t-k}}}{\var{y_t}}
+  $$
+  
+  \bigskip
+  \alert{Intuition}: Autocorrelation tells us the strength of the relationship between $y_t$ and its past values. It ranges between -1 and 1.
+\end{frame}
+
+% TODO: Covariance graphically
+% Maybe a horizontal line at ybar and then visually walk through 
+% 1. Do with AR(1) process
+% 2. Do with trending process to show limitiations of autocorrelation
+% \begin{frame}{Limitations of autocorrelation}
+%   
+% \end{frame}
+
+\begin{frame}{Examples of Covariance}
+  Let's give two examples to help build intuition:
+  \begin{enumerate}
+    \item The first time-series will have very significant autocorrelation
+    
+    \item The second time-series will have near zero autocorrelation
+  \end{enumerate}
+\end{frame}
+
+\imageframe{figures/ex_autocov_ts_y1.pdf}
+\imageframe{figures/ex_autocov_y1.pdf}
+\imageframe{figures/ex_autocov_ts_y2.pdf}
+\imageframe{figures/ex_autocov_y2.pdf}
+
+\begin{frame}{Autocorrelation with trends}
+  When the data is trending in a direction (e.g. up over time), the data will exhibit a strong autocorrelation.
+
+  \bigskip
+  E.g. we generate data with a trend and a winter seasonal effect plus an error term $\varepsilon_t$ that is normal and independent in each period
+  \begin{itemize}
+    \item The error term $\varepsilon_t$ exhibitis zero autocorrelation
+  \end{itemize}
+\end{frame}
+
+\imageframe{figures/ex_autocov_ts_y3.pdf}
+\imageframe{figures/ex_autocov_y3.pdf}
+
+\begin{frame}{Autocorrelation with trends}
+  Now, let's estimate a time-series regression (we will see how in the future) that estimates the trend and seasonal effects and subtracts them off
+
+  \bigskip
+  Then, we can evaluate the autocorrelation of the ``de-trended data'': $y_t - \hat{y}_t$
+  \begin{itemize}
+    \item In our example, we generated $\varepsilon_t$ with zero autocorrelation, so let's see how that looks
+  \end{itemize}
+\end{frame}
+
+\imageframe{figures/ex_autocov_ts_y3_resid.pdf}
+\imageframe{figures/ex_autocov_y3_resid.pdf}
+
+\begin{frame}{Unemployment Rate Example}
+  In the unemployment example, the time-series 
+  $$
+    \hat{\gamma}_1 = \cov{y_t, y_{t-1}} = 2.968 \quad \text{ and } \quad \hat{\rho}_1 = 0.961
+  $$
+  \begin{itemize}
+    \item Unsurprisingly the correlation of unemployment from 1-month to the next is very strong
+  \end{itemize}
+
+  \pause
+  \bigskip
+  This is useful for forecasting; a very strong autocorrelation tells us that recent values of $y$ should be useful for predicting future values of $y$
+\end{frame}
+
+\imageframe{figures/unemployment_rate.pdf}
+
+\begin{frame}{Unemployment Rate Example}
+  Let's look at the correlation unemployment over 12 periods (year to year)
+  $$
+    \hat{\rho}_{12} = 0.659
+  $$
+  \vspace*{-\bigskipamount}
+  \begin{itemize}
+    \item Shocks to last year's unemployment seem to `persist' into the current period
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Unemployment Rate Example}
+  If we use the reshuffled gdp data, what do we think the autocorrelation may be?
+  \pause
+  $$
+    \hat{\rho}_{1, \texttt{reshuffled}} =  -0.03081183
+  $$  
+
+  \bigskip
+  When we completely randomly shuffled the data, we have destroyed any autocorrelation! 
+  \begin{itemize}
+    \item This makes sense. If I reshuffled the data, knowing last month's (reshuffled) unemployment is no longer useful for predicting this month's (reshuffled) unemployment rate
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{How to calculate in R}
+  The first thing we need to do is calculate the sample mean $\bar{y} = \frac{1}{T} \sum_{t=1}^T y_t$ using \texttt{mean(y)}.
+
+  \bigskip
+  We want two vectors
+  $$
+    \begin{bmatrix}
+      y_1 \\
+      \vdots \\
+      y_{T-1} \\ 
+      y_T
+    \end{bmatrix}
+    \quad \text{and} \quad
+    \begin{bmatrix}
+      y_2 \\
+      \vdots \\
+      y_{T} \\
+      \texttt{NA}
+    \end{bmatrix}
+  $$
+
+  \bigskip
+  The first one is our original vector \texttt{y} and we need \texttt{L1\_y} (``lag 1 y'').
+
+  \bigskip
+  Then, calculate $\frac{1}{T} \sum_{t=2}^T (y_t - \bar{y}) (y_{t-1} - \bar{y})$
+\end{frame}
+
+\begin{frame}[fragile]{How to calculate in R}
+  First, we will do it by hand to make sure we follow all the steps
+  \begin{itemize}
+    \item Note this requires the time-series to be sorted in order!
+  \end{itemize}
+
+  \begin{codeblock}
+y <- 1:10
+T <- length(y)
+y_dm <- y - mean(y)
+sum(y_dm[1:(T - 1)] * y_dm[2:T]) / T
+#> [1] 5.775
+  \end{codeblock}
+\end{frame}
+
+\begin{frame}[fragile]{How to calculate in R}
+  Or we can use the \texttt{acf} function to make things way easier
+
+  \begin{codeblock}
+# Or, using a function
+acf(y, lag.max = 1, type = "covariance", plot = FALSE)
+#>    0    1 
+#> 8.25 5.78 
+
+acf(y, lag.max = 1, plot = FALSE)
+#> Autocorrelations of series 'y', by lag
+#> 
+#>   0   1 
+#> 1.0 0.7 
+  \end{codeblock}
+\end{frame}
+
+
+
+\end{document}

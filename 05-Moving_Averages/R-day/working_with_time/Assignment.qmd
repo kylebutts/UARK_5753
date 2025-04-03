@@ -4,7 +4,7 @@ author: "PUT YOUR NAME HERE"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 format: pdf
 ---
-In preperation for the remainder of the course, we will be thinking about working with data that is arranged in time. 
+In preparation for the remainder of the course, we will be thinking about working with data that is arranged in time. 
 To do so, we are going to practice working with dates in R.
 
 ```{r setup}
@@ -32,7 +32,7 @@ In this setting, year is just another regular *numeric* variable.
 Let's create a plot of enrollment over time. To do so, plot `year` on the x-axis and `total` on the y-axis.
 
 ```{r}
-
+plot(uark_enrollment$year, uark_enrollment$total)
 ```
 
 What do you see?
@@ -113,7 +113,8 @@ I think the easiest way to work with dates is to use the `lubridate` package whi
 First, we have `date()` which creates a Date object in R
 
 ```{r}
-today <- date("2024-10-22")
+today <- Sys.Date()
+print(today)
 class(today)
 ```
 
@@ -122,6 +123,13 @@ You can add and subtract days from `Date` objects. `1` is a single *day*.
 tomorrow <- today + 1
 next_class <- today + 2
 ```
+
+R knows leap years too!
+```{r}
+date("2023-02-27") + 2
+date("2024-02-27") + 2
+```
+
 
 `date` accepts a vector too:
 ```{r}
@@ -134,16 +142,17 @@ last_4_classes <- date(c("2025-03-20", "2025-03-18", "2025-03-13", "2025-03-11")
 
 Dates are internally represented as an integer in R. Try `as.numeric()` on the date and you'll get a weird number
 ```{r}
+today 
 as.numeric(today)
 ```
 
 It turns out, that the integer is the number of days since 1970-01-01 (an arbitrary reference point)
 ```{r}
-today - days(as.numeric(today))
-today - ymd("1970-01-01") 
+today - as.numeric(today)
+today - date("1970-01-01") 
 
-as.numeric(ymd("1970-01-01"))
-as.numeric(ymd("1970-01-03"))
+as.numeric(date("1970-01-01"))
+as.numeric(date("1970-01-03"))
 ```
 
 
@@ -162,6 +171,11 @@ This is because the date is in an ambiguous format. It does not know if "11-04-2
 Instead, lurbidate has a set of functions like `mdy`, `dmy`, `ymd`, etc. that will work.
 ```{r}
 football$date <- mdy(football$date)
+```
+
+The function is good at recognizing various date formats, e.g.:
+```{r}
+mdy("November 11th, 2023")
 ```
 
 Now we can plot our scores over time. and look, R will print out pretty labels!!
@@ -215,7 +229,9 @@ The first argument to this function is the data.frame you want to sort and the s
 ```{r}
 football <- sort_by(football, football$date)
 # equivalent:
-# football[order(football$date), ]
+# football <- dplyr::arrange(football, date)
+# equivalent:
+# football <- football[order(football$date), ]
 ```
 
 
