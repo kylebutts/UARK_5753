@@ -53,14 +53,14 @@ Missing or late problem sets will receive no credit.
 
 The breakdown of your final grade will be as follows:
 
-| **Assignment** | **Percent of grade** |
-|----------------|----------------------|
-| Problem Sets   | 20%                  |
-| Project 1      | 15%                  |
-| Project 2      | 15%                  |
-| Midterm        | 25%                  |
-| Final          | 25%                  |
-|                |                      |
+| **Assignment**             | **Percent of grade** |
+|----------------------------|----------------------|
+| Problem Sets               | 20%                  |
+| Cross Sectional Project    | 15%                  |
+| Time Series Project        | 15%                  |
+| Midterm                    | 25%                  |
+| Final                      | 25%                  |
+|                            |                      |
 
 
 
