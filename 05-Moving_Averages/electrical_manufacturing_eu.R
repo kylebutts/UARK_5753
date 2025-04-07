@@ -76,6 +76,33 @@ df$q_hat_avg_last_3 <-
     legend.location = "plot"
   ))
 
+(p_prediction_error_q_hat_last <- ggplot() +
+  geom_line(
+    aes(x = day, y = q_manufactured - q_hat_last, color = "B"),
+    data = df,
+    linewidth = 1
+  ) +
+  labs(
+    x = NULL,
+    y = "Prediction Error",
+    color = NULL
+  ) +
+  kfbmisc::theme_kyle(base_size = 14) +
+  scale_color_manual(
+    values = c(
+      "B" = "red"
+    ),
+    labels = c(
+      "B" = "$\\hat{y}_t - y_{t-1}$"
+    )
+  ) +
+  theme(
+    legend.position = "top",
+    legend.margin = margin(0, 0, 5, 0),
+    legend.justification = c(0, 1),
+    legend.location = "plot"
+  ))
+
 (p_q_hat_avg_last_3 <- ggplot() +
   geom_line(
     aes(x = day, y = q_manufactured, color = "A"),
@@ -101,6 +128,33 @@ df$q_hat_avg_last_3 <-
     labels = c(
       "A" = "$y_t$",
       "B" = "$\\hat{y}_t = \\sum_{k=1}^3 \\frac{1}{3} y_{t-k}$"
+    )
+  ) +
+  theme(
+    legend.position = "top",
+    legend.margin = margin(0, 0, 5, 0),
+    legend.justification = c(0, 1),
+    legend.location = "plot"
+  ))
+
+(p_prediction_error_q_hat_last_3 <- ggplot() +
+  geom_line(
+    aes(x = day, y = q_manufactured - q_hat_avg_last_3, color = "B"),
+    data = df,
+    linewidth = 1
+  ) +
+  labs(
+    x = NULL,
+    y = "Prediction Error",
+    color = NULL
+  ) +
+  kfbmisc::theme_kyle(base_size = 14) +
+  scale_color_manual(
+    values = c(
+      "B" = "red"
+    ),
+    labels = c(
+      "B" = "$\\hat{y}_t - y_{t-1}$"
     )
   ) +
   theme(
@@ -385,8 +439,22 @@ kfbmisc::tikzsave(
   height = 4.5
 )
 kfbmisc::tikzsave(
+  here("05-Moving_Averages/figures/electrical_prediction_error_q_hat_last.pdf"),
+  plot = p_prediction_error_q_hat_last,
+  width = 8,
+  height = 4.5
+)
+kfbmisc::tikzsave(
   here("05-Moving_Averages/figures/electrical_q_hat_avg_last_3.pdf"),
   plot = p_q_hat_avg_last_3,
+  width = 8,
+  height = 4.5
+)
+kfbmisc::tikzsave(
+  here(
+    "05-Moving_Averages/figures/electrical_prediction_error_q_hat_avg_last_3.pdf"
+  ),
+  plot = p_prediction_error_q_hat_avg_last_3,
   width = 8,
   height = 4.5
 )
@@ -421,13 +489,4 @@ kfbmisc::tikzsave(
   plot = p_q_hat_ses_alphas,
   width = 8,
   height = 4.5
-)
-
-
-# %%
-library(tsibble)
-df$yearmonth <- tsibble::yearmonth(df$day)
-as_tsibble(
-  df,
-  index = yearmonth
 )

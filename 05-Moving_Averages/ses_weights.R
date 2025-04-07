@@ -1,3 +1,4 @@
+# %%
 library(tidyverse)
 library(here)
 
@@ -31,7 +32,7 @@ weights <- tibble(alpha = c(0.9, 0.75, 0.5, 0.25, 0.1)) |>
   labs(
     x = NULL,
     y = "Weight put on observation",
-    color = NULL
+    color = "$\\leftarrow$ More memory \\qquad \\qquad \\qquad \\qquad \\quad Quicker updating $\\rightarrow$"
   ) +
   scale_x_continuous(
     breaks = t,
@@ -48,12 +49,10 @@ weights <- tibble(alpha = c(0.9, 0.75, 0.5, 0.25, 0.1)) |>
       "zinc-800"
     ))
   ) +
-  kfbmisc::theme_kyle(base_size = 14, grid = "h") +
+  kfbmisc::theme_kyle(base_size = 14, grid = "h", legend = "top") +
   theme(
-    legend.position = "top",
-    legend.margin = margin(0, 0, 5, 0),
-    legend.justification = c(0, 1),
-    legend.location = "plot"
+    legend.title.position = "top",
+    legend.title = element_text(size = rel(1.125))
   ))
 
 # %%

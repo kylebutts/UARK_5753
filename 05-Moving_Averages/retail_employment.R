@@ -3,6 +3,9 @@ library(tidyverse)
 library(here)
 library(fpp3)
 library(fixest)
+library(tinytable)
+fs::dir_create(here("05-Moving_Averages/tables"))
+fs::dir_create(here("05-Moving_Averages/facts"))
 
 data(us_employment, package = "fpp3")
 retail_tsibble <- us_employment |>
@@ -31,28 +34,91 @@ retail <- retail_tsibble |>
   kfbmisc::theme_kyle(base_size = 14))
 
 # %%
-simple_exp_smooth <- function(x, alpha = 0.5) {
-  x_hat <- c(x[1])
-  for (t in 2:length(x)) {
-    x_hat[t] <-
-      alpha * x[t - 1] + (1 - alpha) * x_hat[t - 1]
+simple_exp_smooth <- function(y, alpha = 0.8) {
+  T <- length(y)
+  l <- rep(NA, T)
+  l[1] <- y[1] # l_1 = y_1
+
+  # Update l in each period
+  for (t in 2:length(y)) {
+    l[t] <- alpha * y[t] + (1 - alpha) * l[t - 1]
   }
-  x_hat[1] <- NA
-  return(x_hat)
+  return(l)
 }
 
-retail$employed_hat_ses_alpha_pt8 <- simple_exp_smooth(
-  retail$employed,
-  alpha = 0.8
+# retail$employed_hat_ses_alpha_0_8 <- simple_exp_smooth(
+#   retail$employed,
+#   alpha = 0.8
+# )
+# retail$employed_hat_ses_alpha_0_5 <- simple_exp_smooth(
+#   retail$employed,
+#   alpha = 0.5
+# )
+# retail$employed_hat_ses_alpha_0_2 <- simple_exp_smooth(
+#   retail$employed,
+#   alpha = 0.2
+# )
+retail$employed_hat_ses_alpha_0_8 <- ses(retail$employed, alpha = 0.8)$fitted
+retail$employed_hat_ses_alpha_0_5 <- ses(retail$employed, alpha = 0.5)$fitted
+retail$employed_hat_ses_alpha_0_2 <- ses(retail$employed, alpha = 0.2)$fitted
+retail$employed_hat_ses_opt <- ses(retail$employed)$fitted
+
+summary(ses(retail$employed))
+
+mspe_table <- tibble(alpha = seq(0.05, 0.95, 0.1))
+mspe_table$mspe <- map_dbl(
+  mspe_table$alpha,
+  \(alpha) {
+    sum(ses(algeria_economy$Exports, alpha = alpha)$residuals^2)
+  }
 )
-retail$employed_hat_ses_alpha_pt5 <- simple_exp_smooth(
-  retail$employed,
-  alpha = 0.5
+
+mspe_table |>
+  slice(1:5) |>
+  setNames(c("$\\alpha$", "MSPE")) |>
+  tt() |>
+  save_tt(
+    here("05-Moving_Averages/tables/ses_mspe_table_1.tex"),
+    overwrite = TRUE
+  )
+mspe_table |>
+  slice(6:n()) |>
+  setNames(c("$\\alpha$", "MSPE")) |>
+  tt() |>
+  save_tt(
+    here("05-Moving_Averages/tables/ses_mspe_table_2.tex"),
+    overwrite = TRUE
+  )
+
+opt_alpha <- ses(algeria_economy$Exports)$model$par["alpha"]
+cat(
+  round(opt_alpha, 3),
+  file = here("05-Moving_Averages/facts/ses_opt_alpha.tex")
 )
-retail$employed_hat_ses_alpha_pt2 <- simple_exp_smooth(
-  retail$employed,
-  alpha = 0.2
-)
+
+# %%
+holt_smoothing <- function(y, alpha = 0.5, beta = 0.2) {
+  T <- length(y)
+  l <- rep(NA, T)
+  b <- rep(NA, T)
+  l[1] <- y[1]
+  b[1] <- y[2] - y[1]
+
+  # Update l in each period
+  for (t in 2:length(y)) {
+    l[t] <- alpha * y[t] + (1 - alpha) * (l[t - 1] + b[t - 1])
+    b[t] <- beta * (l[t] - l[t - 1]) + (1 - beta) * b[t - 1]
+  }
+  return(data.frame(l = l, b = b))
+}
+retail$employed_hat_holt_alpha_0_5_beta_0_3 <-
+  holt(retail$employed, alpha = 0.5, beta = 0.3)$fitted
+retail$employed_hat_holt_alpha_0_5_beta_0_1 <-
+  holt(retail$employed, alpha = 0.5, beta = 0.1)$fitted
+retail$employed_hat_holt_alpha_0_1_beta_0_1 <-
+  holt(retail$employed, alpha = 0.1, beta = 0.1)$fitted
+retail$employed_hat_holt_opt <-
+  holt(retail$employed)$fitted
 
 
 # %%
@@ -91,12 +157,12 @@ retail$employed_resid <- retail$employed -
     linewidth = 1.25
   ) +
   geom_line(
-    aes(x = month, y = employed_hat_ses_alpha_pt8, color = "B"),
+    aes(x = month, y = employed_hat_ses_alpha_0_8, color = "B"),
     data = retail,
     linewidth = 1.25
   ) +
   geom_line(
-    aes(x = month, y = employed_hat_ses_alpha_pt2, color = "C"),
+    aes(x = month, y = employed_hat_ses_alpha_0_2, color = "C"),
     data = retail,
     linewidth = 1.25
   ) +
@@ -126,6 +192,116 @@ retail$employed_resid <- retail$employed -
     legend.location = "plot"
   ))
 
+# %%
+(p_retail_holt <- ggplot() +
+  geom_line(
+    aes(x = month, y = employed, color = "A"),
+    data = retail,
+    linewidth = 1.25
+  ) +
+  geom_line(
+    aes(
+      x = month,
+      y = employed_hat_holt_alpha_0_5_beta_0_3,
+      color = "B"
+    ),
+    data = retail,
+    linewidth = 1.25
+  ) +
+  geom_line(
+    aes(
+      x = month,
+      y = employed_hat_holt_alpha_0_5_beta_0_1,
+      color = "C"
+    ),
+    data = retail,
+    linewidth = 1.25
+  ) +
+  geom_line(
+    aes(
+      x = month,
+      y = employed_hat_holt_alpha_0_1_beta_0_1,
+      color = "D"
+    ),
+    data = retail,
+    linewidth = 1.25
+  ) +
+  labs(
+    x = NULL,
+    y = "Retail Employment (millions)",
+    color = NULL
+  ) +
+  scale_color_manual(
+    values = c(
+      "A" = kfbmisc::tailwind_color("zinc-300"),
+      "B" = kfbmisc::kyle_color("magenta"),
+      "C" = kfbmisc::kyle_color("blue"),
+      "D" = kfbmisc::kyle_color("green")
+    ),
+    labels = c(
+      "A" = "$y_t$",
+      "B" = "Holt $\\alpha = 0.5$, $\\beta = 0.3$",
+      "C" = "Holt $\\alpha = 0.5$, $\\beta = 0.1$",
+      "D" = "Holt $\\alpha = 0.1$, $\\beta = 0.1$"
+    )
+  ) +
+  kfbmisc::theme_kyle(base_size = 14) +
+  theme(
+    legend.position = "top",
+    legend.margin = margin(0, 0, 5, 0),
+    legend.justification = c(0, 1),
+    legend.location = "plot"
+  ))
+
+# %%
+(p_retail_opt <- ggplot() +
+  geom_line(
+    aes(x = month, y = employed, color = "A"),
+    data = retail,
+    linewidth = 1.25
+  ) +
+  geom_line(
+    aes(
+      x = month,
+      y = employed_hat_ses_opt,
+      color = "B"
+    ),
+    data = retail,
+    linewidth = 1.25
+  ) +
+  geom_line(
+    aes(
+      x = month,
+      y = employed_hat_holt_opt,
+      color = "C"
+    ),
+    data = retail,
+    linewidth = 1.25
+  ) +
+  labs(
+    x = NULL,
+    y = "Retail Employment (millions)",
+    color = NULL
+  ) +
+  scale_color_manual(
+    values = c(
+      "A" = kfbmisc::tailwind_color("zinc-300"),
+      "B" = kfbmisc::kyle_color("magenta"),
+      "C" = kfbmisc::kyle_color("blue")
+    ),
+    labels = c(
+      "A" = "$y_t$",
+      "B" = "SES optimal",
+      "C" = "Holt optimal"
+    )
+  ) +
+  kfbmisc::theme_kyle(base_size = 14) +
+  theme(
+    legend.position = "top",
+    legend.margin = margin(0, 0, 5, 0),
+    legend.justification = c(0, 1),
+    legend.location = "plot"
+  ))
 
 # %%
 (p_retail_2_by_12 <- ggplot() +
@@ -275,6 +451,12 @@ kfbmisc::tikzsave(
 kfbmisc::tikzsave(
   here("05-Moving_Averages/figures/retail_ses_alphas.pdf"),
   plot = p_retail_ses,
+  width = 8,
+  height = 4.5
+)
+kfbmisc::tikzsave(
+  here("05-Moving_Averages/figures/retail_holt.pdf"),
+  plot = p_retail_holt,
   width = 8,
   height = 4.5
 )
