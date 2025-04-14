@@ -1,0 +1,277 @@
+---
+title: "Smoothing Methods in R"
+author: "PUT YOUR NAME HERE"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+format: pdf
+---
+
+## Smoothing methods
+
+To estimate a rolling average, we will use the `slider` package. You may need to install it using `instll.packages("slider")`.
+
+We will experiment with the University of Arkansas enrollment data:
+
+```{r}
+library(slider)
+uark_enrollment <- data.frame(
+  year = c(2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024),
+  full_time = c(19508, 20379, 21047, 21415, 21668, 22144, 22602, 22193, 22070, 23282, 25214, 28426, 29886),
+  part_time = c(5029, 4962, 5190, 5339, 5526, 5414, 5176, 5366, 5492, 5786, 5722, 3714, 3724)
+)
+uark_enrollment$total <- uark_enrollment$full_time + uark_enrollment$part_time
+
+print(uark_enrollment$total)
+```
+
+The basic call is 
+`slide_dbl(x, mean, .before = #, .after = #, .complete = TRUE)`
+
+If we do `.before = 0` and `.after = 0`, we will average only $y_t$:
+
+```{r}
+slide_dbl(uark_enrollment$total, mean, .before = 0, .after = 0, .complete = TRUE)
+```
+
+If we want to average +- one year, we can use `.before = 1, .after = 1`
+
+```{r}
+slide_dbl(uark_enrollment$total, mean, .before = 1, .after = 1, .complete = TRUE)
+```
+
+
+#### Exercise
+
+Manually, check this is true for $y_{2013}$ by averaging the first 3 uark_enrollment$total:
+
+```{r}
+
+```
+
+
+### Using last-period's observation
+
+For forecasting into the future, the simplest method is to use last period's observation into the future. 
+We already learned how to do this using `c(NA, uark_enrollment$total[1:(T - 1)])`, but we can do it more simply by using `.before = 1, .after = -1`:
+
+```{r}
+uark_enrollment$total
+T <- nrow(uark_enrollment)
+# y_{t-1}
+c(NA, uark_enrollment$total[1:(T-1)])
+
+# Lag $y_t$ by 1
+slide_dbl(uark_enrollment$total, mean, .before = 1, .after = -1, .complete = TRUE)
+```
+
+### Last $K$ period's average $y_t$
+
+Or, we can do a rolling average of the previous values of $y_{t-k}$ from $k = 0, \dots, K$
+
+```{r}
+slide_dbl(uark_enrollment$total, mean, .before = 3, .after = 0, .complete = TRUE)
+```
+
+
+## Exercise
+
+1. Get $y_{t+1}$ using `slide_dbl` and store this in a variable called `y_lead` in `uark_enrollment`
+2. Calculate the $\rho_1$ autocorrelation coefficient using this newly created variable
+3. Compare this to the result of `acf` function
+
+```{r}
+
+```
+
+
+## Election Polling
+
+```{r}
+library(lubridate) # install.packages("lubridate")
+library(slider) # install.packages("slider")
+library(forecast) # install.packages("forecast")
+
+# Time-series data
+avg_polls <- read.csv("data/silver_bulletin_musk_favorability.csv")
+avg_polls$date <- ymd(avg_polls$date)
+```
+
+```{r}
+library(ggplot2) # install.packages("ggplot2")
+
+# Custom function to make nice looking plots with raw polls and smoothed
+plot_polls <- function(avg_polls, favorable_colname, unfavorable_colname) {
+  ggplot() +
+  geom_point(
+    aes(x = date, y = favorable, color = "A"),
+    data = avg_polls, shape = 21
+  ) +
+  geom_line(
+    aes(x = date, y = .data[[favorable_colname]], color = "A"),
+    data = avg_polls, size = 1.2
+  ) +
+  geom_point(
+    aes(x = date, y = unfavorable, color = "B"),
+    data = avg_polls, shape = 21
+  ) +
+  geom_line(
+    aes(x = date, y = .data[[unfavorable_colname]], color = "B"),
+    data = avg_polls, size = 1.2
+  ) +
+  scale_color_manual(
+    values = c("A" = "#22c55e", "B" = "#f87171"),
+    labels = c("A" = "Favorable", "B" = "Unfavorable")
+  ) +
+  labs(color = NULL, x = NULL, y = "Percent") +
+  theme_light(base_size = 14) +
+  theme(
+    legend.position = "top",
+    legend.justification = c(0, 1),
+    legend.location = "plot"
+  )
+}
+```
+
+```{r}
+plot_polls(avg_polls, "favorable", "unfavorable")
+```
+
+
+### Perform moving averages
+
+The most common way this noisy data is summarized is with a moving average. Since we are trying to forecast the future election, let's using a moving average only using $y_{t-K}, ..., y_t$ (i.e. `.before = K` and `.after = 0`). 
+
+Do the following:
+
+1. Create a 3-day one-sided moving average of `favorable` and `unfavorable`.
+
+```{r}
+# Insert code here
+avg_polls$favorable_ma_3day <- 
+avg_polls$unfavorable_ma_3day <-
+
+# Then plot it using our function:
+plot_polls(avg_polls, "favorable_ma_3day", "unfavorable_ma_3day")
+```
+
+2. Create a 7-day one-sided moving average:
+
+```{r}
+# Insert code here:
+avg_polls$favorable_ma_7day <- 
+avg_polls$unfavorable_ma_7day <-
+
+# Then plot it using our function:
+plot_polls(avg_polls, "favorable_ma_7day", "unfavorable_ma_7day")
+```
+
+3. Last, create a 14-day one-sided moving average:
+
+```{r}
+# Insert code here:
+avg_polls$favorable_ma_14day <- 
+avg_polls$unfavorable_ma_14day <-
+
+
+# Then plot it using our function:
+plot_polls(avg_polls, "favorable_ma_14day", "unfavorable_ma_14day")
+```
+
+
+#### Interpretation
+
+Compare the 3-day moving average versus the 14-day moving average. 
+Give a reason for why you might prefer the 3-day moving average and a reason for why you might prefer the 14-day moving average.
+
+Answer:
+
+
+
+
+
+
+
+
+
+### Simple exponential smoothing
+
+Here is code to perform simple exponential smoothing. `alpha` is the parameter that determines the smoothness:
+
+```{r}
+# `$fitted` grabs the fitted values in the observed time-series
+avg_polls$favorable_ses_pt8 = ses(avg_polls$favorable, alpha = 0.8)$fitted
+avg_polls$unfavorable_ses_pt8 = ses(avg_polls$unfavorable, alpha = 0.8)$fitted
+plot_polls(avg_polls, "favorable_ses_pt8", "unfavorable_ses_pt8")
+```
+
+Try now with alpha = 0.5 and alpha = 0.2
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+#### Interpretation
+
+Write answers to the following questions:
+
+1.  In your own words, what does the alpha parameter change about our prediction?
+
+Answer:
+
+
+
+
+## Severance popularity
+
+Now, for the final part of this assignment, we will be looking at daily wikipedia views for the TV show Severance.
+
+```{r}
+df <- read.csv("data/severance_wikipedia_views.csv")
+# convert to `Date` class
+df$date <- ymd(df$date)
+# Filter since December 2024
+df <- df[df$date >= ymd("2024-12-01"), ]
+
+ggplot() + 
+  geom_line(aes(x = date, y = views), data = df) + 
+  labs(x = NULL, y = "Daily Wikipedia Page Views") + 
+  theme_light(base_size = 14)
+```
+
+Here we are going to try and conduct inference on this time-series.
+We will try two approaches:
+1. A one-sided 5-day moving average
+2. Simple expoential smoothing
+
+Please comment on problems that each one has at capturing the spikes on the Friday premiere days
+
+```{r}
+df$views_5day_ma <- slide_dbl(df$views, mean, .before = 4L, .after = 0L, .complete = TRUE)
+df$views_ses <- ses(df$views)$fitted
+summary(ses(df$views))
+
+ggplot() + 
+  geom_line(aes(x = date, y = views), data = df, color = "grey40") + 
+  geom_line(
+    aes(x = date, y = views_5day_ma), 
+    data = df, color = "maroon", linewidth = 1.2
+  ) + 
+  geom_line(
+    aes(x = date, y = views_ses), 
+    data = df, color = "navy", linewidth = 1.2
+  ) + 
+  labs(x = NULL, y = "Daily Wikipedia Page Views") + 
+  theme_light(base_size = 14)
+```
+
+
+Answer:
+
+
+
+
+
