@@ -1,0 +1,929 @@
+\documentclass[aspectratio=169,t,11pt,table]{beamer}
+\usepackage{../includes/slides}
+\usepackage{../includes/math}
+\usepackage{../includes/uark_colors}
+\definecolor{accent}{HTML}{9D2235}
+\definecolor{accent2}{HTML}{2B5269}
+
+\title{Topic 6: Regression with Time Series Data}
+\subtitle{\it  ECON 4753 — University of Arkansas}
+\date{Fall 2024}
+\author{Prof. Kyle Butts}
+
+\begin{document}
+
+
+% ------------------------------------------------------------------------------
+\begin{frame}[noframenumbering,plain]
+\maketitle
+
+% \bottomleft{\footnotesize $^*$A bit of extra info here. Add an asterich to title or author}
+\end{frame}
+% ------------------------------------------------------------------------------
+
+\section{Time-series Regression}
+
+\begin{frame}{Local Methods}
+  The previous topic introduced smoothing methods for inference and prediction in time-series. The central idea to smoothing methods was to use `local' information:
+  \begin{itemize}
+    \item To form a forecast $\hat{y}_t$, use observations ``close'' to $t$
+  \end{itemize}
+
+  \bigskip
+  We studied the advantages and disadvantages of these methods: 
+  \begin{itemize}
+    \item Pro: these methods do good at picking up on sudden changes to $\mu_t$ (if the smoothing was not too extreme)
+
+    \item But, they did a bad job at learning about seasonality and trends
+    \begin{itemize}
+      \item Holts-Winter method can help with this
+    \end{itemize}
+
+    \item And, they required \alert{regular time-series}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Time-Series Regression Methods}
+  In this topic, we will focus on a different approach to conducting inference on time-series using our trusted friend \emph{regression}: 
+  \begin{itemize}
+    \item Regression uses all the observations to fit the model, so can better learn ``long-term'' trends and seasonality
+    
+    \item Can have irregular time-series
+    
+    \item Regression can include other predictors (e.g. predicting GDP given unemployment)
+  \end{itemize}
+
+  \bigskip
+  Compared to smoothing methods, regression does a less-good job at predicting short-term fluctuations 
+\end{frame}
+
+\begin{frame}{Time-series Regression Set-up}
+  All that we have learned in cross-sectional regressions will apply in the case of time-series. 
+  \begin{itemize}
+    \item The `unit of observation' is a time-period $t$
+    \item The outcome variable is the variable measured at time $t$, $y_t$
+    \item we will have a set of explanatory variables for each time-period (including functions of $t$ itself!)
+  \end{itemize}
+
+  \pause
+  \bigskip
+  Example, we will will discuss regressing $y_t$ on indicators for day of the week (Sunday through Saturday)
+  \begin{itemize}
+    \item regression coefficients will estimate the average $y$ for each day of the week
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Regression refresher}
+  For a set of explanatory variables, $X_t$, we predict $y_t$ using the model
+  $$
+    \hat{y}_t = X_t \beta
+  $$
+
+  \bigskip
+  The coefficient $\beta$ is estimated by minimizing the mean-squared prediction error
+  $$
+    \frac{1}{T} \sum_{t=1}^T (y_t - X_t \beta)^2
+  $$
+  \begin{itemize}
+    \item The only difference from cross-sectional regression is in the choice of $X_t$ (e.g. day-of-week indicators)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Missing data and Regression}
+  % TODO:
+  One distinct advantage about regression is that we do not require `complete' time-series data
+  \begin{itemize}
+    \item E.g. if we are missing data for some months, we can still estimate our model. 
+    \begin{itemize}
+      \item Smoothing methods have a difficult time with missing data
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Inference in Time-series Regression}
+  Inference is more complicated with time-series regressions
+  
+  \begin{itemize}
+    \item Shocks to one time-period $u_t$ can show up and impact other time-periods $u_s$
+    \item In principle, all observations are related with one-another
+  \end{itemize}
+
+  \pause
+  \bigskip\medskip
+  The idea of `repeated sampling' is a bit odd in this context too:
+  \begin{itemize}
+    \item Our sample is one realization of the time-series
+    
+    \item Resampling is like `rewinding' and getting a new history for $t = 1, \dots, T$
+  \end{itemize}
+
+  \pause
+  \bigskip
+  This topic is well-studied, but a good starting point is to use Newey-West standard errors (\texttt{nw} in \texttt{fixest})
+\end{frame}
+
+\section{Time-series Predictors}
+
+\begin{frame}{Time-series Predictors}
+  This section will introduce a set of useful predictors that can be used (in-combination) to perform inference on time-series data
+\end{frame}
+
+\subsection{Seasonality}
+
+\begin{frame}{Estimating seasonal trends}
+  The first predictor we will discuss is estimation of seasonal, or repeated, patterns:
+  \begin{itemize}
+    \item Quarterly patterns
+    \item Monthly patterns
+    \item Week-of-year patterns
+    \item Day-of-week patterns
+    \item Time-of-day patterns
+  \end{itemize}
+
+  \bigskip
+  These methods will rely on using a set of indicator variables
+\end{frame}
+
+\begin{frame}{Estimating seasonal trends}
+  The easiest way to estimate these patterns is to use the \texttt{lubridate} package to get the relevant variable. Then, create indicator variables using \texttt{i()} in your call to \texttt{feols} (from the \texttt{fixest} package)
+
+  \bigskip
+  \begin{center}
+    \begin{tabular}{@{} l @{\extracolsep{25pt}} l @{}}
+      \toprule
+      Quarterly    & \texttt{quarter(date)} \\ 
+      Monthly      & \texttt{month(date, label = TRUE)} \\ 
+      Week-of-year & \texttt{week(date)} \\ 
+      Day-of-week  & \texttt{wday(date, label = TRUE)} \\ 
+      Time-of-day  & \texttt{hour(date)} \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Estimating seasonal trends}
+  For example, consider the estimating a monthly pattern. 
+  The regression will be given by
+
+  $$
+    y_t = \alpha + \sum_{m = 2}^{12} \one{\texttt{Month}(t) = m} \beta_m + u_t
+  $$
+
+  \bigskip
+  Remember that since we have an intercept, one of the indicator variables will drop out.
+  
+  \bigskip
+  $\hat{\beta}_m$ represent the difference in average $y_t$ for month $m$ relative to the omitted month 
+  \begin{itemize}
+    \item E.g. if we do not include January, then $\hat{\beta}_{2}$ is the difference between Februaries' mean $y$ relative to January's
+  \end{itemize}
+\end{frame}
+
+\imageframe{figures/jewelry_sales_raw.pdf}
+
+\begin{frame}[fragile]{Predicting jewerly sales monthly pattern}
+  \begin{codeblock}
+df$month = month(df$date, label = TRUE)
+est_monthly <- feols(
+  sales ~ i(month), data = df, vcov = "hc1"
+)
+
+# predict sales ($) using the model 
+df$sales_hat <- predict(est_monthly)
+  \end{codeblock}
+\end{frame}
+
+\begin{frame}[fragile]{}
+  \begin{codeblock}
+            Estimate Std. Error    t value   Pr(>|t|)    
+(Intercept) -68.8100   0.556885 -123.56221  < 2.2e-16 ***
+month::Feb  108.3500   2.711906   39.95346  < 2.2e-16 ***
+month::Mar   49.4989   3.563492   13.89056  < 2.2e-16 ***
+month::Apr   65.3322   7.953131    8.21465 8.8182e-13 ***
+month::May  113.9544  19.769283    5.76422 9.5184e-08 ***
+month::Jun   57.2211   8.369328    6.83700 6.9588e-10 ***
+month::Jul   66.3544   2.017959   32.88196  < 2.2e-16 ***
+month::Aug   73.7322   0.928813   79.38332  < 2.2e-16 ***
+month::Sep   62.6767   1.275046   49.15639  < 2.2e-16 ***
+month::Oct   73.1767   1.561164   46.87316  < 2.2e-16 ***
+month::Nov   89.1433   1.553690   57.37526  < 2.2e-16 ***
+month::Dec  193.0322   3.738664   51.63134  < 2.2e-16 ***
+  \end{codeblock}
+\end{frame}
+
+\imageframe{figures/jewelry_sales_monthly_pattern.pdf}
+
+\begin{frame}{Significance tests}
+  $\hat{\beta}_m$ represent the difference in average $y_t$ for month $m$ relative to the omitted month 
+
+  \bigskip
+  We can use a $t$-test to compare if the month's average $y_t$ is significantly different than the omitted month:
+  \begin{itemize}
+    \item Test the null that $\hat{\beta}_m = 0$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Another example}
+  The following slides will present another example using daily data on the number of views on Peyton Manning's wikipedia page
+\end{frame}
+
+\imageframe{figures/peyton_raw.pdf}
+\imageframe{figures/peyton_monthly.pdf}
+
+\begin{frame}{Practice Questions}
+  On the following slide, I will present the results from our regression with monthly indicators. Answer the following questions (take a picture):
+  \begin{itemize}
+    \item What is the omitted category?
+    
+    \item In which month are the wikipedia views the highest?
+    
+    \item Are views significantly lower in February than January?
+    
+    \item How would you change this regression model to test if December has signicantly more views than November?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{}
+  \begin{codeblock}[{}]
+OLS estimation, Dep. Var.: views 
+             Estimate Std. Error   t value   Pr(>|t|)    
+(Intercept)  8.985181   0.051221 175.42034  < 2.2e-16 ***
+month::Feb  -0.583683   0.084752  -6.88696 6.9644e-12 ***
+month::Mar  -1.150467   0.073183 -15.72035  < 2.2e-16 ***
+month::Apr  -1.309271   0.057717 -22.68421  < 2.2e-16 ***
+month::May  -1.487304   0.056482 -26.33250  < 2.2e-16 ***
+month::Jun  -1.714787   0.057479 -29.83353  < 2.2e-16 ***
+month::Jul  -1.433526   0.060080 -23.86035  < 2.2e-16 ***
+month::Aug  -0.996372   0.058421 -17.05493  < 2.2e-16 ***
+month::Sep  -0.310229   0.070998  -4.36952 1.2890e-05 ***
+month::Oct  -0.409981   0.067193  -6.10155 1.1904e-09 ***
+month::Nov  -0.461025   0.066963  -6.88482 7.0678e-12 ***
+month::Dec  -0.427606   0.065228  -6.55556 6.5398e-11 ***
+  \end{codeblock}
+\end{frame}
+
+\subsection{Fourier Series}
+
+\begin{frame}{Fourier Series}
+  An alternate to using indicators for seasonal patterns, another popular approach is to use a \alert{fourier series}
+
+  \bigskip
+  Seasonality is a \alert{periodic pattern}, repeats after a set amount of time, i.e. in a fixed \alert{period}
+  \begin{itemize}
+    \item Similar to a taylor expansion, a fourier series is useful at approximating any periodic function
+  \end{itemize} 
+
+  \pause
+  \bigskip
+  Let $t$ denote the time period and $m$ denote the seasonal period
+  \begin{itemize}
+    \item $m$ is the number of periods in a cycle (e.g. daily data has 365 days in a year)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Fourier Series}
+  $$
+    x_{1,t} = \sin\left(2\pi \frac{t}{m}\right),
+    x_{2,t} = \cos\left(2\pi \frac{t}{m}\right),
+  $$
+  $$
+    x_{3,t} = \sin\left(2\pi \frac{2t}{m}\right),
+    x_{4,t} = \cos\left(2\pi \frac{2t}{m}\right),
+  $$
+  $$
+    x_{5,t} = \sin\left(2\pi \frac{3t}{m}\right),
+    x_{6,t} = \cos\left(2\pi \frac{3t}{m}\right),
+  $$
+  
+  \bigskip
+  \begin{itemize}
+    \item $t / m$ is how far along the period, $m$, you are
+    
+    \item $2 \pi$ is there to determine how long before completing 1 cycle
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Fourier Series}
+  The \alert{order} $K$ says how many \emph{pairs} of sine and cosine functions to include
+  \begin{itemize}
+    \item Terms of the form $\sin\left(2\pi \frac{k * t}{m}\right)$ and $\cos \left(2\pi \frac{k * t}{m}\right)$ for $k = 1, \dots, K$
+  \end{itemize}
+
+  \bigskip
+  As $K$ gets larger, you can estimate more and more rapid ``swings'' in the seasonal pattern
+  \begin{itemize}
+    \item As $K \to \infty$, you can approximate \emph{any} periodic function
+    
+    \item This method is popular because even small $K$ captures seasonality well!
+  \end{itemize}
+\end{frame}
+
+\imageframe{figures/us_gasoline_raw.pdf}
+\imageframe{figures/us_gasoline_indicators.pdf}
+\imageframe{figures/us_gasoline_fourier.pdf}
+
+\begin{frame}{Fourier Advantages}
+  A main advantage of a fourier series compared to the indicator approach is that there are typically far fewer parameters to estimate:
+  \begin{itemize}
+    \item $K = 1$ has 2 parameters to fit and does quite well!
+    
+    \item versus 12 parameters for monthly indicators
+  \end{itemize}
+\end{frame}
+
+
+\subsection{Time-trends}
+
+\begin{frame}{Estimating time-trends}
+  While estimating seasonatity / recurring patterns is relatively simple, the trends of a time-series is much more difficult and flexible
+  \begin{itemize}
+    \item The general path of the time-series can evolve in many different ways
+  \end{itemize}
+
+  \bigskip
+  In general, we should look at the time-series data to inform us about how we want to model the trends. 
+  \begin{itemize}
+    \item The point of this section is to show you some methods you can use and when each might work well
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Linear time-trends}
+  The simplest model for trends is a \alert{linear time-trend}:
+  $$
+    y_t = \alpha + \lambda t + u_t
+  $$
+  Linear time-trends imply that the outcome variable $y_t$ grows (on average) by $\lambda$ for every-period
+
+  \bigskip
+  This is a quite restrictive model, but is often times sufficient
+\end{frame}
+
+% \imageframe{figures/gdp_raw.pdf}
+\imageframe{figures/gdp_linear_trend.pdf}
+
+\begin{frame}[fragile]{Estimating linear time trends in \texttt{R}}
+  \vspace*{-\bigskipamount}
+  $$
+    y_t = \alpha + \lambda t + u_t
+  $$
+
+  To run this regression, we need to generate the $t$ variable
+  \begin{itemize}
+    \item A column that contains $1, 2, 3, \dots, T$
+  \end{itemize}
+
+  \bigskip
+  Two notes:
+  \begin{itemize}
+    \item Note if we have missing observations, that is okay just skip those numbers 
+
+    \item $t$ can start at any value (not just 1)
+    \begin{itemize}
+      \item $\hat{\lambda}$ will be the same, $\hat{\alpha}$ will change
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Estimating linear time trends in \texttt{R}}
+  Remember that a \texttt{Date} object in R actually is just a number (the number of days since "1970-01-01")
+  \begin{itemize}
+    \item This means internally consecutive days look like $t, t+1, t+2, \dots$ like we need! 
+    \item Or, monthly data is spaced by 28/30/31 days
+  \end{itemize}
+
+  \bigskip
+  So for a linear time-trend, you can just use `date' as a continuous variable
+  \begin{itemize}
+    \item A 1 unit increase in \texttt{date} $==$ the following day
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Estimating linear time trends in \texttt{R}}
+
+  \begin{codeblock}
+feols(gdp ~ date, data = df, vcov = "hc1")
+  \end{codeblock}
+
+  \medskip
+  \begin{codeblock}[{}]
+OLS estimation, Dep. Var.: gdp
+Observations: 99
+Standard-errors: Heteroskedasticity-robust 
+                Estimate Std. Error  t value  Pr(>|t|)    
+(Intercept) -11945.78793 898.176248 -13.3000 < 2.2e-16 ***
+date             1.89173   0.063438  29.8201 < 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+  \end{codeblock}
+\end{frame}
+
+\begin{frame}[fragile]{Interpreting linear time trend}
+  \vspace*{-\bigskipamount}
+  \begin{codeblock}[{}]
+                Estimate Std. Error  t value  Pr(>|t|)    
+(Intercept) -11945.78793 898.176248 -13.3000 < 2.2e-16 ***
+date             1.89173   0.063438  29.8201 < 2.2e-16 ***
+  \end{codeblock}
+
+  \bigskip
+  Every 1 day, U.S. GDP is predicted to grow by 1.89 billion \$ 
+  \begin{itemize}
+    \item Every quarter, $91 * 1.89 = 171.99$ billion \$
+
+    \item Every year, $365 * 1.89 = 689.85$ billion \$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Forecasting with linear time trend}
+  To forecast into the future, you just extend the time-trend $T+1, T+2, \dots$
+  
+  \bigskip
+  The forecasted value becomes 
+  $$
+    \hat{y}_{T+k} = \hat{\alpha} + \hat{\lambda} (T+k)
+  $$
+
+  \pause
+  \begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {4pt}{0pt}{yellow}, interior hidden]
+    {\color{yellow}\Large $!$\ } Note of Caution: Always \emph{be careful extending time-trends} too far out
+  \end{tcolorbox}
+
+  \begin{itemize}
+    \item E.g. say you predicted a slightly higher $\hat{\lambda}$ than the true growth rate, extending that out 15 periods means you will estimate $\hat{y}_{T + 15}$ to be way too high
+  
+    \smallskip
+    \item More, time-trends tend to plateau (e.g. virality tends to die out)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Linear Time-trends Failure}
+  While time-trends do a great job at summarizing succinctly a trend in $y_t$, it often can be too crude
+
+  \begin{itemize}
+    \item Perhaps the trend changes over time (e.g. improvements slow down)
+    
+    \item Especially at risk when the time-series is long
+  \end{itemize}
+
+  \bigskip
+  One way to check for this is to look at the difference between $y_t - \hat{y}_t$
+  \begin{itemize}
+    \item Visually inspect if the residual has any remaining trends
+  \end{itemize}
+
+  \bigskip
+  Let's look at the example of the time for the winner of the Boston Marathon
+\end{frame}
+
+\imageframe{figures/marathon_linear_trend.pdf}
+\imageframe{figures/marathon_minutes_minus_linear_trend.pdf}
+
+\begin{frame}{Quadratic trends}
+  Given our discussion in cross-sectional regression, you might be tempted to model more flexible `trends' via higher-order polynomial terms
+  $$
+    y_t = \alpha + \lambda_1 t + + \lambda_2 t^2 u_t
+  $$
+
+  \bigskip
+  \begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {4pt}{0pt}{red}, interior hidden]
+    {\color{red}\Large $\times$\ } Do not do this! When you forecast into the future, the higher order polynomials can shoot off very quickly! 
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Changing trends}
+  One way to improve our model without introducing too much complexity is to break up the series into different `epoch' (i.e. eras / moments). 
+  \begin{itemize}
+    \item Estimate a separate trend for each epoch
+  \end{itemize}
+
+  \bigskip
+  This is called a \alert{piecewise linear trends}. 
+  In our marathon times example:
+  \begin{itemize}
+    \item An initial epoch of small changes in time,
+    \item Followed by a steep decline in times, 
+    \item and then a final epoch where things leveled off
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Changing trends}
+  More formally, let $B_\ell$ be the breakpoints for each epoch. Then, we can write our model as 
+  $$
+    y_t = \alpha + \lambda_1 t + \sum_{\ell = 2}^L \one{t \geq B_\ell} * (t - B_\ell) * \lambda_\ell + u_t
+  $$
+  \begin{itemize}
+    \item At each point $B_2, \dots, B_L$, the slope changes
+    \item $\hat{\lambda}_1$ is the slope of the first epoch
+    \item $\hat{\lambda}_2, \dots, \hat{\lambda}_L$ are the difference in slopes from the preivous epoch
+  \end{itemize}
+
+  \bigskip
+  For example, to get the slope in the third-epoch we do $\hat{\lambda}_1 + \hat{\lambda}_2 + \hat{\lambda}_3$
+\end{frame}
+
+\begin{frame}[fragile]{Epoch in R}
+  In \texttt{R}, you can define epoch like:
+  \begin{codeblock}
+df$trend_1 <- df$year
+df$trend_2 <- (df$year - 1950) * (df$year > 1950)
+df$trend_3 <- (df$year - 1980) * (df$year > 1980)
+  \end{codeblock}
+
+  Then you estimate the piece-wise time trend model with
+  \begin{codeblock}
+feols(y ~ trend_1 + trend_2 + trend_3, data = df)
+  \end{codeblock}
+\end{frame}
+
+\imageframe{figures/marathon_linear_trend.pdf}
+\imageframe{figures/marathon_piecewise_linear.pdf}
+
+\begin{frame}{Splines}
+  \vspace*{-\bigskipamount}
+  $$
+    y_t = \alpha + \lambda_1 t + \sum_{\ell = 2}^L \one{t \geq B_\ell} * (t - B_\ell) * \lambda_\ell + u_t
+  $$
+  
+  \bigskip
+  Piece-wise linear models are actually just a specific version of splines! 
+  \begin{itemize}
+    \item specifically $p = 1$ (linear), $s = 1$ (connected)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Why we need ``Centering''}
+  Say we ran the model without subtracting off $B_\ell$:
+  $$
+    y_t = \alpha + \lambda_1 t + \sum_{\ell = 2}^L \one{t \geq B_\ell} * t * \lambda_\ell + u_t
+  $$
+
+  \bigskip
+  This model would estimate three separate lines, all sharing a common intercept ($\alpha$)
+  \begin{itemize}
+    \item By centering $t - B_\ell$, we are instead making the lines connect at the knots of $B_\ell$
+  \end{itemize}
+\end{frame}
+
+\imageframe{figures/marathon_piecewise_linear_without_centering.pdf}
+
+\begin{frame}{Forecasting with changing trends}
+  \vspace*{-\bigskipamount}
+  $$
+    y_t = \alpha + \lambda_1 t + \sum_{\ell = 2}^L \one{t \geq B_\ell} * (t - B_\ell) * \lambda_\ell + u_t
+  $$
+  
+  \bigskip
+  For forecasting, note that your prediction will be based on the slope of the final epoch
+  \begin{itemize}
+    \item This is because $T + k \geq B_L$, so all the $\lambda_\ell$ are `active'
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Choosing breakpoints}
+  We selected the breakpoints, more or less, visually
+  \begin{itemize}
+    \item 1950 and 1980 looked to be when breaks happen and nice round numbers
+  \end{itemize}
+
+  \pause
+  \bigskip
+  Alternatively, we could try and `detect' break-points
+  \begin{itemize}
+    \item The goal is to select $B_\ell$ to do the best job at predicting $y_t$
+    \item Perhaps even select the number of breaks $L$
+  \end{itemize}
+
+  \pause
+  \bigskip
+  The rough idea would be to select $B_1, \dots, B_L$ to minimize mean-squared prediction error
+  \begin{itemize}
+    \item But, we must be careful not to overfit the data! Can either `regularize' or try and hold out a random portion of the time-series to evaluate out-of-sample MSPE
+  \end{itemize} 
+\end{frame}
+
+
+
+\subsection{More flexibly modelling trends}
+
+% TODO: Add year effects
+\begin{frame}{Flexibly modelling trends}
+  The linear time-trend $\lambda t$ is useful for:
+  \begin{itemize}
+    \item Summarizing the time-series trend succinctly
+    
+    \item Useful for forecasting into the future
+
+    \item But can be over-simplifying of a model
+  \end{itemize}
+
+  \bigskip
+  If inference is the goal, we can more flexibly model trends using more fine-grained indicator variables (e.g. month $\times$ year)
+  \begin{itemize}
+    \item This limits the ability to extrapolate into the future because we can not estimate the coefficient for years outside our sample
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Monthly patterns vs. Year-by-month}
+  What we have seen so far is how to estimate a recurring monthly pattern
+  \begin{itemize}
+    \item Each year has the same predicted value in a given month
+  \end{itemize}
+
+  \pause
+  \bigskip
+  When you have something like weekly or daily data, you can estimate a year-by-month pattern
+  \begin{itemize}
+    \item The estimate for January 2015 is different from January 2016
+    \item In \texttt{R}, you can use the \texttt{yearmonth()} function from the \texttt{tsibble} package
+  \end{itemize}
+\end{frame}
+
+\imageframe{figures/peyton_raw.pdf}
+\imageframe{figures/peyton_year_by_month.pdf}
+
+\begin{frame}{Monthly patterns vs. Year-by-month}
+  Note that while year-by-month offers more detail, it is harder to interpret
+  \begin{itemize}
+    \item Monthly patterns are easier to convey and more informative for future forecasting
+    \item Year-by-month patterns are more flexible at inference, but can not be used for forecasting in the future (January 2025 is different from Janaury 2024)
+  \end{itemize}
+
+  \pause
+  \bigskip
+  When your time-series has a longer interval (e.g. monthly), you can not use year-by-month indicator variables
+  \begin{itemize}
+    \item If you have monthly data, your year-by-month indicators will \emph{perfectly} fit the data
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{A mix of the two}
+  One way to balance between these two approaches is to:
+  \begin{itemize}
+    \item Use month indicator variables for seasonality
+    
+    \item Use indicators for each year to let a level shift for each year
+  \end{itemize}
+
+  \bigskip
+  I did this for our Peyton Manning views dataset
+  \begin{itemize}
+    \item Because of domain knowledge, I use season effects rather than year effects (the `year' starts in September)
+  \end{itemize}
+\end{frame}
+
+\imageframe{figures/peyton_season_effects.pdf}
+
+
+\subsection{Step-functions}
+
+% TODO: Steps for recessions (e.g. post 2008? )
+% TODO: Difference between level-shift for all post-periods or indicator for recession period
+
+\begin{frame}{Outliers / Weird Shocks}
+  Sometimes, your dataset will have really weird jumps
+  \begin{itemize}
+    \item E.g. Covid-19 pandemic shows up in a lot of time-series plots
+    % \item E.g. when I was at Microsoft, South American countries would have Xbox usages spikes when FIFA would come out (it would come out at different times of the year)
+  \end{itemize}
+
+  \bigskip
+  These really odd periods of time, while few in number, can have a large effect on your forecasting models
+\end{frame}
+
+\imageframe{figures/melbourne_pedestrians_raw.pdf}
+\imageframe{figures/melbourne_pedestrians_monthly.pdf}
+
+\begin{frame}{Dealing with Weird Shocks}
+  For these periods, we can either
+  \begin{itemize}
+    \item (1) drop them from the regression (potentially losing valuable information)
+    
+    \item (2) or, add these shocks to our model
+  \end{itemize}
+
+  \pause
+  \bigskip
+  To adapt our model, we will add indicator variables for ranges (similar to our Epoch time-trends)
+  $$
+    y_t = \alpha + \sum_{m = 1}^{12} \one{\texttt{Month}(t) = m} \beta_m + \text{Covid Period}_t \delta_1 + \text{Post-Covid Period}_t \delta_2 + u_t
+  $$
+  
+  \begin{itemize}
+    \item Let's see how this small change impacts our forecast performance
+  \end{itemize}
+\end{frame}
+
+\imageframe{figures/melbourne_pedestrians_monthly_and_covid.pdf}
+
+\begin{frame}[fragile]{Coding in \texttt{R}}
+  \begin{codeblock}
+df$covid_period <- (df$date >= ymd("2020-03-21")) & 
+  (df$date < ymd("2020-10-27"))
+df$post_covid_period <- (df$date >= ymd("2020-10-27"))
+
+est <- feols(
+  ppl ~ i(month) + i(covid_period) + i(post_covid_period),
+  data = df, vcov = "hc1"
+)
+df$ppl_hat <- predict(est)
+  \end{codeblock}
+\end{frame}
+
+\begin{frame}{Dealing with Structural Changes}
+  In some cases, we see fundamental changes to the economy
+  \begin{itemize}
+    \item Periods prior to some point have different seasonal patterns and trends
+  \end{itemize}
+
+  \bigskip
+  In this case, you could interact month indicators with pre- and post- indicators 
+  \begin{itemize}
+    \item Month $\times$ Pre indicators estimate pattern \emph{before} switch
+    \item Month $\times$ Post indicators estimate pattern \emph{after} switch
+    
+    \item Adding a Post indicator allows the average level to be different before/after
+  \end{itemize}
+\end{frame}
+
+
+\subsection{Additional covariates}
+
+\begin{frame}{Additional covariates}
+  So far all of our methods have just relied on using the \texttt{date} as the explanatory variable and have discussed different ways of using that:
+  \begin{itemize}
+    \item Smoothing averages based on time
+    \item Seasonal patterns
+    \item Linear, piecewise, or more flexible time-trends
+  \end{itemize}
+
+  \bigskip
+  One huge advantage of regressions is that you can include other predictors in your model
+  \begin{itemize}
+    \item E.g. predicting sales on a given day using month indicators and \emph{also} the price on the day
+  \end{itemize}  
+\end{frame}
+
+\begin{frame}{Including additional covariates}
+  \vspace*{-\bigskipamount}
+  $$
+    \text{sales}_t = \alpha + \sum_{m = 1}^{12} \one{\texttt{Month}(t) = m} \beta_m + p_t \gamma + u_t
+  $$
+
+  In this case, we include linearly the price charged at time $t$ for the good
+
+  \pause
+  \bigskip
+  This regression model can be (approximately) interpreted as:
+  \begin{enumerate}
+    \item First, removing the portion of sales that are predicted by the variation in price over time
+    
+    \item Second, running a time-series regression on the remaining variation
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Usefullness of covariates}
+  \vspace*{-\bigskipamount}
+  $$
+    \text{sales}_t = \alpha + \sum_{m = 1}^{12} \one{\texttt{Month}(t) = m} \beta_m + p_t \gamma + u_t
+  $$
+
+  The big advantage is we can now make predictions into the future where we both:
+  \begin{itemize}
+    \item Set the price to what we intend for it to be
+    \item And extrapolate the time-series pattern into the future
+  \end{itemize}  
+\end{frame}
+
+
+\section{(Review of) Inference on regression forecasts}
+
+\begin{frame}{Inference on forecasts}
+  So far we have discussed creating inference and forecasts $\hat{y}_t$ about time-series
+
+  \bigskip
+  We have remained silent on how to express uncertainty around our findings
+  \begin{itemize}
+    \item This is the second half of statistics!
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Prediction from regression}
+  For generality, we will consider the generic multiple regression model:
+  $$
+    y_t = \beta_0 + X_{1,t} \beta_1 + \dots + X_{K,t} \beta_K + u_t
+  $$
+  
+  \begin{itemize}
+    \item E.g. $K = 1$ and $X_{1,t}= t$ is the linear-time trend model
+  \end{itemize}
+
+  \bigskip
+  For a given value of $(x_{1}, \dots, x_{K})$, our prediction is given by
+  $$
+    \hat{y} = \hat{\beta}_0 + x_1 \hat{\beta}_1 + \dots + x_K \hat{\beta}_K
+  $$
+\end{frame}
+
+\begin{frame}{Prediction from regression}
+  Compared to the true expected value of $y$:
+  $$
+    \expec{y}{x} = \beta_{0,0} + x_1 \beta_{1,0} + \dots + x_K \beta_{K,0}
+  $$
+
+  \bigskip
+  The difference between the two is due to noise in the coefficient estimates:
+  \begin{align*}
+    \hat{y} - \expec{y}{x} &= 
+    \left( \hat{\beta}_0 - \beta_{0,0} \right) + x_1 \left( \hat{\beta}_1 - \beta_{1,0} \right) + \dots + x_K \left( \hat{\beta}_K - \beta_{K,0} \right) 
+  \end{align*}
+
+  \bigskip
+  $\implies$ In repeated samples $\hat{\beta}$ are the only terms that vary
+\end{frame}
+
+\begin{frame}{Inference on Regression Predictions}
+  \vspace*{-\bigskipamount}
+  \begin{align*}
+    \hat{y} - \expec{y}{x} &= 
+    \left( \hat{\beta}_0 - \beta_{0,0} \right) + x_1 \left( \hat{\beta}_1 - \beta_{1,0} \right) + \dots + x_K \left( \hat{\beta}_K - \beta_{K,0} \right) 
+  \end{align*}
+
+  \bigskip
+  Remember, we know how to express uncertainty around each $\hat{\beta}$ using the $\text{SE}(\hat{\beta})$ from our regression table
+  \begin{itemize}
+    \item However, that is not enough since $\hat{\beta}$ might be correlated with each-other
+  \end{itemize}
+
+  \pause
+  \bigskip
+  This means each term in the above are correlated, so inference is more difficult
+  \begin{itemize}
+    \item Fortunately, the \texttt{predict} function you've seen provides standard errors on our prediction
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{In-sample prediction}
+  The first-thing we might want to do is predict $\hat{y}_t$ in our sample and add confidence intervals. This returns a data.frame with two-columns $\hat{y}$ and $\text{SE}(\hat{y})$
+  
+  \begin{codeblock}
+est <- feols(y ~ date, data = df, vcov = "hc1")
+# In-sample predictions
+predictions <- predict(est, se.fit = TRUE)
+  \end{codeblock}
+  \begin{codeblock}[{}]
+       fit   se.fit
+1 20817.14 225.9461
+2 20819.04 226.0038
+3 20820.93 226.0615
+4 20822.82 226.1192
+  \end{codeblock}
+\end{frame}
+
+\begin{frame}[fragile]{Forecasting into the future}
+  Then, we could try and predict out-of-sample. To do this, we need to create a new data.frame with the $X$ variables we need
+
+  \begin{codeblock}
+# The next 5 days from our sample
+prediction_df <- data.frame(
+  date = ymd("2021-06-30") + 1:5
+)
+predict(est_linear_trend, newdata = prediction_df, se.fit = TRUE)
+  \end{codeblock}
+\end{frame}
+
+\begin{frame}[fragile]{Forecasting and confidence intervals}
+  \begin{codeblock}
+predict(est_linear_trend, newdata = prediction_df, se.fit = TRUE)
+  \end{codeblock}
+  \begin{codeblock}[{}]
+       fit   se.fit
+1 23635.83 314.3643
+  \end{codeblock}
+
+  For the first-prediction, form a 95\% confidence interval for this prediction:
+  \pause
+  $$
+    23635.83 \pm 1.96 * 314.3643 = (23019.68, 24251.98)
+  $$
+\end{frame}
+
+\begin{frame}[fragile]{Forecasting and confidence intervals}
+  \begin{codeblock}
+predictions <- 
+  predict(est_linear_trend, newdata = prediction_df, se.fit = TRUE)
+predictions$ci_lower <- predictions$fit - 1.96 * predictions$se.fit
+predictions$ci_upper <- predictions$fit + 1.96 * predictions$se.fit
+  \end{codeblock}
+
+  \begin{codeblock}[{}]
+       fit   se.fit ci_lower ci_upper
+1 23635.83 314.3643 23019.67 24251.98
+2 23637.72 314.4248 23021.45 24253.99
+3 23639.61 314.4854 23023.22 24256.00
+4 23641.50 314.5459 23024.99 24258.01
+5 23643.39 314.6064 23026.77 24260.02
+  \end{codeblock}
+\end{frame}
+
+
+\end{document}
