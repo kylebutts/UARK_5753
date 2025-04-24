@@ -1,0 +1,99 @@
+---
+title: "Prophet Model"
+author: "PUT YOUR NAME HERE"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+format: pdf
+---
+
+```{r setup}
+#| include: false
+# Don't touch this chunk. This is setup code to hide your code chunks automatically (without needing to specify options on each chunk)
+knitr::opts_chunk$set(
+  # do not show code chunks
+  echo = FALSE,
+  # do not print warnings / console messages from code
+  warning = FALSE,
+  message = FALSE,
+  # better looking default plot dimensions
+  fig.width = 8,
+  fig.height = 5,
+  dpi = 200
+)
+library(lubridate)
+library(prophet)
+library(ggplot2)
+```
+
+
+## Bitcoin Daily Price Data
+
+```{r}
+bitcoin <- read.csv("bitcoin_daily.csv")
+bitcoin <- bitcoin[, c("date", "price_close")]
+colnames(bitcoin) <- c("ds", "y")
+bitcoin$ds <- ymd(bitcoin$ds)
+
+plot(x = bitcoin$ds, y = bitcoin$y, type = "l")
+```
+
+
+```{r}
+# Fit a prophet model using the defaults and plot the forecast (using `plot`) and then forecast 45 days into the future.
+
+```
+```{r}
+# Plot the components (using `prophet_plot_components`)
+
+```
+
+
+### Questions
+
+Consider a scenario where you work at a financial firm. You want to tell your boss to buy bitcoin if you forecast the price going up, but *really* don't want to be wrong. 
+
+1. What does your forecast predict to happen to the future price of bitcoin? Using your plot components, write why you think the forecast might be missing the recent jump in prices?
+
+ANSWER HERE
+
+
+2. Using your components plot, describe what you are assuming about the time-series trend when making the forecast. Should this make you feel cautious about your recommendation?
+
+ANSWER HERE
+
+
+
+
+
+## Trying with `ggplot2` daily downloads:
+
+```{r}
+downloads <- read.csv("ggplot2_downloads.csv")
+colnames(downloads) <- c("package", "ds", "y")
+downloads$ds <- ymd(downloads$ds)
+plot(x = downloads$ds, y = downloads$y, type = "l")
+```
+
+
+```{r}
+# Fit a prophet model using the defaults and plot the forecast (using `plot`) and then forecast 45 days into the future.
+
+```
+```{r}
+# Plot the components (using `prophet_plot_components`)
+
+```
+
+
+### Write-up
+
+Say you are a company that creates ggplot2. 
+Your boss assigns you to better understand how popular your package is.
+Present the above analysis in two parts: 
+1. Present the time-series components (trend, weekly effects, and yearly effects). Present this as a story of what the general usage patterns look like for the package over time, throughout the week, and over the year. 
+2. Then, discuss what the 45-day forecast is predicting. Try to explain intuitively why it is predicting that (hint: based on the trends). Present the uncertainty estimates when discussing the forecast. 
+
+Last, please delete these instructions before submitting! 
+I want this to be written up in a formal manner. 
+
+
+
