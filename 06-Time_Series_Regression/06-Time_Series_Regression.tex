@@ -119,7 +119,7 @@
 
   \pause
   \bigskip
-  This topic is well-studied, but a good starting point is to use Newey-West standard errors (\texttt{nw} in \texttt{fixest})
+  This topic is well-studied, but a good starting point is to use Newey-West standard errors (in \texttt{fixest} use\texttt{vcov = NW() \textasciitilde{} date})
 \end{frame}
 
 \section{Time-series Predictors}
@@ -185,7 +185,7 @@
   \begin{codeblock}
 df$month = month(df$date, label = TRUE)
 est_monthly <- feols(
-  sales ~ i(month), data = df, vcov = "hc1"
+  sales ~ i(month), data = df, vcov = NW() ~ date
 )
 
 # predict sales ($) using the model 
@@ -401,7 +401,7 @@ month::Dec  -0.427606   0.065228  -6.55556 6.5398e-11 ***
 \begin{frame}[fragile]{Estimating linear time trends in \texttt{R}}
 
   \begin{codeblock}
-feols(gdp ~ date, data = df, vcov = "hc1")
+feols(gdp ~ date, data = df, vcov = NW() ~ date)
   \end{codeblock}
 
   \medskip
@@ -723,7 +723,7 @@ df$post_covid_period <- (df$date >= ymd("2020-10-27"))
 
 est <- feols(
   ppl ~ i(month) + i(covid_period) + i(post_covid_period),
-  data = df, vcov = "hc1"
+  data = df, vcov = NW() ~ date
 )
 df$ppl_hat <- predict(est)
   \end{codeblock}
@@ -866,7 +866,7 @@ df$ppl_hat <- predict(est)
   The first-thing we might want to do is predict $\hat{y}_t$ in our sample and add confidence intervals. This returns a data.frame with two-columns $\hat{y}$ and $\text{SE}(\hat{y})$
   
   \begin{codeblock}
-est <- feols(y ~ date, data = df, vcov = "hc1")
+est <- feols(y ~ date, data = df, vcov = NW() ~ date)
 # In-sample predictions
 predictions <- predict(est, se.fit = TRUE)
   \end{codeblock}

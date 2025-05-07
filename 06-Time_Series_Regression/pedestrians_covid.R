@@ -16,7 +16,7 @@ df$month <- month(df$date, label = TRUE)
 est_monthly_pattern <- feols(
   ppl ~ i(month),
   data = df,
-  vcov = "hc1"
+  vcov = NW() ~ date
 )
 df$ppl_hat_monthly <- predict(est_monthly_pattern)
 
@@ -27,7 +27,7 @@ df$post_covid_period <- (df$date >= ymd("2020-10-27"))
 est_monthly_and_covid <- feols(
   ppl ~ i(month) + i(covid_period) + i(post_covid_period),
   data = df,
-  vcov = "hc1"
+  vcov = NW() ~ date
 )
 df$ppl_hat_monthly_and_covid <- predict(est_monthly_and_covid)
 

@@ -23,7 +23,7 @@ df <- here("05-Moving_Averages/data/FRED/GDP.csv") |>
 est_linear_trend <- feols(
   gdp ~ date,
   data = df,
-  vcov = "hc1"
+  vcov = NW() ~ date
 )
 df$gdp_hat <- predict(est_linear_trend)
 
@@ -57,12 +57,12 @@ df$quarter = yearquarter(df$date)
 feols(
   gdp ~ month,
   data = df,
-  vcov = "hc1"
+  vcov = NW() ~ date
 )
 feols(
   gdp ~ quarter,
   data = df,
-  vcov = "hc1"
+  vcov = NW() ~ date
 )
 
 # %%

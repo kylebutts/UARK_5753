@@ -24,7 +24,7 @@ df$month = month(df$date, label = TRUE)
 est_monthly_pattern <- feols(
   sales ~ i(month),
   data = df,
-  vcov = "hc1"
+  vcov = NW() ~ date
 )
 df$sales_hat <- predict(est_monthly_pattern)
 

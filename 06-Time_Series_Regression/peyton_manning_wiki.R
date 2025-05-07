@@ -13,7 +13,7 @@ df$month <- month(df$date, label = TRUE)
 est_monthly_pattern <- feols(
   views ~ i(month),
   data = df,
-  vcov = "hc1"
+  vcov = NW() ~ date
 )
 df$views_hat_monthly <- predict(est_monthly_pattern)
 
@@ -21,7 +21,7 @@ df$yearmonth <- yearmonth(df$date)
 est_yearmonth_pattern <- feols(
   views ~ i(yearmonth),
   data = df,
-  vcov = "hc1"
+  vcov = NW() ~ date
 )
 df$views_hat_yearmonth <- predict(est_yearmonth_pattern)
 
@@ -29,7 +29,7 @@ df$week <- week(df$date)
 est_weekly_pattern <- feols(
   views ~ i(week),
   data = df,
-  vcov = "hc1"
+  vcov = NW() ~ date
 )
 df$views_hat_weekly <- predict(est_weekly_pattern)
 
@@ -38,7 +38,7 @@ df$season <- year(df$date %m+% months(-9))
 est_monthly_and_season_fe <- feols(
   views ~ i(month) + i(season),
   data = df,
-  vcov = "hc1"
+  vcov = NW() ~ date
 )
 df$views_hat_monthly_and_season_fe <- predict(est_monthly_and_season_fe)
 
@@ -48,7 +48,7 @@ df$football_gameday <- (month(df$date) %in% c(9, 10, 11, 12, 1)) &
 est_monthly_and_gameday <- feols(
   views ~ i(month) + football_gameday,
   data = df,
-  vcov = "hc1"
+  vcov = NW() ~ date
 )
 df$views_hat_monthly_and_gameday <-
   predict(est_monthly_and_gameday)

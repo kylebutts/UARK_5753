@@ -283,7 +283,7 @@ As a preview of what is to come, let's see which quarter of the year has the low
 library(fixest)
 feols(
   unrate ~ 0 + i(quarter(date)),
-  data = unemployment, vcov = "hc1"
+  data = unemployment, vcov = NW() ~ date
 )
 ```
 

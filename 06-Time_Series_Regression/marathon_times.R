@@ -18,7 +18,7 @@ df <- boston_marathon |>
 est_trend <- feols(
   minutes ~ year,
   data = df,
-  vcov = "hc1"
+  vcov = NW() ~ year
 )
 df$minutes_hat <- predict(est_trend)
 
@@ -32,7 +32,7 @@ df$trend_3 <- (df$year - 1980) * (df$year > 1980)
 est_piecewise_trends <- feols(
   minutes ~ trend_1 + trend_2 + trend_3,
   data = df,
-  vcov = "hc1"
+  vcov = NW() ~ year
 )
 df$minutes_hat_piecewise_trends <- predict(est_piecewise_trends)
 
@@ -43,7 +43,7 @@ df$trend_3_uncentered <- df$year * (df$year > 1980)
 df$minutes_hat_uncentered <- predict(feols(
   minutes ~ trend_1_uncentered + trend_2_uncentered + trend_3_uncentered,
   data = df,
-  vcov = "hc1"
+  vcov = NW() ~ year
 ))
 df$epoch <- case_when(
   df$year > 1980 ~ 3,
