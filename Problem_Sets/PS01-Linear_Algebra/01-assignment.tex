@@ -1,19 +1,13 @@
 \documentclass[12pt]{article}
 \usepackage{../../includes/lecture_notes}
 \usepackage{../../includes/math}
-\usepackage{../../includes/uark_colors}
 
-\hypersetup{
-  colorlinks = true,
-  allcolors = ozark_mountains,
-  breaklinks = true,
-  bookmarksopen = true
-}
+
 
 \begin{document}
 \begin{center}
   {\Huge\bf Topic \#1 Assignment}
-  
+
   \smallskip
   {\large\it  ECON 5753 — University of Arkansas}
 
@@ -21,58 +15,58 @@
   {\large Prof. Kyle Butts}
 \end{center}
 
-These assignments should be completed in groups of 1 or 2 but submitted individually. 
+These assignments should be completed in groups of 1 or 2 but submitted individually.
 
 \section*{Theoretical Questions}
 
 \begin{enumerate}
-  \item Let 
+  \item Let
   $$
-    \bm{A} = \begin{bmatrix} 6 & 7 & 9 \\ 1 & 2 & 3 \\ 8 & 4 & 6 \end{bmatrix}, 
-    \quad 
+    \bm{A} = \begin{bmatrix} 6 & 7 & 9 \\ 1 & 2 & 3 \\ 8 & 4 & 6 \end{bmatrix},
+    \quad
     \bm{B} = \begin{bmatrix} 10 & 9 & 8 \\ 7 & 5 & 4 \\ 1 & 7 & 6 \end{bmatrix},
-    \quad \text{ and } 
+    \quad \text{ and }
     \bm{C} = \begin{bmatrix} 1 & 0 & 2 \\ 0 & 1 & 0 \\ 4 & 0 & 2 \end{bmatrix}.
-  $$ 
+  $$
   Calculate the following:
-  
+
   \begin{enumerate}
     \item $3\bm{B}^T + \bm{A}$
     \item $\bm{C}^T - 4\bm{A}$
     \item $(\bm{C}\bm{A})'$
   \end{enumerate}
-  
+
   \bigskip\bigskip
-  \item Let 
+  \item Let
   $$
-    \bm{X} = \begin{bmatrix} x_{11} & x_{12} & x_{13} \\ x_{21} & x_{22} & x_{23} \\ x_{31} & x_{32} & x_{33} \end{bmatrix}, 
-    \quad 
+    \bm{X} = \begin{bmatrix} x_{11} & x_{12} & x_{13} \\ x_{21} & x_{22} & x_{23} \\ x_{31} & x_{32} & x_{33} \end{bmatrix},
+    \quad
     \beta = \begin{bmatrix} \beta_1 \\ \beta_2 \\ \beta_3 \end{bmatrix}.
-  $$ 
+  $$
   Verify the following two are equivalent:
 
   $$
-    X \beta \quad \text{ and } 
-    X_{\cdot, 1} \beta_1 + X_{\cdot, 2} \beta_2 + X_{\cdot, 3} \beta_3 
+    X \beta \quad \text{ and }
+    X_{\cdot, 1} \beta_1 + X_{\cdot, 2} \beta_2 + X_{\cdot, 3} \beta_3
   $$
 
-  
+
   \newpage
   \item Match each matrix with its inverse:
-  
+
   $$
-    A = \begin{bmatrix} 1 & 2 & -1 \\ -2 & 0 & 1 \\ 1 & -1 & 0 \end{bmatrix}, 
-    \quad 
-    B = \begin{bmatrix} 2 & 4 & 1 \\ -1 & 1 & -1 \\ 1 & 4 & 0 \end{bmatrix}, 
-    \quad \text{ and } 
+    A = \begin{bmatrix} 1 & 2 & -1 \\ -2 & 0 & 1 \\ 1 & -1 & 0 \end{bmatrix},
+    \quad
+    B = \begin{bmatrix} 2 & 4 & 1 \\ -1 & 1 & -1 \\ 1 & 4 & 0 \end{bmatrix},
+    \quad \text{ and }
     C = \begin{bmatrix}  1 & 2 & 3 \\ 2 & 4 & 0 \\ 0 & 0 & 3 \end{bmatrix}
   $$
-  
+
   $$
-    a = \begin{bmatrix} -4 & -4 & 5 \\ 1 & 1 & -1 \\ 5 & 4 & -6 \end{bmatrix}, 
-    \quad 
-    b = \begin{bmatrix} 1 & 1 & 2 \\ 1 & 1 & 1 \\ 2 & 3 & 4\end{bmatrix}, 
-    \quad \text{ and } 
+    a = \begin{bmatrix} -4 & -4 & 5 \\ 1 & 1 & -1 \\ 5 & 4 & -6 \end{bmatrix},
+    \quad
+    b = \begin{bmatrix} 1 & 1 & 2 \\ 1 & 1 & 1 \\ 2 & 3 & 4\end{bmatrix},
+    \quad \text{ and }
     c = \text{ Not invertible}.
   $$
 
@@ -81,14 +75,14 @@ These assignments should be completed in groups of 1 or 2 but submitted individu
   \item Let $$
     \varepsilon = \begin{bmatrix}\varepsilon_1 \\ \varepsilon_2\end{bmatrix} \sim \mathcal{N}\left( \begin{bmatrix}1 \\ 1\end{bmatrix}, \begin{bmatrix}\sigma_1^2 & \sigma_{12} \\ \sigma_{12} & \sigma_2^2\end{bmatrix} \right).
   $$
-  
+
   What is the distribution of $\begin{bmatrix} 1 & 1 \end{bmatrix} \varepsilon$?
 
   \bigskip\bigskip
   \item Let $f(x, y) = x^2 + y^2 + 2xy$.
   \begin{enumerate}
     \item What is $\frac{\partial}{\partial x} f(x,y)$ and $\frac{\partial}{\partial y} f(x,y)$?
-    
+
     \item Use this to create a taylor approximation of this function at $(x_0, y_0)$. Write this in the form of:
     $$
       f(x_0 + dx, y_0 + dy) \approx f(x_0, y_0) + \begin{bmatrix}\frac{\partial}{\partial x} f(x_0,y_0) & \frac{\partial}{\partial x} f(x_0,y_0)\end{bmatrix} \begin{bmatrix}dx \\ dy\end{bmatrix}

@@ -4,8 +4,8 @@
 \renewcommand{\baselinestretch}{1.5}
 
 % Remove annoying over-full box warnings
-\vfuzz=2pt 
-\hfuzz=2pt
+\vfuzz=10pt
+\hfuzz=10pt
 
 % Latex Programming tools ------------------------------------------------------
 \usepackage{etoolbox,xparse}
@@ -27,7 +27,7 @@
 % \usepackage[default]{lato}
 % % Source Code Pro for monospace font
 % \usepackage[scale=0.95]{plex-mono}
-% \renewcommand{\ttdefault}{\plexmonofamily} 
+% \renewcommand{\ttdefault}{\plexmonofamily}
 
 % Small adjustments to text kerning
 \usepackage{microtype}
@@ -37,7 +37,7 @@
 \usepackage{bm}
 
 % Define Theorems --------------------------------------------------------------
-% Put proper spacing after Theorem #. 
+% Put proper spacing after Theorem #.
 \newtheoremstyle{spacing}
 {}%           Space above, empty = `usual value'
 {}%           Space below
@@ -49,7 +49,7 @@
 {}%           Thm head spec
 
 % Create different theorem environments and setup \autoref for them
-% \label{X:label_name} should match \Xautorefname 
+% \label{X:label_name} should match \Xautorefname
 \theoremstyle{spacing}
 \newtheorem{theorem}{Theorem}[section]
 \newcommand{\theoremautorefname}{Theorem}
@@ -134,13 +134,35 @@
 \definecolor{zinc900}{HTML}{18181b}
 \definecolor{zinc950}{HTML}{09090b}
 
+% UArk Colors
+\definecolor{cardinal_red}{HTML}{9D2235}
+\definecolor{apple_blossom}{HTML}{FFFFFF}
+\definecolor{quartz}{HTML}{F2F2F4}
+\definecolor{gray_squirrel}{HTML}{C7C8CA}
+\definecolor{spoofer's_stone}{HTML}{424242}
+\definecolor{black_whetstone}{HTML}{000000}
+\definecolor{diana_butterfly}{HTML}{2B5269}
+\definecolor{ozark_mountains}{HTML}{3F7F7F}
+\definecolor{birdsfoot_violet}{HTML}{2F1332}
+\definecolor{kings_river}{HTML}{007698}
+\definecolor{founders_walk}{HTML}{707A33}
+\definecolor{pale_dawn}{HTML}{D5EAE9}
+\definecolor{spiderwort}{HTML}{655765}
+\definecolor{fall_maple}{HTML}{DBC759}
+\definecolor{white_river sand}{HTML}{DDDCC5}
+\definecolor{blue_winged_teal}{HTML}{68C1BE}
+\definecolor{summer_sky}{HTML}{9DC9D5}
+\definecolor{arkansas_marvel}{HTML}{CA6A29}
+\definecolor{old_main brick}{HTML}{611327}
+
+
 % Hyperlinks -------------------------------------------------------------------
 \usepackage{hyperref}
 \hypersetup{
   colorlinks = true,
-  allcolors = purple,
+  allcolors = ozark_mountains,
   breaklinks = true,
-  bookmarksopen = true
+  bookmarksopen = false
 }
 
 % Section and Subsection Styling -----------------------------------------------
@@ -151,7 +173,7 @@
   {\thesection \,---}
   {0.25em}
   {#1}
-  
+
 \titleformat{\subsection}
   {\fontsize{12}{10}\it}
   {\thesubsection.}
@@ -193,19 +215,19 @@
 % % Update \maketitle command
 % \def\@maketitle{%
 %   % \vspace*{\bigskipamount}
-% 
+%
 %   \begin{flushleft}%
 %   \let \footnote \thanks
 %     {\huge \@title \par}%
-%     
+%
 %     \medskip
 %     {\large \@author \par}%
-% 
+%
 %     \smallskip
 %     {\color{asher} \@date}%
 %   \end{flushleft}%
 % }
-% 
+%
 % % Abstract
 % \renewenvironment{abstract}
 %  {\noindent\rule{\linewidth}{.5pt}\noindent}
@@ -286,14 +308,14 @@
 % If tables are too narrow, fill columns using:
 % \begin{tabularx}{\linewidth}{cols}
 % col-types: X - center, L - left, R -right
-% If you want relative scale for columns: 
+% If you want relative scale for columns:
 % >{\hsize=.8\hsize}X/L/R
 \usepackage{tabularx}
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
 \newcolumntype{R}{>{\raggedleft\arraybackslash}X}
 \newcolumntype{C}{>{\centering\arraybackslash}X}
 
-% Landscape table 
+% Landscape table
 % \begin{landscape} \pagestyle{lscaped} table... \end{landscsape}
 % \usepackage{pdflscape} - rotates page left-side up in pdf
 % \usepackage{lscape} - does not rotate page, only figure/table
@@ -322,12 +344,12 @@
 % \bibliographystyle{econ-aea}
 
 % Biblatex
-% 
+%
 % Source: https://social-science-data-editors.github.io/guidance/citations/guidance_data_citations_biblatex.pdf
 % Source: https://github.com/dmsul/biblatex-aer/blob/master/biblatex-aer.tex
 \usepackage[
   style = chicago-authordate,
-  doi = true, 
+  doi = true,
   backend = biber,
   backref = true, % Prints back references e.g (cit. pp. 1)
   backrefstyle = none, % How to sequence page numbers in back references
@@ -336,9 +358,9 @@
   natbib = true
 ]{biblatex}
 \usepackage[
-  authordate, 
+  authordate,
   backend = biber,
-  uniquename = false, 
+  uniquename = false,
   noibid
 ]{biblatex-chicago}
 
@@ -355,7 +377,7 @@
 
 % Make author names bold in References but not in body of paper
 % 1. Check if name belongs to 'labelname' (Whoever the bib entry is sorted on, i.e., the author(s) or, if no author, editor(s), but not an editor if an author is present). This check keeps entries with both authors and editors from having both sets of names bolded.
-\def\ifmknamebold{\ifboolexpr{%  
+\def\ifmknamebold{\ifboolexpr{%
   test {\ifcurrentname{labelname}}
   or test {\ifcurrentname{author}}
   or ( test {\ifnameundef{author}} and test {\ifcurrentname{editor}} )
@@ -369,7 +391,7 @@
   \renewcommand*{\mkbibnamesuffix}[1]{\ifmknamebold{\mkbibbold{#1}}{#1}}
   \renewcommand*{\finalnamedelim}{\ifmknamebold{%
     \mkbibbold{\finalandcomma\addspace\bibstring{and}\addspace}%
-  }{%     
+  }{%
     % Check for 'if editors with no author, only add a comma before 'and' if there are more than three authors. ('labelname' guys don't need these check because first name is reversed and so always has a comma, even with only two people, e.g., Nash, Steve, and Amare Stoudamire.
     \ifnumgreater{\value{liststop}}{2}{\finalandcomma}{}\addspace\bibstring{and}\addspace%
   }}
@@ -380,7 +402,7 @@
 %   \DeclareFieldAlias{bibhyperref}{noformat}% Avoid nested links
 %   \bibhyperref{#1}%
 % }
-% 
+%
 % \DeclareFieldFormat{textcitehyperref}{%
 %   \DeclareFieldAlias{bibhyperref}{noformat}% Avoid nested links
 %   \bibhyperref{%
@@ -388,13 +410,13 @@
 %     \ifbool{cbx:parens}{\bibcloseparen\global\boolfalse{cbx:parens}}{}%
 %   }%
 % }
-% 
+%
 % \savebibmacro{cite}
 % \savebibmacro{textcite}
 % \renewbibmacro*{cite}{%
 %   \printtext[citehyperref]{\restorebibmacro{cite}\usebibmacro{cite}}
 % }
-% 
+%
 % \renewbibmacro*{textcite}{%
 %   \ifboolexpr{
 %     ( not test {\iffieldundef{prenote}} and test {\ifnumequal{\value{citecount}}{1}} )
@@ -440,14 +462,14 @@
 \DeclareTCBListing{codeblock}{ !O{R} }{
   listing only,
   interior hidden,
-  top = -6pt, 
+  top = -6pt,
   bottom = -6pt,
-  left = 4pt, 
+  left = 4pt,
   right = 0pt,
-  boxrule = 0pt, 
-  frame hidden, 
-  sharp corners, 
-  borderline west = {2pt}{0pt}{zinc400}, 
+  boxrule = 0pt,
+  frame hidden,
+  sharp corners,
+  borderline west = {2pt}{0pt}{zinc400},
   enhanced,
   breakable,
   listing options={
