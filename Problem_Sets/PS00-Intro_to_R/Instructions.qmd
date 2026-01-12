@@ -1,0 +1,157 @@
+---
+title: "Lab 01"
+format:
+  pdf:
+    template: ../../template.tex
+    keep-tex: false
+    pdf-engine: latexmk
+---
+
+# Install R and Positron
+
+The first part of the assignment is aimed at getting your computers set up for the rest of the course. You need to download two different softwares. 
+
+1. \href{https://cloud.r-project.org/}{`R`} is the statistical software that we will use for this course.
+
+2. [Positron](https://positron.posit.co/download.html) is a visual code editor that makes editing and running code way easier.
+
+
+You will know that you have installed R and Positron correctly if when you start Positron, you see a message in the Console tab that says `R 4.5.1 started'.
+
+There are various parts of the Poistron app and it can be overwhelming at first! 
+Here's a breakdown from the Positron website:
+
+
+```{r positron-panes}
+#| echo: false
+#| caption: "Interface of the Positron IDE showing Activity Bar, Primary Side Bar, Editor, Panel, and Secondary Side Bar"
+knitr::include_graphics("figures/positron_user_interface.jpeg")
+```
+
+- The **Activity Bar** provides quick access to switch between core views such as Explorer, Search, [Source Control](https://positron.posit.co/git.html), and [Extensions](https://positron.posit.co/extensions.html).
+- The **Primary Side Bar** is on the left by default and shows you different views depending on what you have chosen in the Activity Bar. When you choose the Explorer icon, this pane provides the file explorer to navigate your project directory and the outline. When you choose the Assistant icon, this pane provides access to [Positron Assistant](https://positron.posit.co/assistant.html).
+- The **Editor** is in the center by default, and is where you write your code. For editor controls, refer to [VS Code Editor Basics](https://code.visualstudio.com/docs/editing/codebasics).
+- The **Panel** is below the editor by default and contains the fully interactive, integrated Console as well as the [Terminal](https://code.visualstudio.com/docs/terminal/basics) You can also access logs from [Output](https://positron.posit.co/troubleshooting.html#output-panel) channels in the Panel.
+- The **Secondary Side Bar** is on the right by default. You can switch between the Session pane (where you can explore the variables you have defined and the plots you have created), the [Connections](https://positron.posit.co/connections-pane.html) pane, the [Help](https://positron.posit.co/help-pane.html) pane, and the Viewer pane.
+
+The **Title Bar** at the very top of the window shows the active file and project, along with window controls. Below it, the **Top Bar** provides global project tools such as file search, the project switcher, and the [interpreter selector](https://positron.posit.co/managing-interpreters.html#active-interpreter-session) with the ability to start, stop, and switch interpreters. The **Status Bar** at the bottom of the window displays details such as your git branch, language mode, [Quarto version](https://positron.posit.co/quarto.html), and cursor position.
+
+
+
+
+## Installing packages for this class
+
+Good job! Now, we have to install two packages.
+Copy the following lines into the "Console" and hit `Enter`.
+This will take a minute or two, but once you have done this you will be ready for the semester.
+
+```{r}
+#| eval: false
+install.packages("tidyverse")
+install.packages("fixest")
+install.packages("fpp3")
+install.packages("patchwork")
+
+# This will install LaTeX on your system (for compiling qmd to pdf)
+install.packages("tinytex")
+tinytex::install_tinytex()
+```
+
+
+# Files and Folders on your Computer
+
+If you are not familiar with the file system, here is a brief introduction in this and the following paragraph.\footnote{You can watch this three part tutorial if you're very new to computers: \url{https://www.youtube.com/watch?v=k-EID5_2D9U}.} 
+It is important to understand how computers organize and store data. 
+A computer's file system is essentially a large hierarchical structure that allows you to store and retrieve files and folders in an organized manner. 
+At the top of this hierarchy is the root directory, which can be thought of as the main folder that contains everything else on your computer.
+
+Within this root directory, there are numerous folders, each of which can contain other folders (known as subfolders) and individual files. 
+Think of these folders as filing cabinets where you can store related documents together. 
+For instance, when you download files from the internet, they typically go to the `Downloads` folder by default. 
+However, it is crucial to not let them remain there indefinitely! 
+If your `Downloads` folder becomes cluttered with hundreds of files, it becomes difficult to locate what you need. 
+To maintain order, you should regularly organize your files into appropriate folders. For this class, it is recommended that you create a specific folder that contains \emph{all} the relevant files, making it easier to find and manage your coursework.
+
+Once you've created and organized your class folder, navigating to it within Positron is straightforward. 
+In the left-hand side, go to the Explorer tab and click "Open Folder". 
+Browse through your computer's directories to find your class folder and hit open. 
+This action tells Positron to use this folder as the default location for loading and saving files. 
+By setting your working directory correctly, you ensure that any data files stored in this folder can be easily accessed when you run your R scripts, streamlining your workflow and helping to avoid errors related to file paths.
+
+When working in Positron, it's important to understand the concept of relative file paths, especially after setting your working directory. 
+A relative file path is a way to specify the location of a file in relation to your current working directory, rather than using an absolute path that starts from the root directory. 
+For example, if your working directory is set to your class folder, and you have a data file named `data.csv` stored inside a subfolder called `datasets`, you can load this file in R by using the relative path `datasets/data.csv` instead of the full path (e.g. `\textasciitilde/kylebutts/Documents/UARK\_4753/datasets/data.csv`). 
+This is recommended for two reasons.
+First, when collaborating with people because they do not have the same root directory as you (only I have `\textasciitilde/kylebutts/`). 
+Second, you might want to move files around; with relative paths, as long as you keep everything in a project in a folder, you can move that folder as you wish. 
+
+
+# Quarto documents
+
+In this class, assignments will be completed in Quarto documents. 
+Quarto documents are a method of creating *reproducible* reports in either html or pdf formats. 
+The document contains written text intermixed with code that can create tables and/or figures. 
+This can be incredibly useful in your future careers. 
+For example, you might create a weekly sales report that you can update each week by changing the data input. 
+
+Quarto might feel confusing at first, so the first thing we will do is have you read through some resources to familiarize yourself with Markdown and quarto. 
+To begin, read the following:
+
+1. Read this guide on [Using Quarto](https://datavizf24.classes.andrewheiss.com/resource/quarto.html)
+
+2. Read this guide on [Using Markdown](https://datavizf24.classes.andrewheiss.com/resource/markdown.html)
+
+After reading these, download and put `Lab_0.qmd` in your class folder.
+Then, open positron, open your class folder, and finally open the quarto file.
+
+When completing assignments, you can run individual blocks as you work to make sure the results come out correctly. 
+You can do this in a few ways. 
+First, you could copy the text from the quarto code chunk (not including the \`{}\`{}\`{} parts) and paste into the console. 
+This is the least effective method but works. 
+Alterantively, you could hit the "Run Cell" button.
+This will run the code and display the results below the code chunk. 
+
+The third option is for experts. 
+Instead of using your mouse and clicking the button, you could instead use the keyboard shortcut `Cmd + Enter` on Mac or `Ctrl + Enter` on Windows. 
+This will run whatever code cell the cursor currently is within.
+
+## Rendering to PDF
+
+Above your quarto file, you can see a little newspaper icon and the word \textbf{Preview}.
+This is how you render your quarto file to an output report. 
+After successfully rendering, the rendered output will show up in the \textbf{Viewer} tab.
+
+```{r quarto-preview}
+#| echo: false
+#| fig-cap: "Example of Quarto Rendering"
+#| out-width: "\\textwidth"
+knitr::include_graphics("figures/quarto_example.png")
+```
+
+
+\begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {4pt}{0pt}{kings_river}, interior hidden]
+  {\large \textbf{Important:}}
+
+  \smallskip
+  You should be careful to include all the code in the quarto file. 
+  The reason is that when you go to \textbf{Render} the quarto file, it is creating a \emph{completely new R instance} and running the code from the top of the quarto file to the bottom. 
+  So you should be careful to not use variables that are not defined \emph{above} the cell.
+  
+  The most common problem students face is loading a csv in the console and then not including that in the quarto file. 
+\end{tcolorbox}
+
+<!-- ## Positron Theme
+
+If you have a career where you use code (I think quite likely), then you will spend a lot of time in your \textbf{code IDE} (interactive development environment). For that reason, I encourage you to personalize it. 
+You can open up Positron settings and select a theme you enjoy. 
+To do so, go in Appearance and click through Editor Themes. 
+
+
+Second, you will want a font that is nice to look at. 
+You should use a monospace font because it is essential for coding. 
+I recommend one of the following:
+\begin{itemize}
+  \item \href{https://www.jetbrains.com/lp/mono/}{JetBrains Mono},
+  \item \href{https://github.com/tonsky/FiraCode}{FiraCode}, or
+  \item \href{https://monaspace.githubnext.com}{Monaspace}
+\end{itemize} -->

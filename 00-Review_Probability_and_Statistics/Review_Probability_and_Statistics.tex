@@ -2,7 +2,15 @@
 \usepackage{../../includes/lecture_notes}
 \usepackage{../../includes/math}
 
-
+% Tikz settings optimized for causal graphs.
+\usetikzlibrary{shapes,decorations,arrows,calc,arrows.meta,fit,positioning}
+\tikzset{
+    -Latex,auto,node distance =1 cm and 1 cm,semithick,
+    state/.style ={ellipse, draw, minimum width = 0.7 cm},
+    point/.style = {circle, draw, inner sep=0.04cm,fill,node contents={}},
+    bidirected/.style={Latex-Latex,dashed},
+    el/.style = {inner sep=2pt, align=left, sloped}
+}
 
 \begin{document}
 \begin{center}
@@ -15,6 +23,8 @@
   {\large Prof. Kyle Butts}
 \end{center}
 
+
+
 \section{Single Random Variables}
 
 There are two key concepts to understand. First, we have an \textbf{experiment} which is the source of \emph{randomness} in the world: e.g. flip a coin, roll a dice, play a basketball game, et cetera. The second definition is a \textbf{random variable}. A random variable assigns numerical values that is determined by an experiment (e.g. value of a die roll, assigning 1 to heads 0 to tails). For an experiment, there are many different random variables you could define. For a NBA game, random variables include the number of points scored; a variable who equals 1 if the home team won and 0 if the home team loses; the average height of players who play; etc.
@@ -22,7 +32,7 @@ There are two key concepts to understand. First, we have an \textbf{experiment} 
 We denote random variables by upper case letters, usually $W$, $X$, $Y$,
 and $Z$. The particular values that a random variable takes are denoted by the corresponding lower case letters $w$, $x$, $y$, and $z$.
 
-For , think about a the coin-flipping experiment where you flip 10 coints. Let $X$ denote the random variable counting the number of heads that land out of the 10 flips. It is important to note $X$ is not associated with any particular value. You can do this experiment many different times and $X$ represents \emph{the process} of running the experiment, not the value of a particular trial. But, we know $X$ will take on a value in the set $\{ 0, 1, 2, \dots, 10 \}$, say $x = 6$ for a particular trial.
+For example, think about a the coin-flipping experiment where you flip 10 coints. Let $X$ denote the random variable counting the number of heads that land out of the 10 flips. It is important to note $X$ is not associated with any particular value. You can do this experiment many different times and $X$ represents \emph{the process} of running the experiment, not the value of a particular trial. But, we know $X$ will take on a value in the set $\{ 0, 1, 2, \dots, 10 \}$, say $x = 6$ for a particular trial.
 
 
 \subsection*{Discrete Random Variables}
@@ -89,7 +99,7 @@ There are some properties of expectations that come out of the definitions of su
   \item For any constant $a$ and $b$, $\expec{aX + bY} = a \expec{X} + b \expec{Y}$
 \end{enumerate}
 
-Lastly, we will discuss transformations of random variables. So for , say you have a function $g$ that takes the random variable, $X$, of the number of heads out of $10$ and assign to sum final score, $Y$. That is, $Y = g(X)$. The average value of $Y$ can be calculated using the pdf of $X$:
+Lastly, we will discuss transformations of random variables. So For example, say you have a function $g$ that takes the random variable, $X$, of the number of heads out of $10$ and assign to sum final score, $Y$. That is, $Y = g(X)$. The average value of $Y$ can be calculated using the pdf of $X$:
 $$
   \expec{Y} = \expec{g(X)} = \sum_{j=1}^n p_j g(x_j)
 $$
@@ -147,7 +157,7 @@ $$
 
 \section{Multiple Random Variables}
 
-In this class, we care about how variables relate to one another. For , do sales grow and shrink with a consumer's age?; is height an important predictor of basketball success?; is the sale associated with a large increase in sales?
+In this class, we care about how variables relate to one another. For example, do sales grow and shrink with a consumer's age?; is height an important predictor of basketball success?; is the sale associated with a large increase in sales?
 
 For this, we would want to know about the \textbf{joint distribution} between two variables $X$ and $Y$.
 
@@ -178,8 +188,20 @@ $$
   \cov(X, Y) = \mathbb{E}\left[ (X - \expec{X}) (Y - \expec{Y}) \right]
 $$
 The covariance intuitively measures whether $X$ and $Y$ move together. The covariance is positive if when $X$ is above it's mean, $Y$ also tends to be above it's mean and when $X$ is below it's mean, $Y$ also tends to be below it's mean. They ``co-move'' together.
+See Figure \ref{fig:visual_covariance} for an example of calculating the sample covariance.
 
-The covariance is negative if when $X$ is above it's mean, $Y$ tends to be below it's mean and vice versa. They move in opposite directions, but are still related! In other words, if I know $X$ was above it's mean, then I would predict that $Y$ is below it's mean (knowing one gives me information on the other).
+The covariance is negative if when $X$ is above it's mean, $Y$ tends to be below it's mean and vice versa. 
+They move in opposite directions, but are still related! In other words, if I know $X$ was above it's mean, then I would predict that $Y$ is below it's mean (knowing one gives me information on the other).
+
+
+\begin{figure}
+  \caption{Visual Intuition of Covariance}\label{fig:visual_covariance}
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{figures/covariance_visualized.pdf}
+  \end{center}
+\end{figure}
+
+
 
 With some algebra and the rules of expectations, we can see
 \begin{align*}
@@ -282,22 +304,42 @@ With the normal distribution, we have the 68-95-99.7\% rule which says that 68\%
 
 
 
-
-
 \section{Statistical Inference}
 
-\textbf{Statistical Inference} is the procedure of using a random sample of observations from a population to try and learn something about the population distribution of the data. To be more specific, there is some \emph{statistic} of the population distribution (e.g. it's expectation, it's variance, the 80th percentile, etc.) that we want to know about. Let's call that statistic $\theta$.
+\textbf{Statistical Inference} is the procedure of using a random sample of observations from a population to try and learn something about the population distribution of the data. To be more specific, there is some \textbf{parameter} of the population distribution (e.g. it's expectation, it's variance, the 80th percentile, etc.) that we want to know about. 
+Let's call that parameter $\theta$.
+If we knew the values of the variables for the entire population, we could simply calculate this parameter. 
+For example, average the value of $X_i$ for all the people in your population and you will know it's expected value.
+
+
+
 
 \subsection*{Estimators}
 
-We do not observe the full population; only just a sample. We take our random sample, $X_1, \dots, X_n$, and want to \textbf{estimate} the population statistic. We calculate an \textbf{estimate} of the population statistic using the data. The calculation we chose to make is called our \textbf{estimator}. For , we can use the sample average from a set of observations to infer about the expectation of the population. To do so, we could calculate the sample average of our sample:
+We do not observe the full population; only just a sample. 
+We take our random sample, $X_1, \dots, X_n$, and want to \textbf{estimate} the population statistic. 
+We calculate an \textbf{estimate} of the population parameter using the data. 
+The calculation we chose to make is called our \textbf{estimator}. 
+For example, we can use the sample average from a set of observations to infer about the expectation of the variable in the population. 
+To do so, we could calculate the sample average of our sample:
 $$
   \underbrace{\bar{X}}_{\text{Estimator}} \equiv 1/n \sum_{i=1}^n X_i
 $$
 
-Any particular way to estimate the population statistic is called a \textbf{estimator}. For any statistic, there are many different estimators. Therefore, we have some ways to discuss what makes a good estimator.
+Any particular way to estimate the population parameter is called a \textbf{estimator}. 
 
-\textbf{Property 1: \textbf{Unbiasedness}}
+To summarize:
+\begin{itemize}
+  \item Population Parameter: Function of data in the entire \emph{population}
+  
+  \item Estimator: Function of data in your sample
+\end{itemize}
+
+\subsection{Evaluting Estimators}
+
+For any statistic, there are many different estimators. Therefore, we have some ways to discuss what makes a good estimator.
+
+\noindent\textbf{Property 1: \textbf{Unbiasedness}}
 
 We say an estimator $W$ is an unbiased estimator for $\theta$ if:
 $$
@@ -305,40 +347,47 @@ $$
 $$
 That is, if we take a bunch of random samples (\textbf{repeated sampling}) and averaged them, on average the estimator would equal the population statistic.
 
-Note this is not saying the estimate always equals the population statistic, just that on average it does. For , the sample mean does not always equal the population mean, but it is an unbiased estimate for the population mean.
+Note this is not saying the estimate always equals the population statistic, just that on average it does. For example, the sample mean does not always equal the population mean, but it is an unbiased estimate for the population mean.
 
-\textbf{Property 2: \textbf{Consistency}}
+\noindent\textbf{Property 2: \textbf{Consistency}}
 
 Let $W_n$ be an estimator of $\theta$ based on a population of size $n$. The estimator is consistent if as $n$ gets larger, $W_n \to \theta$ and the variance of $W_n$ shrinks to 0. That is, the estimator gets more precise and centers around the population statistic.
 
-\textbf{Property 3: \textbf{Efficiency}}
+\noindent\textbf{Property 3: \textbf{Efficiency}}
 
 If $W_1$ and $W_2$ are two unbiased estimators, we say $W_1$ is more efficient than $W_2$ if $\var{W_1} < \var{W_2}$.
 
 
-\subsection*{Confidence Intervals}
+\subsection*{Sample Distribution}
 
 Since the estimator does not always equal it's population statistic (in repeated sampling) We want to be able to describe the uncertainty of an estimator. To do so, we need to have an estimate to the variability of our estimator in repeated sampling.
 
 That is, we want to quantify how much we think our estimator would move around if we were to collect a bunch of different samples of the same size and calculate the estimator for each sample. This thought experiment of grabbing a bunch of samples of the same size and calculating our estimator on each sample creates what we call our \textbf{sample distribution} of our estimates.
 
+It turns out that for a lot of estimators, the sample distribution is approximately \textbf{normally distributed}.
+That the sample distribution is approximately normal (in large samples) is proven by a \textbf{central limit theorem}.
+It is \emph{really} common for estimators to have a normal sample distribution, but not always.
 
-It turns out that for a lot of estimators, the sample distribution is approximately \textbf{normally distributed}. That makes summarize our uncertainty around our estimator easier. We typically will construct a \textbf{confidence interval} to descirbe our level of certainty. The confidence interval is centered on our estimate, but it's width describes a range of values we think the population statistic could be.
+When the sample distribution is normal, then it is really simple to summarize uncertainty around our estimator: with confidence intervals and hypothesis tests.  
+
+\subsection*{Confidence Intervals}
+
+We typically will construct a \textbf{confidence interval} to descirbe our level of certainty. The confidence interval is centered on our estimate, but it's width describes a range of values we think the population statistic could be.
 
 \begin{example}
   Let $\{ Y_1, \dots, Y_n \}$ be a random sample. The sample mean is approximately distributed $\mathcal{N}(\mu, \sigma^2 / n)$ where $\mu = \expec{Y}$ and $\sigma^2 = \var{Y}$.
 
   We can construct a 95\% confidence interval as:
   \begin{align*}
-    &\P{-1.96 < \frac{\bar{Y} - \mu}{\sigma / \sqrt(n)} < 1.96} = 0.95 \\
-    \implies &\P{\bar{Y} - 1.96 * \frac{\sigma}{\sqrt(n)} < \mu  < \bar{Y} + 1.96 \frac{\sigma}{\sqrt(n)}} = 0.95
+    &\P{-1.96 < \frac{\bar{Y} - \mu}{\sigma / \sqrt{n}} < 1.96} = 0.95 \\
+    \implies &\P{\bar{Y} - 1.96 * \frac{\sigma}{\sqrt{n}} < \mu  < \bar{Y} + 1.96 \frac{\sigma}{\sqrt{n}}} = 0.95
   \end{align*}
 
   That is, in repeated sampling, there is a 95\% probability (95 out of 100 samples of size $n$) that $\mu$ falls within our confidence interval:
   $$
     \left[
-      \bar{Y} - 1.96 * \frac{\sigma}{\sqrt(n)},
-      \bar{Y} + 1.96 * \frac{\sigma}{\sqrt(n)}
+      \bar{Y} - 1.96 * \frac{\sigma}{\sqrt{n}},
+      \bar{Y} + 1.96 * \frac{\sigma}{\sqrt{n}}
     \right]
   $$
   Since we do not observe $\sigma$, we will estimate it using the following estimator, called the sample standard deviation of $y$:
@@ -347,9 +396,9 @@ It turns out that for a lot of estimators, the sample distribution is approximat
   $$
 \end{example}
 
-In the above procedure, the values $-1.96$ and $1.96$ are the critical values for the 2.5th percentile and 97.5th percentile of the standard normal distribution, i.e. we have the middle 95\%. If we want to be more confident in our interval, then we need to use larger critical values. For , if we want to be 99\% confident in our interval (have $\theta$ in our interval in 99 out of 100 samples), then we need to use the 0.5th percentile and 99.5th percentile of the normal distribution for our critical values.
+In the above procedure, the values $-1.96$ and $1.96$ are the critical values for the 2.5th percentile and 97.5th percentile of the standard normal distribution, i.e. we have the middle 95\%. If we want to be more confident in our interval, then we need to use larger critical values. For example, if we want to be 99\% confident in our interval (have $\theta$ in our interval in 99 out of 100 samples), then we need to use the 0.5th percentile and 99.5th percentile of the normal distribution for our critical values.
 
-Note this procedure works because $\bar{Y} \sim \mathcal{N}(\mu, \sigma^2/n)$ and therefore our \textbf{$Z$-score}, $\frac{\bar{Y} - \mu}{\sigma / \sqrt(n)}$, is approximately distributed as the standard normal distribution.
+Note this procedure works because $\bar{Y} \sim \mathcal{N}(\mu, \sigma^2/n)$ and therefore our \textbf{$Z$-score}, $\frac{\bar{Y} - \mu}{\sigma / \sqrt{n}}$, is approximately distributed as the standard normal distribution.
 
 
 \subsection*{Hypothesis Testing}
@@ -360,7 +409,9 @@ How far is ``too far'' away from the null hypothesis? That depends on (1) how no
 
 When I said before that we will see if our sample mean is ``too far'' away from the null, that was a little bit incorrect. For reasons we will not cover, we will transform the sample mean into a \textbf{test statistic}. When we compute the statistic for a particular outcome, we obtain an outcome of the test statistic, which we will denote $T$.
 
-\emph{When the null hypothesis is true}, the test statistic will be distributed as $\mathcal{N}(0, v)$ (normally distributed with mean $0$ and some variance $v$). Therefore, we expect $T$ to be very close to zero (if the null is true). So, if we find a value of $T = t$ that is ``very far'' away from zero, then we find evidence against the null hypothesis.
+\emph{When the null hypothesis is true}, the test statistic will be distributed as $\mathcal{N}(0, v)$ (normally distributed with mean $0$ and some variance $v$). 
+Therefore, we expect $T$ to be very close to zero (if the null is true).
+ So, if we find a value of $T = t$ that is ``very far'' away from zero, then we find evidence against the null hypothesis.
 
 Given a level of confidence (e.g. 95\%) and the variance $v$, we can use properties of the normal distribution to determine the probability that a draw from the $\mathcal{N}(0, v)$ distribution would be $\geq \abs{\hat{t}}$. This is called the \textbf{$p$-value}. In words, the $p$-value tells us, assuming the null hypothesis is true, how often would we expect to see a value as large or larger than the one we \emph{did observe in our sample}. If that probability is small, then we will reject the null.
 
@@ -373,7 +424,7 @@ In particular, given our level of confidence (e.g. 95\%), define the \textbf{sig
 
   Then, our test statistic is given by
   $$
-    T = \frac{\bar{X} - \mu_0}{\hat{\sigma} / \sqrt(n)},
+    T = \frac{\bar{X} - \mu_0}{\hat{\sigma} / \sqrt{n}},
   $$
   where $\hat{\sigma}$ is the square root of our estimate of the variance of $Y$. Assuming the null hypothesis is true, $H_0$, then $T \sim \mathcal{N}(0, 1)$.
 

@@ -54,7 +54,7 @@ options(
     title = "PDFs: {\\color[HTML]{2DB25F} $Z = \\mathcal{N}(0, 1)$}, {\\color[HTML]{0188AC} $\\mathcal{N}(3, 1)$}, {\\color[HTML]{0188AC} $\\mathcal{N}(0, 4)$}, {\\color[HTML]{B3114B} $\\mathcal{N}(0, 9)$}"
   ) +
   theme_kyle(base_size = 14) +
-  theme(plot.title = element_text(face = "plain")))
+  theme(plot.title = element_text(face = "plain", margin = margin(b = 32, unit = "pt"))))
 
 
 ## Integrating density function ----
@@ -64,7 +64,7 @@ curr_density <- function(x) dnorm(x, mean = 10, sd = 2)
   stat_function(
     fun = curr_density,
     geom = "area",
-    size = 0,
+    linewidth = 0,
     fill = kfbmisc::kyle_color("purple"),
     alpha = 0.3,
     xlim = c(0, 12),
@@ -87,7 +87,7 @@ curr_density <- function(x) dnorm(x, mean = 10, sd = 2)
     title = r'( $\prob{X \leq 12}$ )'
   ) +
   theme_kyle(base_size = 14) +
-  theme(plot.title = element_text(face = "plain")))
+   theme(plot.title = element_text(face = "plain", margin = margin(b = 32, unit = "pt"))))
 
 # %%
 curr_density <- function(x) dnorm(x, mean = 10, sd = 2)
@@ -95,7 +95,7 @@ curr_density <- function(x) dnorm(x, mean = 10, sd = 2)
   stat_function(
     fun = curr_density,
     geom = "area",
-    size = 0,
+    linewidth = 0,
     fill = kfbmisc::kyle_color("purple"),
     alpha = 0.3,
     xlim = c(0, 12),
@@ -104,7 +104,7 @@ curr_density <- function(x) dnorm(x, mean = 10, sd = 2)
   stat_function(
     fun = curr_density,
     geom = "area",
-    size = 0,
+    linewidth = 0,
     fill = "red",
     alpha = 0.3,
     xlim = c(0, 9),
@@ -129,7 +129,7 @@ curr_density <- function(x) dnorm(x, mean = 10, sd = 2)
     title = r'( $\prob{\underline{x} \leq X \leq \bar{x}} = \prob{X \leq \bar{x}} - \prob{\underline{x} \leq X } $  )'
   ) +
   theme_kyle(base_size = 14) +
-  theme(plot.title = element_text(face = "plain")))
+   theme(plot.title = element_text(face = "plain", margin = margin(b = 32, unit = "pt"))))
 
 # %%
 # from svnmiller
@@ -171,7 +171,7 @@ curr_density <- function(x) dnorm(x, mean = 10, sd = 2)
     y = 0.44,
     size = 4,
     label = "$68\\%$",
-    label.size = 0
+    linewidth = 0
   ) +
   annotate(
     "path",
@@ -194,7 +194,7 @@ curr_density <- function(x) dnorm(x, mean = 10, sd = 2)
     y = 0.5,
     size = 4,
     label = "$95\\%$",
-    label.size = 0
+    linewidth = 0
   ) +
   annotate(
     "path",
@@ -217,7 +217,7 @@ curr_density <- function(x) dnorm(x, mean = 10, sd = 2)
     y = 0.56,
     size = 4,
     label = "$99.7\\%$",
-    label.size = 0
+    linewidth = 0
   ) +
   annotate(
     "path",

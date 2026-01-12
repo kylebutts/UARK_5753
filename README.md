@@ -190,21 +190,22 @@ This is a tentative schedule. This is the first time I've taught this course, so
 <!-- Schedule -->
 | Week | Dates | Tuesday | Thursday |
 |----|----|----|----|
-| 01 | 01/14 - 01/16 | Syllabus and Linear Algebra | Linear Algebra |
-| 02 | 01/21 - 01/23 | Introduction to Forecasting | Introduction to Forecasting |
-| 03 | 01/28 - 01/30 | Conditional Expectation | Bivariate Regression |
-| 04 | 02/04 - 02/06 | Bivariate Regression | Bivariate Regression |
-| 05 | 02/11 - 02/13 | R Day | Multivariate Regression |
-| 06 | 02/18 - 02/20 | Multivariate Regression | Nonparametrics and Partially Linear |
-| 07 | 02/25 - 02/27 | R Day | Log Transformations |
-| 08 | 03/04 - 03/06 | Logistic Regression | R Day |
-| 09 | 03/11 - 03/13 | Clustering(?) | Cross-sectional Project |
-| 10 | 03/18 - 03/20 | Midterm Exam | Cross-sectional Project |
-| 11 | 04/01 - 04/03 | R Day | Smoothing Methods |
-| 12 | 04/08 - 04/10 | Smoothing Methods | Time-series Regression |
-| 13 | 04/15 - 04/17 | Time-series Regression | Time-series Regression |
-| 14 | 04/22 - 04/24 | R Day | Prophet |
-| 15 | 04/29 - 05/01 | Time-series Project | Time-series Project |
+| 01 | 01/13 - 01/15 | Getting Setup for R | Syllabus and Repeated Sampling |
+| 02 | 01/20 - 01/22 | Linear Algebra | Linear Algebra |
+| 03 | 01/27 - 01/29 | Introduction to Forecasting | Conditional Expectation |
+| 04 | 02/03 - 02/05 | Bivariate Regression | Bivariate Regression |
+| 05 | 02/10 - 02/12 | Bivariate Regression | Multivariate Regression |
+| 06 | 02/17 - 02/19 | Multivariate Regression | Nonparametrics and Partially Linear |
+| 07 | 02/24 - 02/26 | Nonparametrics and Partially Linear | Log Transformations |
+| 08 | 03/03 - 03/05 | Logistic Regression | R Day |
+| 09 | 03/10 - 03/12 | Cross-sectional Project | Cross-sectional Project |
+| 10 | 03/17 - 03/19 | Midterm Exam | Time-series Regression |
+| 11 | 03/24 - 03/26 | Time-series Regression | Time-series Regression |
+| 12 | 03/31 - 04/02 | Smoothing Methods | Smoothing Methods |
+| 13 | 04/07 - 04/09 | Smoothing Methods | Smoothing Methods |
+| 14 | 04/14 - 04/16 | Smoothing Methods | Prophet |
+| 15 | 04/21 - 04/23 | Time-series Project | Time-series Project |
+| 16 | 04/28 - 04/30 |  |  |
 <!-- Schedule -->
 
 

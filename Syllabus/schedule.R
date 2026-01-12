@@ -24,8 +24,8 @@ tab <- cal |>
     width = c(0.1, 0.2, 0.3, 0.3),
     caption = "Tentative Schedule"
   )
+tab
 
-print(tab, "html")
 save_tt(tab, here("Syllabus/schedule.tex"), overwrite = TRUE)
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -54,11 +54,11 @@ xfun::write_utf8(readme, here("README.md"))
 # get dates (at the start of the semester) ----
 
 # library(tidyverse)
-# first_day <- ymd("2025-01-14")
-# last_day <- ymd("2025-05-01")
-# spring_break <- c(ymd("2025-02-25"), ymd("2025-02-27"))
+# first_day <- ymd("2026-01-12")
+# last_day <- ymd("2026-04-30")
+# spring_break <- c(ymd("2025-03-24"), ymd("2025-03-26"))
 #
-# blank_cal <- seq(first_day, last_day, by = "day") |>
+# blank_cal <- seq(first_day, last_day, by = "days") |>
 #   enframe(name = NULL, value = "day") |>
 #   mutate(
 #     day_of_week = wday(day, label = TRUE, abbr = FALSE),
@@ -81,5 +81,6 @@ xfun::write_utf8(readme, here("README.md"))
 #   select(Week, Dates, name = day_of_week, value)
 #
 # write_csv(
-#   blank_cal, here("Syllabus/schedule.csv")
+#   blank_cal,
+#   here("Syllabus/schedule.csv")
 # )

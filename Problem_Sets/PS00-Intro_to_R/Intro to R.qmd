@@ -1,0 +1,1000 @@
+---
+title: "PS00 - Intro to R"
+author: "YOUR NAME"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+format: pdf
+---
+
+# R as a Calculator
+
+The first thing we will learn is how to use R as a calculator. You can use any of the math operators you want:
+
+- `+` Addition
+- `-` Subtraction
+- `*` Multiplication
+- `/` Division
+- `^` Exponentiation 
+
+Let's experiment with some arithmetic expressions: 
+
+```{r}
+1 + 1
+2 / 4
+3^2
+```
+
+
+Order of operations (via PEMDAS) apply here too:
+```{r}
+5 + 2 * 3
+```
+
+This does 2 * 3 first and then adds 5 to get 11. 
+If we want to do 5 + 2 first, then we can wrap it in parenthesis (the P in PEMDAS):
+
+```{r}
+(5 + 2) * 3
+``` 
+
+There are even some operators that you might not know that have to do with remainders:
+```{r}
+# Get the remainder
+13 %% 2
+
+# Divide and round down to the nearest decimal
+13 %/% 2
+```
+
+#### Exercise
+
+Compute the sample average of the following sample of baby weights (in lbs.):
+
+(7.7, 8.2, 8.3, 7.6, 9.2, 7.4, 11.1)
+
+```{r}
+
+```
+
+
+## R as a functional programming language
+
+R is based around functions. 
+A function takes an input (or multiple inputs) and produces an output. 
+There are many many functions in R, but first lets learn some calculator type functions. 
+For example, if I want to take the square root, I can use the function `sqrt`. 
+Here are some example of math functions:
+
+The form of a function call is `function_name(arguments)`
+
+1. The function name, `sqrt`, `abs`, `factorial`
+2. Opening parenthesis `(`
+3. The argument (in the future arguments)
+4. Closing parenthesis `)`
+
+For example `sqrt(16)` says to take the argument `16` and apply the function `sqrt` of it.
+
+#### Exercise
+
+1. Calculate the square root of 147
+
+```{r}
+
+```
+
+2. Try finding the natural log of 10, using `log()`
+
+```{r}
+
+```
+
+3. Practical usage: say the $Var(x) = 12$ and we have a sample size of 55. 
+What is the standard deviation of the sample distribution of the sample mean?
+
+```{r}
+
+```
+
+## Giving Things Names (i.e. Creating Variables)
+
+Variables are immensely helpful in R. 
+It lets you store values by giving them a `name` and then lets you access the variables later by name. 
+I can assign variables using either `<-` or `=`. 
+
+Create variable `x` with value 5 and a variable `y` with value 20.
+
+```{r}
+x <- 5
+y <- 20
+```
+
+What is the sum of `x` and `y`?
+
+```{r}
+x + y
+```
+
+Note the form of creating the variable:
+
+1. The variable name, `x` and `y`
+2. Assignment operator `<-` or `=`
+3. The value we want to store.
+
+The reason behind the left arrow is that the arrow points to variable name where we want to put the value into.
+
+You can create a variable containing *text* by using `""`
+
+```{r}
+instructor_name <- "Kyle Butts"
+print(instructor_name)
+```
+
+We can use the `cat` command to print out the text to the console:
+```{r}
+cat(instructor_name)
+```
+
+
+#### Exercise
+
+Use quotation marks to create a string and call it `my_name`.
+
+```{r}
+my_name <- "Kyle Butts"
+my_name
+```
+
+
+## Glueing together strings
+
+Often time we might want to combine text from multiple sources and/or add data to our strings.
+We can use the `paste`/`paste0` functions to combine together strings.
+`paste0` will append the strings as written, while `paste` will automatically add a space between each thing it is concatenating. 
+Dealer's choice for which you prefer
+
+For example,
+```{r}
+paste0("Kyle", "Butts")
+paste("Kyle", "Butts")
+```
+
+What is cool about these functions is they take any number of arguments and append them together. 
+For example, we can write a paste function that takes your height in inches and prints a human-readable string.
+
+```{r}
+height_in_inches <- 70
+paste0(
+  "My height is ",
+  height_in_inches %/% 12,
+  "'",
+  height_in_inches %% 12,
+  "\""
+)
+```
+
+Note that numbers get automatically converted to a string.
+One subtle point you might have missed. 
+If we start and end strings with double quotes, how can we include one in the text itself?
+Above, we did this with the escape key `\"`. 
+You probably won't need to do this, but it's worth mentioning nevertheless.
+
+#### Exercise
+
+1. Construct a string that reports on the average baby weight in your sample. 
+   It would be nice to create a variable that stores `mean_baby_weight` to make the code nicer to read.
+   These were the weights: `(7.7, 8.2, 8.3, 7.6, 9.2, 7.4, 11.1)`
+
+```{r}
+
+```
+
+2. Try printing out the following string: `\U1F919`. What is displayed?
+
+```{r}
+
+```
+
+**Answer:**
+
+
+
+
+# Vectors
+
+So far, we have dealth with scalar numbers and texts. 
+But, when working with data, we will observe many units and need a way to store all their values together.
+This is where the bread and butter of data-science comes in: Vectors.
+
+Vectors are a list of elements like integers, numbers, or strings. 
+This is really useful for storing data! 
+You use `c` to create a vector (pneumonically, `c` stands for combine).
+
+```{r}
+## Rebounds from 2023 NBA Season
+# fmt: skip
+rebounds <- c(260, 114, 252, 310, 165, 236, 148, 336, 941, 127, 384, 278, 300, 6, 136, 145, 233, 142, 420, 35, 11, 161, 485, 1, 830, 81, 112, 16, 63, 513, 162, 296, 434, 239, 22, 269, 235, 222, 485, 245, 578, 162, 281, 344, 39, 99, 82, 79, 476, 3, 69, 84, 201, 52, 223, 244, 34, 728, 5, 423, 286, 346, 324, 549, 580, 152, 401, 58, 95, 187, 618, 189, 69, 184, 34, 101, 36, 7, 472, 78, 41, 631, 259, 12, 760, 33, 410, 672, 70, 227, 272, 247, 289, 63, 96, 500, 497, 739, 188, 178, 491, 1, 298, 202, 211, 307, 227, 439, 253, 24, 740, 168, 921, 61, 210, 213, 209, 150, 145, 220, 26, 144, 286, 190, 56, 182, 580, 105, 402, 660, 260, 118, 0, 231, 11, 184, 69, 432, 807, 257, 762, 24, 42, 342, 95, 185, 77, 310, 170, 447, 98, 271, 8, 41, 99, 85, 102, 593, 275, 24, 10, 206, 407, 51, 184, 0, 98, 10, 305, 43, 112, 30, 80, 312, 292, 292, 899, 182, 317, 511, 665, 78, 633, 314, 32, 11, 49, 205, 402, 296, 46, 26, 261, 429, 451, 66, 546, 206, 35, 5, 63, 161, 227, 394, 308, 118, 92, 249, 691, 257, 85, 220, 483, 233, 909, 744, 564, 208, 573, 25, 243, 16, 2, 30, 132, 34, 468, 460, 330, 268, 1, 252, 318, 453, 473, 33, 82, 494, 26, 450, 54, 110, 145, 870, 670, 111, 1, 179, 448, 700, 74, 845, 30, 27, 639, 15, 97, 705, 96, 54, 295, 312, 556, 39, 551, 426, 45, 258, 8, 233, 564, 630, 536, 5, 255, 95, 173, 11, 51, 106, 71, 393, 317, 149, 394, 301, 319, 19, 147, 257, 336, 350, 19, 416, 829, 2, 219, 1530, 171, 124, 54, 47, 296, 30, 26, 96, 168, 14, 118, 770, 310, 66, 934, 42, 415, 204, 634, 202, 301, 391, 177, 81, 256, 116, 188, 76, 417, 1, 28, 435, 191, 449, 270, 265, 5, 1, 0, 47, 183, 0, 22, 247, 0, 381, 19, 2, 862, 253, 469, 55, 37, 90, 246, 78, 88, 512, 0, 101, 265, 28, 238, 223, 257, 372, 21, 236, 94, 81, 295, 206, 704, 454, 607, 145, 129, 282, 405, 247, 1258, 15, 269, 9, 240, 260, 305, 75)
+```
+
+It is kind of a pain in the neck to write all these out; and worse, prone to errors!
+Later, we will learn how to load data from a file, making this much easier. 
+
+You can access elements of a vector by using `[#]`, where `#` is the $i$-th element you want
+
+```{r}
+rebounds[1]
+rebounds[2]
+```
+
+If you want to access more than one element, we can subset using *a vector!* (how meta):
+
+```{r}
+rebounds[c(1, 2)]
+```
+
+One special syntax is ther `a:b` which generates $a, a+1, \dots, b$.
+This makes it easy to grab the first 5 values:
+```{r}
+rebounds[1:5]
+```
+
+Standard math operators work on vectors element by element:
+
+```{r}
+rebounds[1:5] + 1
+rebounds[1:5] / 12 # dozens of rebounds
+```
+
+If we want to know how many elements are in a vector, we can use the `length` function:
+```{r}
+length(rebounds)
+```
+
+
+## Summarizing vectors
+
+The natural next step is to start trying to summarize the data. 
+There are a set of built-in functions that provide statistical summaries of the data.
+
+```{r}
+## Mean, standard deviation, and variance
+mean(rebounds)
+sd(rebounds)
+var(rebounds)
+
+## Extremes
+max(rebounds)
+min(rebounds)
+
+## chaining functions
+sqrt(var(rebounds))
+```
+
+Some functions will take extra **arguments** that give more instructions.
+For example, the `quantile` function returns information about percentiles of the distribution. 
+You can add extra arguments, separated by commas.
+For example, `quantile`'s first argument is a vector and the second argument is what percentiles you want to find.  
+
+```{r}
+## Percentiles of the data
+quantile(rebounds, c(0.1, 0.5, 0.9))
+```
+
+We will talk in more details about plotting below, but for now we can use the `hist()` function to give us a view of the distribution of the vector
+
+```{r}
+hist(rebounds)
+```
+
+### Help menu
+
+How did I know the order of arguments for `quantile`? 
+Are there ways to customize the histogram created by `hist`?
+In general, if you have a question about a function, then you need to address that function's **documentation**.
+To do so, click in to your console and type `?func_name` where `func_name` is the name of the function, e.g. `quantile`.
+At first, the information may be very overwhelming.
+The documentation in base R functions are very detailed, but are not great at introducing the functions.
+You should focus on the **Arguments** section and perhaps the **Examples** section, in my opinion. 
+In particular, the order of the arguments is probably helpful in order of importance
+
+
+#### Exercise
+
+Similar to `c`, the `seq` function creates a vector: a **seq**uence of 
+numbers. 
+
+1. Create a sequence of all multiples of four from 4 to 100. Look at ``?seq` for help.
+   Hint: The arguments you need here are `from`, `to`, and `by`.
+   Store your vector in a varaible
+
+2. Find the 19th element of this sequence
+
+3. What is the sum of the 10th and 11th element of this sequence.
+
+
+### `NA`s 
+
+In the real world, some times we will not have a value for a variable for an individual (e.g. people don't fill answer a survey question).
+In `R`, this is represented as an `NA`.
+
+```{r}
+reviews <- c(5, NA, 4, 4, 3, 5, NA, 4, 5, 2)
+```
+
+What is the average (mean and median) review?
+```{r}
+mean(reviews)
+median(reviews)
+```
+
+By default, the statistical summary functions will all produce `NA` when they are present in the data.
+`R` wants you to *opt-in* to ignoring the missings. 
+To do this, functions will take an extra **argument** called `na.rm`:
+
+```{r}
+mean(reviews, na.rm = FALSE)
+max(reviews, na.rm = FALSE)
+```
+
+A lot of this information will be presented to you by the `summary` function.
+For numberic vectors, `summary` produces the five-number summary, the mean, and the number of `NA`s (if any)
+
+```{r}
+summary(reviews)
+```
+
+### Logical Vectors
+
+So far, we have seen two kinds of vectors: numeric and character vectors.
+A third, common, vector is a **logical** vector:
+```{r}
+ordered_takeout <- c(TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, FALSE)
+```
+
+Logical vectors can take only two values: `TRUE` and `FALSE`. 
+They can be treated as numbers by using `as.numeric()` with `TRUE` becoming `1` and `FALSE` becoming `0`.
+```{r}
+as.numeric(ordered_takeout)
+```
+
+One common trick is to use `sum()` on a logical vector and it will return the number of `TRUE`s:
+```{r}
+sum(ordered_takeout)
+```
+
+Logical vectors are often returned by other operations.
+For example, we can check whether elements of a vector equal some value with `==`.
+Other operators that produce a logical vector include `>`, `<`, `>=`, and `<=`.
+
+```{r}
+## Find five-star reviews
+reviews == 5
+
+## Find three-star or lower
+reviews <= 3
+```
+
+Logical vectors can be **negated** using the `!` operator:
+
+```{r}
+## Find non five-star reviews
+!(reviews == 5)
+```
+
+You can also use the following operators to supply multiple criteria:
+
+- `&` And operator. Both vector 1 **and** vector 2 must be true for the observation
+- `|` Or operator. **Either** vector 1 **or** vector 2 must be true for the observation
+
+```{r}
+(reviews == 5) & (reviews == 4)
+```
+
+```{r}
+(reviews == 5) | (reviews == 4)
+
+## Equivalent to
+reviews >= 4
+```
+
+
+### Subsetting of vectors by logical
+
+We have already discussed one way of subsetting vectors via a vector of integers.
+This is called "subsetting by index".
+
+The other common way is by using a logical vector the same length of the vector you wish to subset.
+For example, let's look at the reviews for takeout orders and dine-in orders separately
+
+```{r}
+## Takeout orders
+reviews[ordered_takeout]
+
+## Dine-in orders
+reviews[!ordered_takeout]
+```
+
+#### Exercise
+
+1. What is the average review for take-out orders?
+
+```{r}
+
+```
+
+2. The `is.na()` function takes a vector as an argument and returns a logical vector that equals `TRUE` if the element is `NA`. 
+   Using this and the `!`, subset the reviews to only non-`NA` values. 
+   What is the average review? Comapre this to `mean(reviews, na.rm = TRUE)`.
+
+```{r}
+mean(reviews[!is.na(reviews)])
+mean(reviews, na.rm = TRUE)
+```
+
+
+
+### Vectorized operations
+
+Often times we want to use multiple vectors for some calculation.
+Like single numbers, arithmetic can be done element-by-element with vectors.
+This means +, -, *, / and ^ all work on a vector.
+
+```{r}
+x <- c(1, 2, 3)
+y <- c(5, 5, 5)
+
+x + y
+x^2
+```
+
+There are two main features to remember:
+1. The vectors you use should be of the same length (if they are not, some weird *recycling* rules occur that we will not discuss in this introduction). 
+2. Scalars are treated as a vector of the same length with that single number repeated for each element.
+
+```{r}
+## Equivalent:
+x + 2
+x + rep(2, 3)
+```
+
+More, many functions are designed to be used on vectors element by element.
+All of the functions we used in the "Calculator" section do this:
+```{r}
+exp(x)
+log(x)
+sqrt(x^2)
+```
+
+#### Exercise
+
+1. Try to guess the output of the following expression `2*x + y + 1`.
+
+
+### Sorting data
+
+The final vector operation we will discuss is how to sort data; either ascending or descending in value.
+There are two ways to do this. 
+
+First, we can use the `sort()` function.
+The function takes a function and an optional `decreasing` argument.
+`decreasing` takes a logical `TRUE`/`FALSE` option. 
+By default, it increases in values
+```{r}
+sort(rebounds, decreasing = TRUE)
+```
+
+Alternatively, we can use the `order()` function to get the *row indices* of the ordering:
+```{r}
+order(rebounds, decreasing = TRUE)
+```
+
+The first element of the resulting vector is the index of the maximum number (1530)
+```{r}
+order(rebounds, decreasing = TRUE)[1]
+which.max(rebounds)
+```
+
+What this means is that we can use the result of `order` to subset the vector to get the sorted vector:
+```{r}
+rebounds[order(rebounds, decreasing = TRUE)]
+```
+
+This might seem like a bit silly, but it will prove useful when we want to sort multiple vectors at the *same time* based on one of the vectors. 
+
+
+#### Exercise
+
+
+1. Create a vector with the following 20 observations and call it `height`:
+
+64, 65, 64, 66, 67, 64, 67, 66, 66, 67, 70, 66, 70, 68, 68, 67, 69, 67, 67, 69
+
+a. Use `length` and confirm there are twenty observations
+
+b. Subset the first 4 elements of the `height`
+
+c. Subset the last two elements of `height`
+
+d. Compute the five-number summary, the mean, and the sd of `height`. 
+
+e. Print out the heights in order from tallest to shortest
+
+```{r}
+
+```
+
+
+# Dataframes (or, a group of vectors)
+
+Dataframes are a special object in R. 
+A dataframe is simply a collection of **vectors** and looks like a typical excel spreadsheet.
+The columns of a dataframe are each **vectors** that contain variables and a row contains an **observation**.
+This is the coding equivalent of an excel spreadsheet. 
+If you are using Positron, clicking the dataframe in the `Variables` tab or typing `View(df_name)` into the console will let you interactively scroll though the data. 
+
+First, we will load some data.frames that come with a **package** in R.
+We can do that using the `data` function.
+Let's load the `penguins` data set which contain a census conducted on multiple species of penguins on a set of islands:
+![Three species of penguins](https://github.com/allisonhorst/palmerpenguins/raw/main/man/figures/lter_penguins.png)
+
+```{r}
+data(penguins, package = "palmerpenguins")
+```
+
+We can use the `head()` function to view the first few rows. 
+It prints out the first 6 rows of the dataset so you can see the variables. 
+BTW, this function works on vectors too!
+
+```{r}
+head(penguins)
+```
+
+Another helpful function is `str()` which prints a similar format, but is a little easier to read, especially when there are a lot of variables in the dataset. 
+
+```{r}
+str(penguins)
+```
+
+The output of string shows that a data.frame is just a list of vectors that have names (`species`, `island`, ...). 
+
+Finally, you can access the number of rows and number of columns with `nrow`/`ncol`
+
+```{r}
+print(paste0(nrow(penguins), " obs. of ", ncol(penguins), " variables"))
+```
+
+#### Exercise
+
+1. What constitutes a row in the penguins dataframe? What constitutes a column?
+
+
+## Accessing vectors by name with `$`
+
+The first thing we might want to do is access some of the vectors from the `penguins` dataframe. 
+If you type `species` into the console and hit enter, you will see this error: `Error: object 'species' not found`. 
+Get used to recognizing this error becuase you will probably accidentally make this mistake a lot at first.
+
+This errors occurs because R does not know that you mean "look for `species` in the `penguins` dataset".
+To access an individual vector, we must specify *both* the dataframe and the vector's name. 
+To do this, we use the `$` operator like this: `penguins$species`. 
+This looks into the dataframe stored in the `penguins` variable and looks for the vector named `species`:
+```{r}
+penguins$species
+```
+
+When using Positron, after you type the `$` a little pop-up menu wil show up that shows you all the available variable names.
+You can use the arrow keys to find the variable and hit enter (or tab) to have it type the variable name for you.
+
+Try that below to find the avariable measuring the depth of a penguin's bill:
+```{r}
+
+```
+
+
+## General subsetting with `[,]` 
+
+Now, let's think about subsetting the dataframe to a specific set of rows. 
+Given that we used `[idx]` for vectors (either a logical vector or integer index), you might think we can do the same with data.frames.
+This is good intuition, but remember a data frame has both rows and columns!
+We will still use `[,]` to subset, but we need a `,` to specify rows and columns.
+
+The syntax therefore is `df[ROWS, COLUMNS]`. 
+Before comma = rows and After comma = columns.
+If either `ROWS` or `COLUMNS` is left blank, then it will assume you want all rows or all colums respectively.
+
+Let me show you some examples:
+
+```{r}
+## First 5 rows, all columns
+penguins[1:5, ]
+```
+
+```{r}
+## All rows, the species column
+penguins[, "species"]
+```
+
+```{r}
+## First 5 rows, the species column
+penguins[1:5, "species"]
+```
+
+```{r}
+## First 10 rows, the species and island columns
+penguins[1:10, c("species", "island")]
+```
+
+
+You can "chain" together calls and between `[,]` and `$` syntaxes.
+For example let's say I want the variable `island` for the first 6 observations:
+```{r}
+penguins[1:6, "island"]
+penguins[1:6, ]$island
+```
+
+But, if I do `penguins$island`, this results in a vector. 
+So, to get the first 6 elements, I use only `[]` without a comma:
+```{r}
+penguins$island[1:6]
+```
+
+#### Exercise
+
+1. Use the `unique()` function to find the unique values of the variable `species` in the penguins dataset.
+
+```{r}
+
+```
+
+2. Use the `table()` function to find how many penguins there are of each species.
+
+```{r}
+
+```
+
+3. Imagine we use `penguins[1:5]` to try and grab the first 5 rows. What happens?
+
+```{r}
+
+```
+
+
+
+## Selecting rows based on criteria
+
+Lets see which penguins live on Torgersen.
+
+We can use the `==` operator to compare a vector to a value (or set of values). 
+For example, here we see if each penguin's island is `"Torgersen"`. 
+It produces a `boolean` vector of TRUEs and FALSEs
+
+```{r}
+on_torgersen <- penguins$island == "Torgersen"
+on_torgersen
+```
+
+We can subset the data using a boolen vector.
+We pass this boolean vector to the `ROWS` section of `[,]`
+
+```{r}
+penguins[penguins$island == "Torgersen", ]
+penguins[penguins$island == "Torgersen", ]$body_mass_g
+```
+
+You can also use the following operators to supply multiple criteria:
+- `&` And operator. Both vector 1 **and** vector 2 must be true for the observation
+- `|` Or operator. **Either** vector 1 **or** vector 2 must be true for the observation
+
+```{r}
+penguins$island == "Torgersen" & penguins$sex == "male"
+penguins$island == "Torgersen" | penguins$sex == "male"
+```
+
+
+#### Exercise
+
+1. Subset the `penguins` dataframe to male penguins that weigh over 3500 grams
+
+```{r}
+
+```
+
+
+2. Are all three species present on the Torgersen island? The `table` or `unique` functions might be helpful here.
+
+```{r}
+
+```
+
+3. Which species has the heaviest penguin? 
+
+```{r}
+
+```
+
+4. 
+
+
+
+#### Exercise
+
+![Penguin Beak Measurements](https://raw.githubusercontent.com/allisonhorst/palmerpenguins/master/man/figures/culmen_depth.png)
+
+Lets compare Bill Length between the three species of penguins in our dataset: the Adelie, Gentoo, and Chinstrap penguins.
+
+Using `[]` and `<-`, create 3 dataframes called `penguins_ad`, `penguins_gent`, and `penguins_chin` that subset based on the correct species of penguins.
+
+"Adelie", "Gentoo", "Chinstrap"
+
+```{r}
+
+```
+
+
+What is the mean of each species bill length in millimeters? (remember there are NAs so we will need to use `na.rm = TRUE`).
+
+```{r}
+
+```
+
+
+## Creating new variables
+
+We can create *new* variables in our dataset by using the `$` or `[]` operators with `<-`.
+
+```{r}
+penguins$body_mass_g
+
+# 0.0022 lbs = 1 g
+penguins$body_mass_lb <- 0.00220462 * penguins$body_mass_g
+```
+
+
+### Exericse
+
+Your R exercise asks you to calculate the standard deviation without using the `var()` or `sd()` command. We want to remove `NA`s manually to fix this. A helpful command is `is.na()`. Let's practice computing the variance of body_mass_lb by hand. You will want to use `nrow()`
+
+```{r}
+
+```
+
+
+## Loading data into R
+
+In R, you can either load data from a website or from a computer. 
+Usually data is found in a .csv file, but sometimes it will be in different forms that R can read.
+
+```{r}
+# From a website
+fandango <- read.csv(
+  "https://raw.githubusercontent.com/kylebutts/UARK_4753/refs/heads/main/R_Labs/Lab_02/data/fandango_score_comparison.csv"
+)
+head(fandango)
+```
+
+However, most common is to download the data and put it in the folder where your `.Rmd` file is. 
+To load data you will need to find the file location. 
+By default, the working directory is whereever the `.qmd` file is located. So if your dataset is in the same folder as `.qmd`, you can load it by name:
+```{r}
+#| eval: FALSE
+penguins <- read.csv("data/penguins.csv")
+```
+
+Or, say you have your data in a subfolder called `data`.
+Then, you would use `penguins <- read.csv("data/penguins.csv")`.
+
+If you have a dataframe that you want to export to a csv function, you will use the function `write.csv(df, "path/to/file.csv")`. 
+This uses the same working directory as `read.csv` and relative paths to the file work the same way.  
+
+
+
+## Sorting dataframes
+
+There are two different ways to sort the rows of a data.frame.
+
+First, we can use the `order` method we used on vectors: `df[order(...), ]`.
+
+```{r}
+penguins[order(penguins$body_mass_g), ]
+```
+
+Or, we can use special function `sort_by`.
+This takes two arguments: 1. the `data.frame` and 2. the vector you want to sort by: 
+
+```{r}
+sort_by(penguins, penguins$body_mass_g)
+```
+
+Alternatively, we can pass a one-sided **formula** that gives the variables you want to sort by.
+A **formula** is a commonly used tool in R that lets you write variable name(s) without needing to specify the `data.frame` they come from.  
+A one-sided formula is written as `~ xvar` (the tilde is next to the number 1 on your keyboard). 
+
+```{r}
+sort_by(penguins, ~body_mass_g)
+```
+
+Say we want to first sort by species (so that each species is a contiguous chunk of rows) and then within species, sort by body mass. 
+To do so, we can use multiple variables separated by a `+` in the formula syntax.
+
+```{r}
+sort_by(penguins, ~ species + body_mass_g)
+```
+
+
+
+# Plotting
+
+## Histograms
+
+Common functions for graphing are `hist()` for plotting one variable and `plot()` for plotting two variables. 
+
+```{r}
+# Count
+hist(penguins$body_mass_lb)
+```
+
+You can add additional commands for better plots. Use `?hist` to see the list of options. 
+
+#### Exercise
+
+1. Type `?hist` into the console and find the following options:
+
+- Find the option that will give you probabilities (instead of counts)
+- the bar color
+- the x-axis label
+- the main title
+
+Change these to make a more professional histogram:
+```{r}
+## Modify this
+hist(penguins$body_mass_lb)
+```
+
+
+2. Compare this distributions of `bill_length_mm` for Adelie and Chinstrap penguins. 
+
+```{r}
+
+```
+
+
+## Scatter Plots
+
+While we haven't talked about this yet, it is typically of interest to compare multiple variables together. 
+To plot two variables, we will use the `plot()` function to make scatter plots.
+
+```{r}
+plot(
+  penguins$flipper_length_mm,
+  penguins$body_mass_lb,
+  main = "Scatter plot of flipper length and body mass"
+)
+```
+
+It can be kind of annoying to type `penguins$` twice in plot.
+There is a second way to call `plot` which uses **formula** syntax.
+A formula has the following syntax `yvar ~ xvar` where `yvar` and `xvar` are variable names.
+So we can use `body_mass_lb ~ flipper_length_mm` to specify variables and then tell `plot` to use the `penguins` data.frame using the `data` argument.
+```{r}
+plot(
+  body_mass_lb ~ flipper_length_mm,
+  data = penguins,
+  main = "Scatter plot of flipper length and body mass"
+)
+```
+
+If the `data` argument is not provided, it will look for `body_mass_lb` and `flipper_length_mm` as variables defined in the **global environment**. 
+If these variables are within a data.frame and not as their own variables, then you will get the "object not found" error again.
+
+The reason I am showing you this is that this syntax will show up again when we run linear regressions in this class.
+And, in fact, this form of function calling where we use a `data` argument and then reference variables *within* that data.frame by name is actually quite common (see `dplyr` section in advanced materials).
+
+
+
+
+## (optional) ggplot2
+
+There is a package called `ggplot2` that improves base Rs graphing library. 
+We will not cover the details here, but a curious student can find much more details here: https://ggplot2-book.org/
+
+This is a particularly nice introduction: https://uopsych-r-bootcamp-2020.netlify.app/post/06-ggplot2/
+
+```{r, warning = FALSE, message = FALSE}
+library(ggplot2)
+ggplot() +
+  geom_histogram(
+    data = penguins,
+    aes(x = body_mass_lb, color = species, fill = species),
+    alpha = 0.3
+  ) +
+  labs(
+    title = "Histogram of Penguin Body Mass, by species",
+    x = "Weight (in lb.)",
+    color = "Species",
+    fill = "Species"
+  ) +
+  scale_color_grey() +
+  scale_fill_grey() +
+  theme_gray()
+```
+
+```{r, warning = FALSE, message = FALSE}
+ggplot() +
+  geom_point(
+    data = penguins,
+    aes(x = flipper_length_mm, y = body_mass_lb, color = species)
+  ) +
+  labs(
+    title = "Scatter Plot of Penguin Data, by species",
+    x = "Flipper Length (in mm)",
+    y = "Weight (in lb.)",
+    color = "Species",
+    fill = "Species"
+  ) +
+  scale_color_grey() +
+  theme_gray()
+```
+
+`ggplot2` makes it really easy to make beautiful and professional graphs and it would be a **really** useful skill to have in your career
+
+```{r}
+ggplot(
+  data = penguins,
+  aes(
+    x = bill_length_mm,
+    y = bill_depth_mm,
+    group = species
+  )
+) +
+  geom_point(
+    aes(color = species, shape = species),
+    size = 3,
+    alpha = 0.8
+  ) +
+  geom_smooth(method = "lm", se = FALSE, aes(color = species)) +
+  theme_minimal() +
+  scale_color_manual(values = c("darkorange", "purple", "cyan4")) +
+  labs(
+    title = "Penguin bill dimensions",
+    subtitle = "Bill length and depth for Adelie, Chinstrap and Gentoo Penguins at Palmer Station LTER",
+    x = "Bill length (mm)",
+    y = "Bill depth (mm)",
+    color = "Penguin species",
+    shape = "Penguin species"
+  ) +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.85, 0.15),
+    legend.background = element_rect(fill = "white", color = NA),
+    plot.title.position = "plot",
+    plot.caption = element_text(hjust = 0, face = "italic"),
+    plot.caption.position = "plot"
+  )
+```
+
+
+
+
+#### Exercise
+
+[Article about Movie Scores](https://fivethirtyeight.com/features/fandango-movies-ratings/)
+
+- Load `fandango_score_comparison.csv`
+
+- Compute the five-number summary for Rotten Tomatoes, Metacritic, and IMDB scores.
+
+- Subset data for Rotten Tomatoes scores above 80
+
+- Subset data for movies with a IMDB score above 8 and Rotten Tomatoes scores above 90.
+
+- Among those movies with a Rotten Tomatoes score above 90, what is the five-number summary of IMDB Scores
+
+- Plot a histogram of IMDB scores and a histogram of Fandango scores. Compare them (see above article for similar figure made in R!!)
+  Make sure to use high-quality labels for your chart.
+
+- Plot a scatter plot of IMDB and Rotten Tomatoes scores.
+  Make sure to use high-quality labels for your chart.
+
+
+
+
+
+
