@@ -1,0 +1,344 @@
+---
+title: "PS01 - Statistics Review"
+author: "YOUR NAME"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+format: pdf
+---
+
+```{r}
+#| setup
+#| include: false
+library(tidyverse)
+```
+
+# Simulation and Sampling Distributions
+
+In this problem set, we'll explore the central limit theorem and sampling distributions through simulation.
+
+We'll create a general simulation function that can work with different sampling distributions and statistics.
+
+## Creating a Simulation Function
+
+Let's write a function that simulates drawing samples and calculating statistics.
+
+The function will take three main parameters:
+- `N`: sample size
+- `draw_sample`: a function that draws a sample of size N
+- `calculate_statistic`: a function that calculates a statistic from the sample
+
+```{r}
+## Helper function that will draw B samples using `draw_sample` and calcuating the statistic for each sample
+## Returns the set of statistics generated
+simulate_sampling_distribution <- function(
+  N,
+  draw_sample,
+  calculate_statistic,
+  B = 2500
+) {
+  # Create a vector to store the statistics
+  statistics <- numeric(B)
+
+  # Run B simulations
+  for (i in 1:B) {
+    # Draw a sample of size N
+    x <- draw_sample(N)
+
+    # Calculate the statistic and store it
+    statistics[i] <- calculate_statistic(x)
+  }
+
+  return(statistics)
+}
+```
+
+## Example 1: Normal Distribution
+
+Let's test our function with samples drawn from a normal distribution.
+We'll calculate the sample mean.
+
+```{r}
+## Sample from normal function
+draw_normal_sample <- function(N) {
+  rnorm(N, mean = 10, sd = 2)
+}
+
+## Calculate the sample mean
+calculate_sample_mean <- function(x) {
+  mean(x)
+}
+
+
+## Run simulation and analyze results
+set.seed(123)
+normal_means <- simulate_sampling_distribution(
+  N = 30,
+  draw_sample = draw_normal_sample,
+  calculate_statistic = calculate_sample_mean,
+  B = 2500
+)
+
+## Plot the sampling distribution
+ggplot() +
+  ## empirical sampling distribution
+  geom_histogram(
+    aes(x = normal_means, y = after_stat(density)),
+    fill = "lightblue",
+    color = "black",
+    bins = 100
+  ) +
+  ## theoretical sampling distribution
+  stat_function(
+    fun = function(x) dnorm(x, mean = 10, sd = 2 / sqrt(30)),
+    color = "darkblue",
+    linewidth = 1
+  ) +
+  labs(
+    title = "Sampling Distribution of Sample Mean\n(Normal Population)",
+    x = "Sample Mean",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
+
+
+
+## Example 2: Binomial Distribution
+
+Now let's try with a binomial distribution. 
+We'll calculate the sample proportion of successes.
+
+```{r}
+N <- 50
+p <- 0.3
+draw_binomial_sample <- function(N) {
+  rbinom(N, size = 1, prob = p) # Bernoulli trials with probability of success = 0.3
+}
+
+calculate_sample_proportion <- function(sample_data) {
+  mean(sample_data) # For 0/1 data, mean = proportion
+}
+
+## Run simulation and analyze results
+set.seed(456)
+binomial_props <- simulate_sampling_distribution(
+  N = N,
+  draw_sample = draw_binomial_sample,
+  calculate_statistic = calculate_sample_proportion,
+  B = 2500
+)
+
+ggplot() +
+  ## empirical sampling distribution
+  geom_histogram(
+    aes(x = binomial_props, y = after_stat(density)),
+    fill = "lightblue",
+    color = "black",
+    bins = 100
+  ) +
+  ## theoretical sampling distribution
+  stat_function(
+    fun = function(x) dnorm(x, mean = p, sd = sqrt(p * (1 - p) / N)),
+    color = "darkblue",
+    linewidth = 1
+  ) +
+  labs(
+    title = "Sampling Distribution of Sample Proportion\n(Binomial Population)",
+    x = "Sample Proportion",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
+
+#### Exercise
+
+1. What happens when `N` is small? How does the normal approximation of the sampling distribution perform? 
+
+
+
+2. Does the number of simulations (B) change the sample distribution? 
+
+
+
+
+
+
+
+
+
+## Example 3: Exponential Distribution
+
+Let's try with an exponential distribution, which is skewed.
+We'll see how the sample mean behaves.
+
+```{r}
+## Define function for exponential distribution
+draw_exponential_sample <- function(N) {
+  rexp(N, rate = 1) # Mean = 1, variance = 1
+}
+
+## Example to see the distribution
+hist(draw_exponential_sample(10000))
+```
+
+```{r}
+N = 5
+
+## Run simulation and analyze results
+set.seed(789)
+exp_means <- simulate_sampling_distribution(
+  N = N,
+  draw_sample = draw_exponential_sample,
+  calculate_statistic = calculate_sample_mean,
+  B = 2500
+)
+
+# Summary of the sampling distribution
+summary(exp_means)
+
+## Plot the sampling distribution
+ggplot() +
+  ## empirical sampling distribution
+  geom_histogram(
+    aes(x = exp_means, y = after_stat(density)),
+    fill = "lightblue",
+    color = "black",
+    bins = 100
+  ) +
+  ## theoretical sampling distribution
+  stat_function(
+    fun = dnorm,
+    args = list(mean = 1, sd = 1 / sqrt(N)),
+    color = "darkblue",
+    linewidth = 1
+  ) +
+  scale_x_continuous(
+    limits = c(-max(abs(exp_means)), max(abs(exp_means)))
+  ) + 
+  labs(
+    title = "Sampling Distribution of Sample Mean\n(Exponential Population)",
+    x = "Sample Mean",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
+
+#### Exercise
+
+1.  Try a few different values of `N`, e.g. try 5, 10, 20, 40, and 100. How "quickly" does the normal approximation start to work well?
+
+2. When `N` is small,  the normal approximation is a poor approximation of the true sample distribution of the statistic.
+   Why is it particularly problematic when conducting inference using the normal approximation (1.96 * standard error)?
+   (Hint: consider the tails / t-distribution) 
+
+
+
+
+
+## t-statistic
+
+One of the most common statistic we will calculate is the $t$ test-statistic. 
+This is because we will often want to test whether a sample mean is statistically significantly different from a hypothesized value.
+Let's look at the sample distribution of our test statistic.
+
+```{r}
+N = 300
+
+## Define t-statistic function
+calculate_t_statistic <- function(sample_data) {
+  n <- length(sample_data)
+  sample_mean <- mean(sample_data)
+  sample_sd <- sd(sample_data)
+
+  # t-statistic: (x̄ - μ) / (s/√n)
+  # Here we test against true mean = 10
+  (sample_mean - 10) / (sample_sd / sqrt(n))
+}
+
+## Run t-distribution simulation
+set.seed(1111)
+t_stats <- simulate_sampling_distribution(
+  N = N, # Small sample size
+  draw_sample = draw_normal_sample,
+  calculate_statistic = calculate_t_statistic,
+  B = 10000
+)
+
+## Plot t-statistics
+ggplot() +
+  ## empirical sampling distribution
+  geom_histogram(
+    aes(x = t_stats, y = after_stat(density)),
+    fill = "lightblue",
+    color = "black",
+    bins = 50
+  ) +
+  ## theoretical sampling distribution
+  stat_function(
+    fun = function(x) dt(x, df = N - 1),
+    color = "darkblue",
+    linewidth = 1
+  ) +
+  labs(
+    title = "Distribution of t-statistic\n(Small Sample from Normal Population)",
+    x = "t-statistic",
+    y = "Density",
+  ) +
+  theme_minimal()
+```
+
+Perhaps unsurprisingly, our statistic follows the `t` distribution with $N - 1$ degrees of freedom.
+
+
+
+## Exercises
+
+### Exercise 1
+
+Modify the simulation to use a uniform distribution U(0, 10).
+Draw $N = 100$
+Calculate the sample mean.
+
+```{r}
+
+
+```
+
+Compare the sampling distribution to the theoretical normal distribution.
+
+
+
+### Exercise 2
+
+Create a function to calculate the sample variance (use the `var` function).
+Run simulations with different sample sizes ($N = 10$, $N = 30$, $N = 100$).
+
+
+```{r}
+
+```
+
+How does the sampling distribution of the variance change with sample size?
+
+
+### Exercise 3
+
+Simulate the sampling distribution of the median for samples from a normal distribution.
+Compare it to the sampling distribution of the mean.
+
+```{r}
+
+```
+
+Which sample distribution has the larger variance (use the `var` function)?
+
+
+
+## Key Takeaways
+
+For many statistics, the central limit theorem (CLT) will ensure that the sampling distribution is *approximately* normally distributed *in large samples*.
+However, this is not guaranteed and caution should be had.
+For most distributions, sample sizes of 30 or more are sufficient for the CLT to provide a good approximation, though this varies with the degree of skewness in the population.
+
+
+
+
