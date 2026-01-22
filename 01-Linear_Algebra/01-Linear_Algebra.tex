@@ -2,6 +2,7 @@
 \usepackage{../includes/slides,../includes/math}
 \definecolor{accent}{HTML}{2B5269}
 \definecolor{accent2}{HTML}{9D2235}
+\usetikzlibrary{matrix,arrows.meta,positioning,calc}
 
 \title{Introduction to Linear Algebra}
 \subtitle{\it  ECON 5753 — University of Arkansas}
@@ -22,6 +23,7 @@
   The basic currency of \emph{forecasting} is \alert{data}. Data typically looks like:
 
   \vspace*{2.5\bigskipamount}
+  % library(tinytable)
   % head(mtcars[, c("mpg", "cyl", "hp", "wt", "am", "gear")]) |> tt() |> print("latex")
   \begin{table}
     \centering
@@ -98,6 +100,7 @@
       \end{bmatrix}$
   \end{center}
 
+  \bigskip
   The \alert{Size}/\alert{Dimension} a matrix: (rows) $\times$ (columns). E.g. $\bm{A}$ is a $2 \times 3$ matrix.
   \begin{itemize}
     \item The element in row $i$ and column $j$ is referred to as $a_{ij}$ or $A_{ij}$.
@@ -170,21 +173,8 @@
   $$
 \end{frame}
 
-\begin{frame}{Regression as matrix operations}
-  The most populate forecasting method we will learn is the \emph{linear regression}. Say we want to predict \texttt{mpg} given other variables about the car (\texttt{hp} and \texttt{wt}). 
-
-  \bigskip
-  To do so, we take variables, $A_{\cdot, j}$, and multiply it by their slope parameter to make predictions:
-
-  $$
-    \begin{bmatrix}1 \\ 1 \\ 1 \\ 1 \\ 1\end{bmatrix} \alpha + 
-    \begin{bmatrix}110 \\ 110 \\ 93 \\ 110 \\ 175\end{bmatrix} \beta_{\texttt{hp}} + 
-    \begin{bmatrix}2.620 \\ 2.875 \\ 2.320 \\ 3.215 \\ 3.440\end{bmatrix} \beta_{\texttt{wt}}
-  $$
-\end{frame}
-
 \begin{frame}{Using matrices}
-  The most populate forecasting method we will learn is the \emph{linear regression}. Say we want to predict \texttt{mpg} given other variables about the car (\texttt{hp} and \texttt{wt}). 
+  the most popular forecasting method we will learn is the \emph{linear regression}. Say we want to predict \texttt{mpg} given other variables about the car (\texttt{hp} and \texttt{wt}). 
   
   \pause
   \bigskip
@@ -213,7 +203,7 @@
     \end{bmatrix}
   $$
 
-  \bigskip
+  \vspace{1.5\bigskipamount}
   This is a \emph{linear combination} of the columns of the matrix
 \end{frame}
 
@@ -249,10 +239,27 @@
   \end{center}
 \end{frame}
 
+\imageframe{figures/matrix_multiplication.pdf}
+
 \begin{frame}{Matrix Multiplication}
   \begin{center}
-    \includegraphics[width=0.65\textwidth]{figures/mat_mult.png}
+    $A = \begin{bmatrix}
+        {\color{orange} a_{11}} & {\color{orange} a_{12}} & {\color{orange} a_{13}} \\
+        {\color{cranberry} a_{21}} & {\color{cranberry} a_{22}} & {\color{cranberry} a_{23}} \\
+    \end{bmatrix}$ 
+    and 
+    $D = \begin{bmatrix}
+      {\color{blue} d_{11}} & {\color{green} d_{12}} \\
+      {\color{blue} d_{21}} & {\color{green} d_{22}} \\
+      {\color{blue} d_{31}} & {\color{green} d_{32}} \\
+    \end{bmatrix}$
   \end{center}
+
+  \vspace{2\bigskipamount}
+  Each element of the resulting $A \times D$ is the vector \textbf{dot product} between each \emph{row} of $A$ and each column of $D$:
+  $$
+    (A \times D)_{i,j} = A_{i, \cdot} \cdot D_{\cdot, j}
+  $$
 \end{frame}
 
 \begin{frame}{Matrix Multiplication Practice}
@@ -291,7 +298,7 @@
 \end{frame}
 
 \begin{frame}{Why call it ``multiplication''}
-  There are two rules we learn about regular multiplication:
+  There are three rules we learn about regular multiplication:
   \begin{enumerate}
     \item associative: $(ab)c = a(bc)$;
     \item distributive: $a (b + c) = ab + ac$; and 
@@ -306,7 +313,7 @@
     
     \item $\bm{A} (\bm{B} + \bm{C}) = \bm{A} \bm{B} + \bm{A} \bm{C}$
     
-    \item However, $\bm{A} \bm{B} \neq \bm{A} \bm{B}$ (in some cases, this holds but not generally)
+    \item However, $\bm{A} \bm{B} \neq \bm{A} \bm{B}$ (in some cases this holds, but not generally)
   \end{enumerate}
 \end{frame}
 
@@ -315,12 +322,15 @@
   $$\bm{A} \bm{B} \neq \bm{A} \bm{B}$$
 
   \bigskip
-  In some cases, one of these two might not even exist. E.g.
-  \begin{itemize}
-    \item $\bm{A}$ is a $3 \times 2$ matrix and $\bm{B}$ is a $2 \times 1$ matrix.
-  \end{itemize}
+  In some cases, one of these two might not even exist 
+  
+  For example, E.g. $\bm{A}$ is a $3 \times 2$ matrix and $\bm{B}$ is a $2 \times 1$ matrix.
 
-  $\bm{A} \bm{B}$ is well-defined (since the number of columns of $\bm{A} =$ the number of rows of $\bm{B}$), but $\bm{B} \bm{A}$ is not well-defined.
+  \begin{itemize}
+    \item $\bm{A} \bm{B}$ is well-defined (since the number of columns of $\bm{A} =$ the number of rows of $\bm{B}$)
+    
+    \item But, $\bm{B} \bm{A}$ is not well-defined
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Identity Matrix}
@@ -336,7 +346,7 @@
   $$
 
   \bigskip
-  The identity matrix has the property that $\mathbb{I}_n \bm{A} = \bm{A} \mathbb{I}_n A = \bm{A}$
+  The identity matrix has the property that $\mathbb{I}_n \bm{A} = \bm{A} \mathbb{I}_n = \bm{A}$
 \end{frame}
 
 \begin{frame}{Uses of Matrix Multiplication}
@@ -345,16 +355,17 @@
   \bigskip
   Take a few moments and try and think about what the matrix $\bm{S}$ would need to be to calculate the sample mean of $x$:
   $$
-    \bm{S} \begin{bmatrix} x_1 \\ \vdots \\ x_n \end{bmatrix} = \frac{1}{n} \left( x_1 + \dots + x_n \right)
+    \frac{1}{n} \bm{S} \begin{bmatrix} x_1 \\ \vdots \\ x_n \end{bmatrix} = \frac{1}{n} \left( x_1 + \dots + x_n \right)
   $$
 \end{frame}
 
 \begin{frame}{Uses of Matrix Multiplication}
   \vspace*{-\bigskipamount}
   $$
-    \begin{bmatrix} 1 & \dots & 1 \end{bmatrix} \begin{bmatrix} x_1 \\ \vdots \\ x_n \end{bmatrix} = \frac{1}{n} \left( x_1 + \dots + x_n \right)
+    \frac{1}{n} \begin{bmatrix} 1 & \dots & 1 \end{bmatrix} \begin{bmatrix} x_1 \\ \vdots \\ x_n \end{bmatrix} = \frac{1}{n} \left( x_1 + \dots + x_n \right)
   $$
 
+  \bigskip
   Answer: The \alert{row-vector} consisting of all $1$s 
 
   \pause
@@ -368,9 +379,10 @@
 \begin{frame}{Transpose}
   The \alert{transpose} of a vector will do this ``flipping'' of vectors and matrices. We denote the transpose as $v^{\top}$ or $v'$
   \begin{itemize}
-    \item The latter can be confused with `derivative', but is easier to write and arguably standard.
+    \item The latter can be confused with `derivative', but is easier to write and very common.
   \end{itemize}
 
+  \bigskip
   For vectors, the transpose is
   $$
     x = \begin{bmatrix} x_1 \\ \vdots \\ x_n \end{bmatrix} \iff x' = \begin{bmatrix} x_1 & \dots & x_n \end{bmatrix}
@@ -400,7 +412,9 @@
   $$
     \bar{x} = \frac{1}{n} \iota' x
   $$
-  
+
+  \pause
+  \bigskip
   Or, if we wanted the means of multiple varaibles, we could put them in a matrix and $$\frac{1}{n} \iota' \bm{X}$$ would be a row-vector of sample means
 \end{frame}
 
@@ -781,6 +795,7 @@
 \begin{frame}{Linear combinations of multivariate random variable}
   Say $x \sim \mathcal{N}\left( \mu, \Sigma \right)$ and $a = \begin{bmatrix}a_1 \\ \vdots \\ a_n\end{bmatrix}$
   
+  \bigskip
   Then, the product $a' x$ is a linear combination of $x_i$ and is normally distributed:
   $$
     a'x = \sum_i a_i x_i \sim \mathcal{N}(?, ?)

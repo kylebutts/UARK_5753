@@ -1,0 +1,100 @@
+% Author : Alain Matthes
+% Source : http://altermundus.com/pages/examples.html
+\documentclass[tikz,border=10pt]{standalone}
+
+\usepackage[utf8]{inputenc}
+\usepackage[upright]{fourier}
+\usepackage{tikz}
+\usetikzlibrary{matrix,arrows,decorations.pathmorphing}
+
+\usepackage[T1]{fontenc}
+\usepackage{inputenc}
+\usepackage{libertine}
+
+\definecolor{navy}{HTML}{002C55}
+\definecolor{raspberry}{HTML}{940034}
+\definecolor{cranberry}{HTML}{B3114B}
+\definecolor{orange}{HTML}{D65616}
+\definecolor{purple}{HTML}{5C4CBF}
+\definecolor{blue}{HTML}{0188AC}
+\definecolor{green}{HTML}{2DB25F}
+\definecolor{rose}{HTML}{FB7185}
+\definecolor{yellow}{HTML}{ffc517}
+
+\begin{document}
+
+% l' unite
+\tikzset{
+    node style sp/.style={draw,circle,minimum size=1 cm},
+    node style ge/.style={circle,minimum size=1 cm},
+    arrow style mul/.style={draw,sloped,midway,fill=white},
+    arrow style plus/.style={midway,sloped,fill=white},
+}
+
+\begin{tikzpicture}[>=latex]
+  % The matrices
+  \matrix (A) [matrix of math nodes,
+              nodes = {node style ge},
+              left delimiter={[},
+      right delimiter={]}
+              ] at (0,0)
+  {
+    |[node style sp]| {\color{orange} a_{11}} & 
+    |[node style sp]| {\color{orange} a_{12}} & 
+    |[node style sp]| {\color{orange} a_{13}} \\
+    {\color{cranberry} a_{21}} & {\color{cranberry} a_{22}} & {\color{cranberry} a_{23}}  \\
+  };
+  \node [draw,below=10pt] at (A.south) 
+      { $A$ : \textbf{$2$ rows} \  \emph{$3$ columns}};
+
+  \matrix (D) [matrix of math nodes,
+              nodes = {node style ge},
+              left delimiter={[},
+              right delimiter={]}
+              ] at (5 cm,5 cm)
+  {
+    |[node style sp]| {\color{blue} d_{11}} & {\color{green} d_{12}} \\
+    |[node style sp]| {\color{blue} d_{21}} & {\color{green} d_{22}} \\
+    |[node style sp]| {\color{blue} d_{31}} & {\color{green} d_{32}} \\
+  };
+  \node [draw,above=10pt] at (D.north) { $D$ : \emph{$3$ rows} \ \textbf{$2$ columns}};
+
+  % resulting matrix
+  \matrix (C) [matrix of math nodes,
+              nodes = {node style ge},
+              left delimiter={[},
+              right delimiter={]}
+              ] at (5 cm,0)
+  {
+    |[node style sp, black]| c_{11} & c_{12} \\
+    c_{21} & c_{22} \\
+  };
+
+  % les fleches
+  % \draw[black] (A-1-1.north) -- (C-1-1.north);
+  % \draw[black] (A-1-1.south) -- (C-1-1.south);
+  % \draw[black] (D-1-1.west)  -- (C-1-1.west);
+  % \draw[black] (D-1-1.east)  -- (C-1-1.east);
+  \draw[<->,black](A-1-1) to[in=180,out=90]
+    node[arrow style mul] (x) {$a_{21}\times d_{12}$} (D-1-1);
+  \draw[<->,black](A-1-2) to[in=180,out=90]
+    node[arrow style mul] (y) {$a_{22}\times d_{22}$} (D-2-1);
+  \draw[<->,black](A-1-3) to[in=180,out=90]
+    node[arrow style mul] (z) {$a_{23}\times d_{32}$} (D-3-1);
+  \draw[black,->] (x) to node[arrow style plus] {$+$} (y)% 
+    (y) to node[arrow style plus] {$+$} (z)%
+    to (C-1-1.north west);
+
+
+  \node [draw,below=10pt] at (C.south) 
+      {$ C=A\times B$ : \textbf{$2$ rows}
+                        \textbf{$3$ columns}};
+
+\end{tikzpicture}
+
+
+\end{document}
+
+% encoding : utf8
+% format   : pdfLaTeX
+% author   : Alain Matthes
