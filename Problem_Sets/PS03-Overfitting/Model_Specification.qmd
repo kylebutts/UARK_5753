@@ -1,0 +1,594 @@
+---
+title: "PS03 - Overfitting"
+author: "YOUR NAME"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+format: pdf
+---
+
+```{r}
+library(tidyverse)
+library(fixest)
+```
+
+
+
+# Model Specification and Prediction Error
+
+In this problem set, we'll explore how different model specifications perform when the true functional form is unknown and non-linear. 
+We'll generate data from a complex data generating process and evaluate how well different regression models capture the underlying relationship.
+
+```{r}
+source(
+  "https://gist.githubusercontent.com/kylebutts/06908e23880457e2d7fb69444f7c21c0/raw/89003252ff3d248b485e5c7d826dc785b298f0da/dgp.R"
+)
+```
+
+The above code cell loads our secret data-generating function, which you can call with `draw_sample(N = 500)`.
+It returns a dataset with four variables:
+- The outcome `y`
+- Two continuous covariates, `x1` and `x2`
+- A discrete variable called `group`.
+
+The outcome is generated through a non-linear combination of these covariates
+
+## Model Evaluation Function
+
+We'll create a function that generates data, fits a regression model with a specified formula, and returns the model fit measured by Mean Squared Prediction Error (MSPE).
+
+```{r}
+## Function to evaluate model specification
+evaluate_model <- function(
+  formula,
+  N = 500,
+  B = 100,
+  in_sample = TRUE,
+  seed = NULL
+) {
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
+
+  mspes <- vector("numeric", B)
+  for (b in 1:B) {
+    ## Generate training data
+    train_data <- draw_sample(N = N)
+
+    ## Fit model on training data
+    model <- feols(formula, data = train_data)
+
+    if (in_sample) {
+      ## In-sample MSPE: predict on training data
+      predictions <- fitted(model)
+      actuals <- train_data$y
+
+      ## Calculate in-sample MSPE
+      mspe <- mean((actuals - predictions)^2)
+    } else {
+      ## Generate fresh test data (different observations, same size)
+      test_data <- draw_sample(N = N)
+
+      ## Predict on test data
+      predictions <- predict(model, newdata = test_data)
+      actuals <- test_data$y
+
+      ## Calculate out-of-sample MSPE
+      mspe <- mean((actuals - predictions)^2)
+    }
+
+    mspes[b] <- mspe
+  }
+
+  return(mspes)
+}
+```
+
+## Example 0: Intercept only
+
+To get a sense of how a truly bad model would perform, let's use just an intercept as our formula:
+
+```{r}
+baseline_mspe <- evaluate_model(
+  formula = y ~ 1,
+  N = 500,
+  in_sample = TRUE
+)
+
+mean(baseline_mspe)
+```
+
+## Example 1: Simple Linear Model
+
+
+Let's start with a simple linear specification and evaluate its performance.
+
+```{r}
+simple_linear_mspe <- evaluate_model(
+  formula = y ~ x1 + x2 + i(group),
+  N = 500,
+  in_sample = TRUE
+)
+
+mean(simple_linear_mspe)
+```
+
+The simple linear model provides a baseline. However, since the true relationship is non-linear, we expect this specification to miss important patterns in the data.
+
+## Example 2: Adding Polynomial Terms
+
+Let's improve our model by adding quadratic terms to capture curvature in the relationship.
+
+```{r}
+poly_mspe <- evaluate_model(
+  formula = y ~ x1 + I(x1^2) + x2 + I(x2^2) + i(group),
+  N = 500,
+  in_sample = TRUE
+)
+
+mean(poly_mspe)
+```
+
+By adding polynomial terms, we allow the model to capture non-linear relationships between the continuous covariates and the outcome. Compare the MSPE to the simple linear model.
+
+
+---
+
+# In-Class Challenge: Find the Best Model
+
+**Challenge**: Using the `evaluate_model` function, find the regression model with the **lowest MSPE**. The student with the best model will win a prize!
+
+**Rules**:
+- You can use any combination of `x1`, `x2`, and `i(group)`
+- You can include polynomial terms (e.g., `I(x1^2)`, `I(x1^3)`)
+- You can include interaction terms (e.g., `x1 * x2`, `i(group, x1)`)
+- Use `N = 500` and `set.seed(20260210)` for consistency
+- The goal is to minimize the MSPE
+
+**Tips**:
+- Try different combinations of main effects
+- Experiment with polynomial degrees
+- Test various interaction structures
+- Consider how `group` might modify the effects of `x1` and `x2`
+
+## Your Best Model
+
+Once you've found your best model, report it below. Make sure to use `set.seed(2025)` and `N = 500`!
+Use the tips below for adding different kinds of terms in your model
+
+```{r}
+## Experiment with different model specifications here
+## Try different combinations of variables, polynomials, and interactions
+my_best_formula <- y ~ x1 + x2 + i(group) ## Change this!
+
+my_best_mspe <- evaluate_model(
+  formula = my_best_formula,
+  N = 500,
+  seed = 20260210
+)
+
+cat("My best in-sample MSPE:", mean(my_best_mspe), "\n")
+cat("Formula:", deparse(test_formula), "\n")
+```
+
+
+## Tips: Flexible Model Specification with `fixest`
+
+The `fixest` package provides powerful tools for flexible model specification. Here are some useful techniques:
+
+### Polynomial Terms
+
+Use `I()` to include polynomial terms:
+
+```{r, eval=FALSE}
+## Quadratic specification
+formula = y ~ x1 + I(x1^2) + x2 + I(x2^2) + i(group)
+
+## Cubic specification
+formula = y ~ x1 + I(x1^2) + I(x1^3) + x2 + i(group)
+```
+
+### Interactions Between Continuous Variables
+
+Use `:` to interact two continuous variables without including the main effects automatically:
+
+```{r, eval=FALSE}
+## Interaction only (no main effects)
+formula = y ~ x1:x2 + i(group)
+
+## Interaction with main effects (equivalent to x1 * x2)
+formula = y ~ x1 + x2 + x1:x2 + i(group)
+```
+
+### Categorical Indicators
+
+Use `i()` to create indicator variables for categorical covariates:
+
+```{r, eval=FALSE}
+## Create indicators for group categories (omits first level by default)
+formula = y ~ x1 + x2 + i(group)
+
+## Same as: y ~ x1 + x2 + i(group) (since group is already categorical)
+```
+
+### Varying Slopes (Interactions with Categories)
+
+Use `i(cat, var)` to allow the slope of a continuous variable to vary by category:
+
+```{r, eval=FALSE}
+## Allow x1 slope to differ by group category
+formula = y ~ x1 + x2 + i(group, x1)
+
+## This creates: x1 + x2 + i(group) + x1:group_B + x1:group_C
+## (slope of x1 differs for each level of group)
+
+## Combine with varying intercepts and slopes
+formula = y ~ x2 + i(group) + i(group, x1)
+## Creates: x2 + i(group) + x1:group_B + x1:group_C
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Out-of-Sample Performance
+
+Now, let's see how well your model actually performs. 
+Evaluate your **best model** (the one you submitted above) on fresh testing data by setting `in_sample = FALSE`.
+
+This will train your model on one set of 500 observations and evaluate it on a completely different set of 500 observations.
+
+```{r}
+## Evaluate YOUR best model on out-of-sample data
+my_best_in_sample <- evaluate_model(
+  formula = my_best_formula,
+  N = 200,
+  in_sample = TRUE,
+  seed = 20260204
+)
+
+my_best_out_sample <- evaluate_model(
+  formula = my_best_formula,
+  N = 200,
+  in_sample = FALSE,
+  seed = 20260204
+)
+
+cat(
+  "My best model in-sample MSPE:",
+  round(mean(my_best_in_sample), 3),
+  "\n"
+)
+cat(
+  "My best model out-of-sample MSPE:",
+  round(mean(my_best_out_sample), 3),
+  "\n"
+)
+```
+
+How did your model perform? Did the out-of-sample MSPE surprise you?
+
+
+
+#### Exercise
+
+1. Which model won the in-sample competition? How complicated was the winning formula?
+
+
+
+2. How did the winning model perform out-of-sample? Did it generalize well, or did it overfit?
+
+
+
+
+
+
+
+
+
+
+# Understanding Overfitting
+
+## Bias-Variance Tradeoff at Fixed Sample Size
+
+So far, we've compared specific models. Now let's systematically explore how model complexity affects prediction error for a fixed sample size. As we increase model complexity (adding higher-order polynomials and more interactions), we expect to see:
+
+- **In-sample MSPE**: Should continuously decrease or stay flat (more flexible models can always fit training data at least as well)
+- **Out-of-sample MSPE**: Should initially decrease (reducing bias) but eventually increase (overfitting, increasing variance)
+
+This U-shaped pattern for out-of-sample error illustrates the **bias-variance tradeoff**.
+
+```{r}
+## Function to evaluate models with increasing polynomial complexity
+evaluate_complexity <- function(
+  N = 500,
+  max_degree = 6,
+  B = 100,
+  seed = NULL
+) {
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
+
+  results <- data.frame(
+    degree = integer(),
+    model_type = character(),
+    mspe_type = character(),
+    mspe = numeric()
+  )
+
+  for (degree in 1:max_degree) {
+    ## Build formula with polynomial terms up to current degree
+    ## Include interactions between x1 and x2 polynomials
+    poly_terms_x1 <- paste0("I(x1^", 1:degree, ")", collapse = " + ")
+    poly_terms_x2 <- paste0("I(x2^", 1:degree, ")", collapse = " + ")
+
+    ## Add interactions between all polynomial terms
+    if (degree >= 2) {
+      interaction_terms <- c()
+      for (i in 1:degree) {
+        for (j in 1:degree) {
+          if (i + j <= degree + 1) {
+            ## Cap interaction order
+            interaction_terms <- c(
+              interaction_terms,
+              paste0("I(x1^", i, ")", ":", "I(x2^", j, ")")
+            )
+          }
+        }
+      }
+      interaction_str <- paste(interaction_terms, collapse = " + ")
+      formula_str <- paste(
+        "y ~",
+        poly_terms_x1,
+        "+",
+        poly_terms_x2,
+        "+",
+        interaction_str,
+        "+ i(group)"
+      )
+    } else {
+      formula_str <- paste(
+        "y ~",
+        poly_terms_x1,
+        "+",
+        poly_terms_x2,
+        "+ i(group)"
+      )
+    }
+
+    formula <- as.formula(formula_str)
+
+    ## Evaluate in-sample
+    mspe_in <- evaluate_model(formula, N = N, B = B, in_sample = TRUE)
+
+    ## Evaluate out-of-sample
+    mspe_out <- evaluate_model(formula, N = N, B = B, in_sample = FALSE)
+
+    ## Count parameters (approximate)
+    n_params <- degree * 2 ## x1 and x2 polynomials
+    if (degree >= 2) {
+      n_params <- n_params + length(interaction_terms)
+    }
+    n_params <- n_params + 2 ## group indicators
+
+    results <- rbind(
+      results,
+      data.frame(
+        degree = rep(degree, 2),
+        n_params = rep(n_params, 2),
+        mspe_type = c("In-sample", "Out-of-sample"),
+        mspe = c(mean(mspe_in), mean(mspe_out))
+      )
+    )
+  }
+
+  return(results)
+}
+
+## Run the complexity evaluation
+N = 30
+complexity_results <- evaluate_complexity(
+  N = N,
+  max_degree = 6,
+  B = 50,
+  seed = 20260210
+)
+
+## Plot the bias-variance tradeoff
+ggplot(complexity_results, aes(x = degree, y = mspe, color = mspe_type)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3) +
+  geom_vline(xintercept = 2, linetype = "dashed", alpha = 0.5) +
+  labs(
+    title = "Bias-Variance Tradeoff",
+    subtitle = paste("Fixed sample size N = ", N),
+    x = "Polynomial Degree (Model Complexity)",
+    y = "Mean Squared Prediction Error",
+    color = "Evaluation Type"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+```
+
+#### Exercise
+
+1. **Interpreting the Bias-Variance Tradeoff Plot**: 
+  - At what degree does the out-of-sample MSPE reach its minimum? 
+  
+  - Why does the in-sample MSPE continue to decrease (or flatten) as complexity increases?
+  
+  - What happens to the gap between in-sample and out-of-sample MSPE as model complexity increases?
+
+
+
+2. **Optimal Complexity**: The true data generating process uses degree-2 polynomials for $x_1$ and $x_2$. Does the minimum out-of-sample MSPE occur at degree 2? If not, why might a more complex model show better out-of-sample performance?
+
+
+
+
+## Sample Size and Model Complexity
+
+The bias-variance tradeoff depends on sample size. With more data, we can support more complex models without overfitting.
+
+```{r}
+## Function to compare models across sample sizes
+compare_models_by_N <- function(
+  N_values,
+  formula_simple,
+  formula_complex
+) {
+  results <- data.frame(
+    N = numeric(),
+    model = character(),
+    mspe_type = character(),
+    mspe = numeric()
+  )
+
+  for (N in N_values) {
+    ## Simple model
+    simple_in <- evaluate_model(
+      formula_simple,
+      N = N,
+      in_sample = TRUE
+    )
+    simple_out <- evaluate_model(
+      formula_simple,
+      N = N,
+      in_sample = FALSE
+    )
+
+    ## Complex model
+    complex_in <- evaluate_model(
+      formula_complex,
+      N = N,
+      in_sample = TRUE
+    )
+    complex_out <- evaluate_model(
+      formula_complex,
+      N = N,
+      in_sample = FALSE
+    )
+
+    results <- rbind(
+      results,
+      data.frame(
+        N = rep(N, 4),
+        model = c("Simple", "Simple", "Complex", "Complex"),
+        mspe_type = c(
+          "In-sample",
+          "Out-of-sample",
+          "In-sample",
+          "Out-of-sample"
+        ),
+        mspe = c(
+          mean(simple_in),
+          mean(simple_out),
+          mean(complex_in),
+          mean(complex_out)
+        )
+      )
+    )
+  }
+
+  return(results)
+}
+
+## Run comparison (using small B for speed)
+N_values <- c(100, 200, 500, 1000, 2500, 5000)
+set.seed(20260210)
+comparison_results <- compare_models_by_N(
+  N_values = N_values,
+  formula_simple = y ~ x1 + x2 + i(group),
+  formula_complex = y ~ i(group) +
+    i(group, x1) +
+    i(group, x1^2) +
+    i(group, x1^3) +
+    i(group, x1^4) +
+    i(group, x2) +
+    i(group, x2^2) +
+    i(group, x2^3) +
+    i(group, x2^4)
+)
+
+## Plot results
+ggplot(
+  comparison_results |> filter(N >= 200),
+  aes(x = factor(N), y = mspe, color = model, linetype = mspe_type)
+) +
+  geom_line(aes(group = interaction(model, mspe_type)), linewidth = 1) +
+  geom_point(size = 3) +
+  labs(
+    title = "Model Performance by Sample Size",
+    subtitle = "Comparing Simple vs Complex Specifications",
+    x = "Sample Size (N)",
+    y = "Mean MSPE",
+    color = "Model",
+    linetype = "MSPE Type"
+  ) +
+  theme_minimal()
+```
+
+
+#### Exercise
+
+1. How does the gap between in-sample and out-of-sample performance change as sample size increases for the complex model? What does this tell us about the bias-variance tradeoff?
+
+
+
+
+
+
+
+
+
+
+
+
+## Key Takeaways
+
+1. **Model Specification Matters**: When the true functional form is unknown, different specifications can lead to very different prediction performance.
+
+2. **In-Sample vs Out-of-Sample**: In-sample fit can be misleading due to overfitting. Out-of-sample evaluation provides a more honest assessment of how well the model will perform on new data.
+
+3. **Bias-Variance Tradeoff**: Simple models may underfit (high bias), while complex models may overfit (high variance). The optimal model balances these concerns.
+
+4. **Sample Size**: With larger samples, we can afford more complex models without overfitting. With small samples, simpler models often generalize better.
+
+
+
