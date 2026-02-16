@@ -21,6 +21,7 @@ We'll generate data from a complex data generating process and evaluate how well
 source(
   "https://gist.githubusercontent.com/kylebutts/06908e23880457e2d7fb69444f7c21c0/raw/89003252ff3d248b485e5c7d826dc785b298f0da/dgp.R"
 )
+## draw_sample(N = 500)
 ```
 
 The above code cell loads our secret data-generating function, which you can call with `draw_sample(N = 500)`.
@@ -54,7 +55,7 @@ evaluate_model <- function(
     train_data <- draw_sample(N = N)
 
     ## Fit model on training data
-    model <- feols(formula, data = train_data)
+    model <- feols(formula, data = train_data, warn = FALSE, notes = FALSE)
 
     if (in_sample) {
       ## In-sample MSPE: predict on training data
