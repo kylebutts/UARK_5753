@@ -10,8 +10,6 @@ library(tidyverse)
 library(fixest)
 ```
 
-
-
 # Model Specification and Prediction Error
 
 In this problem set, we'll explore how different model specifications perform when the true functional form is unknown and non-linear. 
@@ -167,7 +165,7 @@ my_best_mspe <- evaluate_model(
 )
 
 cat("My best in-sample MSPE:", mean(my_best_mspe), "\n")
-cat("Formula:", deparse(test_formula), "\n")
+cat("Formula:", deparse(my_best_formula), "\n")
 ```
 
 

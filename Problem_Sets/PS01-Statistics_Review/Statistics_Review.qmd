@@ -6,8 +6,6 @@ format: pdf
 ---
 
 ```{r}
-#| setup
-#| include: false
 library(tidyverse)
 ```
 
@@ -66,22 +64,58 @@ draw_normal_sample <- function(N) {
 calculate_sample_mean <- function(x) {
   mean(x)
 }
+calculate_sample_mean_using_half_data <- function(x) {
+  mean(x[1:(length(x) / 2)])
+}
+calculate_sample_median <- function(x) {
+  median(x)
+}
 
 
 ## Run simulation and analyze results
 set.seed(123)
-normal_means <- simulate_sampling_distribution(
+sample_means <- simulate_sampling_distribution(
   N = 30,
   draw_sample = draw_normal_sample,
   calculate_statistic = calculate_sample_mean,
   B = 2500
 )
+sample_medians <- simulate_sampling_distribution(
+  N = 30,
+  draw_sample = draw_normal_sample,
+  calculate_statistic = calculate_sample_median,
+  B = 2500
+)
 
+ggplot() +
+  geom_density(
+    aes(x = sample_means, y = after_stat(density), color = "Sample Means"),
+    # color = "lightblue",
+    bins = 100,
+    linewidth = 2
+  ) +
+  geom_density(
+    aes(x = sample_medians, y = after_stat(density), color = "Sample Medians"),
+    # color = "lightcoral",
+    bins = 100,
+    linewidth = 2
+  ) +
+  labs(
+    title = "Sampling Distribution of Sample Mean\n(Normal Population)",
+    x = "Sample Mean",
+    y = "Density"
+  ) +
+  theme_minimal()
+
+
+```
+
+```{r}
 ## Plot the sampling distribution
 ggplot() +
   ## empirical sampling distribution
   geom_histogram(
-    aes(x = normal_means, y = after_stat(density)),
+    aes(x = sample_means, y = after_stat(density)),
     fill = "lightblue",
     color = "black",
     bins = 100
@@ -108,11 +142,13 @@ Now let's try with a binomial distribution.
 We'll calculate the sample proportion of successes.
 
 ```{r}
-N <- 50
+N <- 30
 p <- 0.3
 draw_binomial_sample <- function(N) {
-  rbinom(N, size = 1, prob = p) # Bernoulli trials with probability of success = 0.3
+  # Bernoulli trials with probability of success = 0.3
+  rbinom(N, size = 1, prob = p)
 }
+# x <- draw_binomial_sample(10000)
 
 calculate_sample_proportion <- function(sample_data) {
   mean(sample_data) # For 0/1 data, mean = proportion
@@ -177,7 +213,7 @@ draw_exponential_sample <- function(N) {
 }
 
 ## Example to see the distribution
-hist(draw_exponential_sample(10000))
+hist(draw_exponential_sample(10000), breaks = 100)
 ```
 
 ```{r}
@@ -211,9 +247,6 @@ ggplot() +
     color = "darkblue",
     linewidth = 1
   ) +
-  scale_x_continuous(
-    limits = c(-max(abs(exp_means)), max(abs(exp_means)))
-  ) + 
   labs(
     title = "Sampling Distribution of Sample Mean\n(Exponential Population)",
     x = "Sample Mean",
@@ -241,26 +274,29 @@ This is because we will often want to test whether a sample mean is statisticall
 Let's look at the sample distribution of our test statistic.
 
 ```{r}
-N = 300
+N = 50
 
 ## Define t-statistic function
-calculate_t_statistic <- function(sample_data) {
-  n <- length(sample_data)
-  sample_mean <- mean(sample_data)
-  sample_sd <- sd(sample_data)
+calculate_t_statistic <- function(x) {
+  n <- length(x)
+  sample_mean <- mean(x)
+  sample_sd <- sd(x)
 
   # t-statistic: (x̄ - μ) / (s/√n)
   # Here we test against true mean = 10
-  (sample_mean - 10) / (sample_sd / sqrt(n))
+  (sample_mean - 1) / (sample_sd / sqrt(n))
+
+  ## (sample_sd / sqrt(n)) is called the "standard error"
+  ## which is the estimate of the standard deviation of the sampling distribution
 }
 
 ## Run t-distribution simulation
-set.seed(1111)
+set.seed(20260120)
 t_stats <- simulate_sampling_distribution(
   N = N, # Small sample size
-  draw_sample = draw_normal_sample,
+  draw_sample = draw_exponential_sample,
   calculate_statistic = calculate_t_statistic,
-  B = 10000
+  B = 250000
 )
 
 ## Plot t-statistics
@@ -270,7 +306,7 @@ ggplot() +
     aes(x = t_stats, y = after_stat(density)),
     fill = "lightblue",
     color = "black",
-    bins = 50
+    bins = 100
   ) +
   ## theoretical sampling distribution
   stat_function(
@@ -299,7 +335,6 @@ Draw $N = 100$
 Calculate the sample mean.
 
 ```{r}
-
 
 ```
 
@@ -341,4 +376,21 @@ For most distributions, sample sizes of 30 or more are sufficient for the CLT to
 
 
 
+## Confidence Intervals Coverage
 
+```{r}
+set.seed(123)
+does_confidence_interval_contain_true_value <- function(x) {
+  (10 >= mean(x) - 1.96 * sd(x) / sqrt(length(x))) &&
+    (10 <= mean(x) + 1.96 * sd(x) / sqrt(length(x)))
+}
+res <- simulate_sampling_distribution(
+  N = 100,
+  draw_sample = draw_normal_sample,
+  calculate_statistic = does_confidence_interval_contain_true_value,
+  B = 25000
+)
+
+table(res)
+mean(res) * 100
+```
