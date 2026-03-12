@@ -59,6 +59,9 @@ The reported area of the building. A building can contain residential or commerc
 `residential_area`:
 The reported area of the *residential* portion of the building.
 
+`dist_to_cbd_km`:
+Distance (in km) to Boston's city-hall
+
 `longitude`:
 The longitude (x-coordinate) of the center of the parcel.
 

@@ -1,0 +1,412 @@
+---
+title: "Regression in Practice"
+author: "Your Name"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+format: 
+  pdf:
+    fig-width: 8
+    fig-height: 5
+---
+
+# Regression in Practice
+
+This R day is going to have you apply different regression strategies presented in topic 04. 
+An emphasis will be placed on interpreting and presenting regression results. 
+For this assignment, I have assembled a dataset consisting of homes in Massachusetts. 
+
+There are a lot of variables in this dataset, so please see the separate codebook for details.
+
+Because this data is large (almost 2 million rows), I am using the `parquet` file format. 
+You can load this with the `read_parquet` function from the `arrow` package. 
+You might have to change your working directory in quarto to the folder where this `.qmd` file is located.
+
+```{r setup}
+#| message: false
+library(ggplot2)
+library(fixest)
+library(arrow)
+
+df <- read_parquet("data/MA_parcels_sample.parquet")
+```
+
+## Basic exploration of variables
+
+One of the main variables we will use in this analysis is the assessed value of the home (`total_value`) and the size of the land (`lot_size_acres`).
+Like good data analysts, let's create histograms of both variables. 
+Make sure to include high-quality axis labels:
+Comment on the distribution.
+
+```{r}
+
+```
+
+*Answer:*
+
+
+
+
+Now, let's look at a few explanatory variables. 
+Use the `table` function to explore the distribution of `n_rooms` and make a histogram of `z_mls_acres`.
+
+```{r}
+
+```
+
+*Answer:*
+
+
+
+
+## Relationship between lot size and building value
+
+We are going to explore the relationship between the lot size and the value of the building. 
+We will make a scatter plot to start our analysis.
+However, there is way too many points to plot in the dataset, so we will sample a random 25000 rows.
+
+```{r}
+set.seed(20260312)
+sample_df <- df[sample(1:nrow(df), 25000), ]
+```
+
+
+Make this plot:
+
+```{r}
+ggplot() +
+  geom_point(aes(x = lot_size_acres, y = total_value), data = df) +
+  geom_smooth(
+    aes(x = lot_size_acres, y = total_value),
+    data = df,
+    formula = y ~ x
+  )
+
+```
+
+
+
+
+
+### Bivariate regression
+
+First, regress building value on the lot size linearly using `feols` from the `fixest` package. 
+Interpret the regression coefficient and comment on it's statistical significance.
+Make sure to use `vcov = "HC1"` to get robust standard errors.
+
+```{r}
+# Linear regression of building value on lot size
+model1 <- feols(total_value ~ lot_size_acres, data = df, vcov = "HC1")
+summary(model1)
+```
+
+*Answer:*
+
+
+
+
+### Multivariate regression
+
+The size of the lot is going to be correlated with how close to downtown Boston it is. 
+Let's control for `dist_to_cbd_km` and compare results.
+Run this regression in `model2` and then use `etable` to compare estimates.
+Compare the two coefficients. 
+Why do you think the coefficient on lot size grew after adding this control? 
+
+```{r}
+
+```
+
+*Answer:*
+
+
+### Binned version
+
+Now, let's use `i(dist_to_cbd_bin)` instead of `dist_to_cbd_km` to control for "bins" of cbd distance. Do the results look similar?
+
+```{r}
+
+```
+
+*Answer:*
+
+
+### Forecasting
+
+Now, let's try and show what our forecasted values will be. 
+To do so, let's create a `data.frame` containing a grid of values of `lot_size_acres`. 
+We can do that with `seq(0, 1.5, 0.01)`.
+Call this `pred_grid`.
+Create forecasts from your simple linear model using `predict(..., newdata = pred_grid)`.
+Store the forecasts back into the `pred_grid` data frame.
+
+To create a plot, first copy your `plot` call above to create the sample scatterplot.
+Then, use the `lines` function to overlay your forecasted line of best fit. 
+Give this line a distinct color and make the line thicker by adding the arguments `col = "red", lwd = 2`.
+
+```{r}
+# Create prediction grid
+pred_grid <- data.frame(
+  lot_size_acres = seq(0, 1.5, 0.01)
+)
+
+# Generate predictions
+pred_grid$predicted_value <- predict(model1, newdata = pred_grid)
+
+# Plot scatter with regression line
+plot(
+  sample_df$lot_size_acres,
+  sample_df$total_value,
+  main = "Scatterplot of Total Value vs Lot Size",
+  xlab = "Lot Size (Acres)",
+  ylab = "Total Value",
+  pch = 19,
+  col = rgb(0, 0, 0, 0.1)
+)
+lines(pred_grid$lot_size_acres, pred_grid$predicted_value, col = "red", lwd = 2)
+```
+
+*Answer:*
+
+
+
+
+### Forecasting with confidence intervals
+
+We want to discuss uncertainty around our estimates.
+Add the option `se.fit = TRUE` to your `predict` call to get a standard error for the predicted value. 
+Present your result with a 95% confidence interval.
+
+```{r}
+(preds <- predict(
+  model1,
+  newdata = pred_grid,
+  se.fit = TRUE
+))
+pred_grid$predicted_value <- preds$fit
+pred_grid$se <- preds$se.fit
+
+## Calculate 95% CI
+# pred_grid$ci_lower <-
+# pred_grid$ci_upper <-
+
+## Plot
+ggplot() +
+  geom_point(
+    aes(x = lot_size_acres, y = total_value),
+    data = df,
+    shape = 19,
+    alpha = 0.1
+  ) +
+  geom_ribbon(
+    aes(x = lot_size_acres, ymin = ci_lower, ymax = ci_upper),
+    data = pred_grid,
+    color = "blue"
+  ) +
+  geom_line(
+    aes(x = lot_size_acres, y = predicted_value),
+    data = pred_grid,
+  )
+```
+
+*Answer:*
+
+
+
+### Polynomial
+
+Estimate a new model with a 4th-order polynomial of `lot_size_acres`. 
+You can do this simply with the `poly` function.
+Forecast this model using `pred_grid` and create a new forecast plot similar to above. 
+Add lines for both the linear fit (in red) and the polynomial fit (in blue)
+
+```{r}
+## Run 4th-order polynomial regression
+
+## Generate polynomial predictions
+# pred_grid$predicted_poly <-
+
+## Plot both linear and polynomial fits
+ggplot() +
+  geom_point(
+    aes(x = lot_size_acres, y = total_value),
+    data = df,
+    shape = 19,
+    alpha = 0.1
+  ) +
+  geom_line(
+    aes(x = lot_size_acres, y = predicted_value, color = "Linear"),
+    data = pred_grid
+  ) +
+  geom_line(
+    aes(x = lot_size_acres, y = predicted_poly, color = "Polynomial"),
+    data = pred_grid
+  )
+```
+
+*Answer:*
+
+
+### Adding other predictors
+
+Now, let's try to add the number of rooms and the building area to our polynomial model.
+Let's create indicatro variables for each value of `n_rooms` using the `i` function.
+Control for building_area linearly.
+
+```{r}
+# Model with indicator variables for n_rooms and linear building_area
+model_final <- feols(
+  total_value ~ poly(lot_size_acres, 4) + i(n_rooms) + building_area,
+  data = df,
+  vcov = "HC1"
+)
+summary(model_final)
+```
+
+#### Exercise
+
+Answer the following questions:
+
+1. What is the omitted category for `n_rooms`? 
+
+2. Interpret in words the coefficient on `n_rooms::7` and comment on it's statistical significance.
+
+3. We could have run a regression controlling linearly for the number of rooms (treating it as a continuous measure). Do your estimates for `i(n_rooms)` make you comfortable with making that simplifying assumption?
+
+4. What is the estimated return on square footage for homes in Massachusetts? To help put this result in context, multiply this coefficient by the standard deviation of `building_area`. Your interpretation will be a for "1 standard deviation increase in `building_area`"
+
+*Answer:*
+
+
+
+### Interactions
+
+We've seen how to include indicator variables for discrete variables like `n_rooms`. Now let's explore how the effect of one variable might depend on the level of another variable through interaction terms.
+
+#### Interaction of two discrete variables
+
+Let's examine whether the effect of having 7 rooms (`n_rooms::7`) on home value differs depending on whether 2-family homes are permitted by right (`z_permit_2fam`). We'll create an interaction between these two discrete variables.
+
+```{r}
+# Model with interaction between n_rooms and z_permit_2fam
+model_interaction1 <- feols(
+  total_value ~ poly(lot_size_acres, 4) +
+    i(n_rooms) +
+    i(z_permit_2fam) +
+    i(n_rooms, z_permit_2fam) +
+    building_area,
+  data = df,
+  vcov = "HC1"
+)
+summary(model_interaction1)
+```
+
+**Questions to consider:**
+1. How do you interpret the coefficient on the interaction term `n_rooms::7:z_permit_2fam::By Right`?
+2. Is this interaction statistically significant?
+3. What does this tell us about how the value of additional rooms depends on zoning regulations?
+
+#### Interaction of discrete with continuous variable
+
+Now let's examine whether the effect of lot size on home value differs depending on the number of rooms. We'll create an interaction between the discrete variable `n_rooms` and the continuous variable `lot_size_acres`.
+
+```{r}
+# Model with interaction between n_rooms and lot_size_acres
+model_interaction2 <- feols(
+  total_value ~ poly(lot_size_acres, 4) +
+    i(n_rooms) +
+    i(n_stories) +
+    i(n_stories, lot_size_acres) +
+    building_area,
+  data = df,
+  vcov = "HC1"
+)
+summary(model_interaction2)
+```
+
+**Questions to consider:**
+1. How do you interpret the coefficient on the interaction term `n_rooms::2:lot_size_acres`?
+2. Is this interaction statistically significant?
+3. What does this tell us about how the value of additional lot size depends on the number of rooms?
+
+*Answer:*
+
+
+
+### Fixed Effects
+
+One concern we might have with interpreting our regression results is that the number of rooms a house has is likely related to what town the home is in. 
+Let's add a set of town indicators to limit our regression to compare homes "in the same town", so to speak.
+It turns out there are 98 different towns in our sample, so this will end up slowing down our regression quite a bit. 
+Instead, we will specify the `town` variable after a vertical bar, `|`, in our formula. 
+It will look like `y ~ x | town`. 
+`feols` will estimate these effects very quickly, but note their coefficients are not displayed in the summary. 
+
+Modify the previous regression model to add town "fixed effects" (i.e. a set of indicators for each town).
+
+```{r}
+# Model with town fixed effects
+model_fe <- feols(
+  total_value ~ poly(lot_size_acres, 4) + i(n_rooms) + building_area | town,
+  data = df,
+  vcov = "HC1"
+)
+summary(model_fe)
+```
+
+How does this result change our estimate on `building_area`?
+
+*Answer:*
+
+
+
+### Zoning Regulation
+
+Zoning regulations limit the kind of development that can occur on a parcel.
+We have a bunch of zoning measures, but the one of interest is: 
+- `z_mls_acres`, the minimum lot size (the required amount of land needed to build a house)
+
+Using regression methods, try to present a case that more stringent regulations (higher minimum lot size) is associated with larger observed lot sizes. 
+Control for `dist_to_cbd` flexibly when doing so since lot size and distance to cbd are correlated.
+You should write up your results in a paragraph and include a figure. 
+Make sure to interpret the statistical significance of your results.
+
+```{r}
+# Regression of lot size on zoning minimum lot size
+model_zoning <- feols(
+  lot_size_acres ~ z_mls_acres,
+  data = df,
+  vcov = "HC1"
+)
+summary(model_zoning)
+
+# Create prediction grid for the regression line
+zoning_pred <- data.frame(
+  z_mls_acres = seq(
+    min(sample_df$z_mls_acres),
+    max(sample_df$z_mls_acres),
+    length.out = 100
+  )
+)
+zoning_pred$predicted_lot_size <- predict(model_zoning, newdata = zoning_pred)
+
+# Scatterplot of lot size vs zoning minimum using ggplot
+ggplot() +
+  geom_point(
+    aes(x = z_mls_acres, y = lot_size_acres),
+    data = sample_df,
+    shape = 19,
+    alpha = 0.1
+  ) +
+  geom_line(
+    aes(x = z_mls_acres, y = predicted_lot_size),
+    data = zoning_pred,
+    color = "red"
+  ) +
+  labs(
+    title = "Scatterplot of Lot Size vs Minimum Lot Size Requirement",
+    x = "Minimum Lot Size Requirement (Acres)",
+    y = "Actual Lot Size (Acres)"
+  ) +
+  theme_minimal()
+```
+
+*Answer:*
