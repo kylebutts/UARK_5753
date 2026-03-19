@@ -22,6 +22,15 @@ scorecard <- raw |>
     sat_math_first_quartile = SATMT25,
     sat_math_median = SATMTMID,
     sat_math_third_quartile = SATMT75,
+    act_english_first_quartile = ACTEN25,
+    act_english_median = ACTENMID,
+    act_english_third_quartile = ACTEN75,
+    act_math_first_quartile = ACTMT25,
+    act_math_median = ACTMTMID,
+    act_math_third_quartile = ACTMT75,
+    act_composite_first_quartile = ACTCM25,
+    act_composite_median = ACTCMMID,
+    act_composite_third_quartile = ACTCM75,
     online_only = DISTANCEONLY,
     n_students = UGDS,
     n_students_white = UGDS_WHITE,
@@ -50,22 +59,14 @@ scorecard <- raw |>
       ownership == 3 ~ "Private for-profit"
     ),
     region = case_when(
-      region == 1,
-      "New England (CT, ME, MA, NH, RI, VT)",
-      region == 2,
-      "Mid East (DE, DC, MD, NJ, NY, PA)",
-      region == 3,
-      "Great Lakes (IL, IN, MI, OH, WI)",
-      region == 4,
-      "Plains (IA, KS, MN, MO, NE, ND, SD)",
-      region == 5,
-      "Southeast (AL, AR, FL, GA, KY, LA, MS, NC, SC, TN, VA, WV)",
-      region == 6,
-      "Southwest (AZ, NM, OK, TX)",
-      region == 7,
-      "Rocky Mountains (CO, ID, MT, UT, WY)",
-      region == 8,
-      "Far West (AK, CA, HI, NV, OR, WA)"
+      region == 1 ~ "New England (CT, ME, MA, NH, RI, VT)",
+      region == 2 ~ "Mid East (DE, DC, MD, NJ, NY, PA)",
+      region == 3 ~ "Great Lakes (IL, IN, MI, OH, WI)",
+      region == 4 ~ "Plains (IA, KS, MN, MO, NE, ND, SD)",
+      region == 5 ~ "Southeast (AL, AR, FL, GA, KY, LA, MS, NC, SC, TN, VA, WV)",
+      region == 6 ~ "Southwest (AZ, NM, OK, TX)",
+      region == 7 ~ "Rocky Mountains (CO, ID, MT, UT, WY)",
+      region == 8 ~ "Far West (AK, CA, HI, NV, OR, WA)"
     )
   )
 
