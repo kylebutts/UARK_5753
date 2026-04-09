@@ -1,0 +1,118 @@
+\documentclass[12pt]{article}
+\usepackage{../../includes/assignment}
+\usepackage{../../includes/math}
+
+\begin{document}
+\begin{center}
+  {\Huge\bf Midterm - Spring 2026}
+
+  \smallskip
+  {\large\it ECON 5753 — University of Arkansas}
+\end{center}
+
+\medskip
+\begin{enumerate}
+  \item Consider a researcher drawing a random sample of people from the US and calculating the sample mean of a variable.
+
+    \begin{enumerate}
+      \item Describe what the `sampling distribution' of the sample mean is.
+
+      \item Suppose the sampling distribution of $\bar{X}_n$ is approximately normally distributed, i.e. $\bar{X}_n \approx N(\mu, \sigma^2/n)$.
+        Explain why this result is useful for quantifying uncertainty about your sample mean.
+
+      \item Given that $\bar{X}_n \approx N(\mu, \sigma^2/n)$, can I say that the sample mean is (i) an unbiased estimator of the population mean and (ii) consistent estimator of the population mean?
+        Explain
+
+      \item Say the varaible we are recording is a person's income and we observe 25 individuals in our sample.
+        Should I be concerned about using the normal approximation for inference of $\bar{X}_n$?
+        Why or why not?
+    \end{enumerate}
+
+    \bigskip
+  \item For each of the following research questions, classify whether the goal is \textbf{forecasting} or \textbf{inference}.
+
+    \begin{enumerate}
+      \item A real estate company wants to predict the sale price of a house based on its square footage, number of bedrooms, and location.
+
+      \item A city planner wants to know how much additional traffic congestion is caused by building a new shopping center on a major road.
+
+      \item A sports team wants to predict which college basketball players will have successful NBA careers based on their college statistics.
+
+      \item A public health researcher wants to understand how much of the variation in life expectancy across counties can be explained by differences in median income.
+    \end{enumerate}
+
+    \newpage
+  \item You are analyzing data on NBA players (from the video game NBA 2K25). You regress points scored per game on height (in inches).
+    Results with indicators for the player's position and without are shown below.
+    The omitted category is center (C).
+
+    \emph{Context:} In the NBA, taller positions (`C' center and `PF' power forward) tend to play near the basket and score fewer points than shorter positions (`PG' point guard, `SG' shooting guard, and `SF' small forward) who handle the ball more and shoot from distance.
+
+    \begin{enumerate}
+      \item Looking at the results with position controls, interpret the marginal predictive effect of the coefficient on height.
+
+      \item Why do you think the coefficient on height got larger after controlling for position played?
+
+      \item What are two ways you could make the regression model more flexible?
+
+      \item Why might we want to cluster our standard errors at the team level?
+    \end{enumerate}
+
+    \begin{codeblock}[{}]
+Dependent Var.:         points           points
+
+Constant        -1.716 (9.238)   -9.296 (10.10)
+height_in        1.929 (1.526)   2.993. (1.629)
+position_1 = PF                  0.9084 (1.053)
+position_1 = PG                  2.346* (1.160)
+position_1 = SF                  0.6490 (1.016)
+position_1 = SG                  1.733. (1.020)
+_______________ ______________   ______________
+S.E. type       Heterosk.-rob.   Heterosk.-rob.
+Observations               432              432
+R2                     0.00434          0.01686
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    \end{codeblock}
+
+    \newpage
+  \item Consider the following scenario: You are interested in studying the relationship
+    between college attendance and wages. Let $w_i$ denote hourly wages and $D_i$ be an
+    indicator for college attendance ($D_i=1$ if attended, $D_i=0$ otherwise).
+
+    \begin{enumerate}
+      \item Suppose you have data on college attendance ($D_i$), gender ($F_i=1$ indicates female), and wages ($Y_i$). 
+      Explain how you would estimate the conditional expectation function using the subgroup averages approach.
+      Write out all the subgroup averages you would need to compute.
+
+      \item Suppose you also observe each person's race/ethnicity, which has five
+        distinct categories (e.g., White, Black, Hispanic, Asian, Other). How many
+        subgroup averages would you now need to estimate?
+        Explain why this approach becomes impractical as you start adding more variables?
+    \end{enumerate}
+
+    \bigskip
+  \item Below we present results from a regression using data from the National Longitudinal Survey of Young Men.
+    We run a regression of the \emph{logged wages} earned by the worker on the number of years of education they completed.
+    In a second regression, we control for the number of years of education that the mother and father completed.
+    \begin{enumerate}
+      \item Interpret the coefficient on \texttt{educ} (measured in years of schooling) in the second column.
+        Discuss the statistical significance of the estimate.
+        Note I intentionally removed significance stars, so do not rely on them to answer.
+
+      \item Why do you think the coefficient changed the way it did after adding the two control variables
+    \end{enumerate}
+
+    \begin{codeblock}[{}]
+Dependent Var.:            ln_wage              ln_wage
+Constant           0.9651 (0.0384)      0.9966 (0.0493)
+educ               0.0522 (0.0029)      0.0393 (0.0039)
+father_educ                             0.0036 (0.0034)
+mother_educ                             0.0107 (0.0040)
+_______________ __________________   __________________
+S.E. type       Heteroskedas.-rob.   Heteroskedas.-rob.
+Observations                 3,078                2,271
+    \end{codeblock}
+
+\end{enumerate}
+\end{document}

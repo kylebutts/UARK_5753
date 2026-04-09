@@ -28,6 +28,8 @@ Textbooks/*
 *.*-SAVE-ERROR
 *.listing
 *.vrb
+*.xdv
+*.bak[0-9]+
 
 # Raw data that is too big
 Projects/Cross_Sectional/raw-data/movies/movie_data.csv
