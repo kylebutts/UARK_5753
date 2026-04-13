@@ -3,13 +3,17 @@ title: "Working with Time Series Data"
 author: "PUT YOUR NAME HERE"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 format: pdf
+format: 
+  pdf:
+    fig-width: 8
+    fig-height: 5
 ---
+
 In preparation for the remainder of the course, we will be thinking about working with data that is arranged in time. 
 To do so, we are going to practice working with dates in R.
 
 ```{r setup}
-library(ggplot2) # install.packages("ggplot2")
-library(lubridate) # install.packages("lubridate")
+library(tidyverse) # install.packages("tidyverse")
 library(slider) # install.packages("slider")
 ```
 
@@ -19,13 +23,13 @@ library(slider) # install.packages("slider")
 The simplest time-series data to deal with is annual data. For example, take `uark_enrollment` below.
 
 ```{r}
+# fmt: skip
 uark_enrollment <- data.frame(
   year = c(2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024),
   full_time = c(19508, 20379, 21047, 21415, 21668, 22144, 22602, 22193, 22070, 23282, 25214, 28426, 29886),
   part_time = c(5029, 4962, 5190, 5339, 5526, 5414, 5176, 5366, 5492, 5786, 5722, 3714, 3724)
 )
-uark_enrollment$total <-
-  uark_enrollment$full_time + uark_enrollment$part_time
+uark_enrollment$total <- uark_enrollment$full_time + uark_enrollment$part_time
 ```
 
 In this setting, year is just another regular *numeric* variable. 
@@ -50,6 +54,7 @@ This makes things like plotting a little more difficult.
 
 ```{r}
 # Arkansas' 2023 football games
+# fmt: skip
 football <- data.frame(
   date = c(
     "11-11-2023", "11-04-2023", "09-23-2023", "09-02-2023", "10-07-2023",
@@ -133,7 +138,12 @@ date("2024-02-27") + 2
 
 `date` accepts a vector too:
 ```{r}
-last_4_classes <- date(c("2025-03-20", "2025-03-18", "2025-03-13", "2025-03-11"))
+last_4_classes <- date(c(
+  "2025-03-20",
+  "2025-03-18",
+  "2025-03-13",
+  "2025-03-11"
+))
 ```
 
 
@@ -142,14 +152,14 @@ last_4_classes <- date(c("2025-03-20", "2025-03-18", "2025-03-13", "2025-03-11")
 
 Dates are internally represented as an integer in R. Try `as.numeric()` on the date and you'll get a weird number
 ```{r}
-today 
+today
 as.numeric(today)
 ```
 
 It turns out, that the integer is the number of days since 1970-01-01 (an arbitrary reference point)
 ```{r}
 today - as.numeric(today)
-today - date("1970-01-01") 
+today - date("1970-01-01")
 
 as.numeric(date("1970-01-01"))
 as.numeric(date("1970-01-03"))
@@ -280,7 +290,8 @@ As a preview of what is to come, let's see which quarter of the year has the low
 library(fixest)
 feols(
   unrate ~ 0 + i(quarter(date)),
-  data = unemployment, vcov = NW() ~ date
+  data = unemployment,
+  vcov = NW() ~ date
 )
 ```
 

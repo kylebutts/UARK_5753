@@ -1,15 +1,16 @@
-# %%
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Source:
 # https://www.natesilver.net/p/elon-musk-polls-popularity-nate-silver-bulletin
 # https://docs.google.com/spreadsheets/d/e/2PACX-1vT3p3St0ePx23ibcz3DpOF5Titob1PiWUvwnoW_LcNJQhnN_VSzIlq2BUNawxUP4XJ3NwbfiNMQxIx0/pub?output=csv
-# Accessed 2025-04-13
+# Accessed 2026-04-13
 
 library(tidyverse)
 library(here)
+library(slide)
 library(forecast)
 
 raw <- read_csv(here(
-  "Problem_Sets/PS07-Smoothing_Methods/raw/silver_bulletin_musk_favorability.csv"
+  "Problem_Sets/PS08-Smoothing_Methods/raw/silver_bulletin_musk_favorability.csv"
 ))
 
 polls <- raw |>
@@ -53,7 +54,7 @@ expanded_polls <- list_rbind(map(split(polls, 1:nrow(polls)), function(row) {
 expanded_polls |>
   arrange(desc(date)) |>
   ggplot() +
-  geom_point(aes(x = date, y = rnorm(624)))
+  geom_point(aes(x = date, y = rnorm(length(date))))
 
 polls_sum <- expanded_polls |>
   summarize(
@@ -66,15 +67,15 @@ polls_sum <- expanded_polls |>
   filter(date >= ymd("2024-07-01"))
 
 
-# %%
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 write_csv(
   polls_sum,
   here(
-    "Problem_Sets/PS07-Smoothing_Methods/data/silver_bulletin_musk_favorability.csv"
+    "Problem_Sets/PS08-Smoothing_Methods/data/silver_bulletin_musk_favorability.csv"
   )
 )
 
-# %%
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ggplot() +
   geom_point(
     aes(x = date, y = favorable, color = "A"),
@@ -134,7 +135,7 @@ ggplot() +
     legend.location = "plot"
   )
 
-# %%
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ggplot() +
   geom_point(
     aes(x = date, y = favorable, color = "A"),

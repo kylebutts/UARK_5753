@@ -5,6 +5,11 @@ date: "`r format(Sys.time(), '%B %d, %Y')`"
 format: pdf
 ---
 
+```{r}
+library(tidyverse)
+library(fixest)
+```
+
 ## Smoothing methods
 
 To estimate a rolling average, we will use the `slider` package. You may need to install it using `instll.packages("slider")`.
@@ -13,6 +18,7 @@ We will experiment with the University of Arkansas enrollment data:
 
 ```{r}
 library(slider)
+# fmt: skip
 uark_enrollment <- data.frame(
   year = c(2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024),
   full_time = c(19508, 20379, 21047, 21415, 21668, 22144, 22602, 22193, 22070, 23282, 25214, 28426, 29886),
@@ -29,13 +35,25 @@ The basic call is
 If we do `.before = 0` and `.after = 0`, we will average only $y_t$:
 
 ```{r}
-slide_dbl(uark_enrollment$total, mean, .before = 0, .after = 0, .complete = TRUE)
+slide_dbl(
+  uark_enrollment$total,
+  mean,
+  .before = 0,
+  .after = 0,
+  .complete = TRUE
+)
 ```
 
 If we want to average +- one year, we can use `.before = 1, .after = 1`
 
 ```{r}
-slide_dbl(uark_enrollment$total, mean, .before = 1, .after = 1, .complete = TRUE)
+slide_dbl(
+  uark_enrollment$total,
+  mean,
+  .before = 1,
+  .after = 1,
+  .complete = TRUE
+)
 ```
 
 
@@ -57,10 +75,16 @@ We already learned how to do this using `c(NA, uark_enrollment$total[1:(T - 1)])
 uark_enrollment$total
 T <- nrow(uark_enrollment)
 # y_{t-1}
-c(NA, uark_enrollment$total[1:(T-1)])
+c(NA, uark_enrollment$total[1:(T - 1)])
 
 # Lag $y_t$ by 1
-slide_dbl(uark_enrollment$total, mean, .before = 1, .after = -1, .complete = TRUE)
+slide_dbl(
+  uark_enrollment$total,
+  mean,
+  .before = 1,
+  .after = -1,
+  .complete = TRUE
+)
 ```
 
 ### Last $K$ period's average $y_t$
@@ -68,7 +92,13 @@ slide_dbl(uark_enrollment$total, mean, .before = 1, .after = -1, .complete = TRU
 Or, we can do a rolling average of the previous values of $y_{t-k}$ from $k = 0, \dots, K$
 
 ```{r}
-slide_dbl(uark_enrollment$total, mean, .before = 3, .after = 0, .complete = TRUE)
+slide_dbl(
+  uark_enrollment$total,
+  mean,
+  .before = 3,
+  .after = 0,
+  .complete = TRUE
+)
 ```
 
 
@@ -101,33 +131,37 @@ library(ggplot2) # install.packages("ggplot2")
 # Custom function to make nice looking plots with raw polls and smoothed
 plot_polls <- function(avg_polls, favorable_colname, unfavorable_colname) {
   ggplot() +
-  geom_point(
-    aes(x = date, y = favorable, color = "A"),
-    data = avg_polls, shape = 21
-  ) +
-  geom_line(
-    aes(x = date, y = .data[[favorable_colname]], color = "A"),
-    data = avg_polls, size = 1.2
-  ) +
-  geom_point(
-    aes(x = date, y = unfavorable, color = "B"),
-    data = avg_polls, shape = 21
-  ) +
-  geom_line(
-    aes(x = date, y = .data[[unfavorable_colname]], color = "B"),
-    data = avg_polls, size = 1.2
-  ) +
-  scale_color_manual(
-    values = c("A" = "#22c55e", "B" = "#f87171"),
-    labels = c("A" = "Favorable", "B" = "Unfavorable")
-  ) +
-  labs(color = NULL, x = NULL, y = "Percent") +
-  theme_light(base_size = 14) +
-  theme(
-    legend.position = "top",
-    legend.justification = c(0, 1),
-    legend.location = "plot"
-  )
+    geom_point(
+      aes(x = date, y = favorable, color = "A"),
+      data = avg_polls,
+      shape = 21
+    ) +
+    geom_line(
+      aes(x = date, y = .data[[favorable_colname]], color = "A"),
+      data = avg_polls,
+      size = 1.2
+    ) +
+    geom_point(
+      aes(x = date, y = unfavorable, color = "B"),
+      data = avg_polls,
+      shape = 21
+    ) +
+    geom_line(
+      aes(x = date, y = .data[[unfavorable_colname]], color = "B"),
+      data = avg_polls,
+      size = 1.2
+    ) +
+    scale_color_manual(
+      values = c("A" = "#22c55e", "B" = "#f87171"),
+      labels = c("A" = "Favorable", "B" = "Unfavorable")
+    ) +
+    labs(color = NULL, x = NULL, y = "Percent") +
+    theme_light(base_size = 14) +
+    theme(
+      legend.position = "top",
+      legend.justification = c(0, 1),
+      legend.location = "plot"
+    )
 }
 ```
 
@@ -146,8 +180,8 @@ Do the following:
 
 ```{r}
 # Insert code here
-avg_polls$favorable_ma_3day <- 
-avg_polls$unfavorable_ma_3day <-
+# avg_polls$favorable_ma_3day <-
+# avg_polls$unfavorable_ma_3day <-
 
 # Then plot it using our function:
 plot_polls(avg_polls, "favorable_ma_3day", "unfavorable_ma_3day")
@@ -157,8 +191,8 @@ plot_polls(avg_polls, "favorable_ma_3day", "unfavorable_ma_3day")
 
 ```{r}
 # Insert code here:
-avg_polls$favorable_ma_7day <- 
-avg_polls$unfavorable_ma_7day <-
+# avg_polls$favorable_ma_7day <-
+# avg_polls$unfavorable_ma_7day <-
 
 # Then plot it using our function:
 plot_polls(avg_polls, "favorable_ma_7day", "unfavorable_ma_7day")
@@ -168,9 +202,8 @@ plot_polls(avg_polls, "favorable_ma_7day", "unfavorable_ma_7day")
 
 ```{r}
 # Insert code here:
-avg_polls$favorable_ma_14day <- 
-avg_polls$unfavorable_ma_14day <-
-
+# avg_polls$favorable_ma_14day <-
+# avg_polls$unfavorable_ma_14day <-
 
 # Then plot it using our function:
 plot_polls(avg_polls, "favorable_ma_14day", "unfavorable_ma_14day")
@@ -230,15 +263,17 @@ Answer:
 Now, for the final part of this assignment, we will be looking at daily wikipedia views for the TV show Severance.
 
 ```{r}
-df <- read.csv("data/severance_wikipedia_views.csv")
-# convert to `Date` class
-df$date <- ymd(df$date)
-# Filter since December 2024
-df <- df[df$date >= ymd("2024-12-01"), ]
+## https://pageviews.wmcloud.org/?project=en.wikipedia.org&platform=all-access&agent=user&redirects=0&start=2024-07-01&end=2026-04-12&pages=Severance_(TV_series)
+df <- read_csv("data/severance_wikipedia_views.csv") |>
+  setNames(c("date", "views"))
 
-ggplot() + 
-  geom_line(aes(x = date, y = views), data = df) + 
-  labs(x = NULL, y = "Daily Wikipedia Page Views") + 
+# Filter since December 2024
+df <- df |>
+  filter(date >= ymd("2024-12-01") & date <= ymd("2025-09-30"))
+
+ggplot() +
+  geom_line(aes(x = date, y = views), data = df) +
+  labs(x = NULL, y = "Daily Wikipedia Page Views") +
   theme_light(base_size = 14)
 ```
 
@@ -250,21 +285,31 @@ We will try two approaches:
 Please comment on problems that each one has at capturing the spikes on the Friday premiere days
 
 ```{r}
-df$views_5day_ma <- slide_dbl(df$views, mean, .before = 4L, .after = 0L, .complete = TRUE)
+df$views_5day_ma <- slide_dbl(
+  df$views,
+  mean,
+  .before = 4L,
+  .after = 0L,
+  .complete = TRUE
+)
 df$views_ses <- ses(df$views)$fitted
 summary(ses(df$views))
 
-ggplot() + 
-  geom_line(aes(x = date, y = views), data = df, color = "grey40") + 
+ggplot() +
+  geom_line(aes(x = date, y = views), data = df, color = "grey40") +
   geom_line(
-    aes(x = date, y = views_5day_ma), 
-    data = df, color = "maroon", linewidth = 1.2
-  ) + 
+    aes(x = date, y = views_5day_ma),
+    data = df,
+    color = "maroon",
+    linewidth = 1.2
+  ) +
   geom_line(
-    aes(x = date, y = views_ses), 
-    data = df, color = "navy", linewidth = 1.2
-  ) + 
-  labs(x = NULL, y = "Daily Wikipedia Page Views") + 
+    aes(x = date, y = views_ses),
+    data = df,
+    color = "navy",
+    linewidth = 1.2
+  ) +
+  labs(x = NULL, y = "Daily Wikipedia Page Views") +
   theme_light(base_size = 14)
 ```
 

@@ -7,7 +7,7 @@ library(here)
 library(forecast)
 
 raw <- read_csv(here(
-  "Problem_Sets/PS07-Smoothing_Methods/raw/silver_bulletin_trump_approval.csv"
+  "Problem_Sets/PS08-Smoothing_Methods/raw/silver_bulletin_trump_approval.csv"
 ))
 
 polls <- raw |>
@@ -62,7 +62,7 @@ polls_sum <- expanded_polls |>
 write_csv(
   polls_sum,
   here(
-    "Problem_Sets/PS07-Smoothing_Methods/data/silver_bulletin_trump_approval.csv"
+    "Problem_Sets/PS08-Smoothing_Methods/data/silver_bulletin_trump_approval.csv"
   )
 )
 
