@@ -135,6 +135,7 @@ ma_2_by_12 <- function(x) {
   return(ma_2_by_12)
 }
 
+retail$employed_hat_ma_12 <- slider::slide_dbl(retail$employed, mean, .before = 5, .after = 6, .complete = TRUE)
 retail$employed_hat_ma_2_by_12 <- ma_2_by_12(retail$employed)
 
 retail$employed_detrended <- retail$employed - retail$employed_hat_ma_2_by_12

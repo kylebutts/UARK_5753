@@ -702,6 +702,8 @@ acf(y, lag.max = 1, plot = FALSE)
   \end{itemize}
 \end{frame}
 
+\imageframe{figures/candy_production.pdf}
+
 \begin{frame}{Selecting $K$}
   There is a trade-off at play
   \begin{itemize}
@@ -1091,17 +1093,17 @@ feols(y_minus_trend ~ 0 + i(month(date)), data = df)
     &= \alpha y_t + (1 - \alpha) \ell_{t-1} \\
     &= \alpha y_t + (1 - \alpha) \left( \alpha y_{t-1} + (1 - \alpha) \ell_{t-2} \right) \\
     \pause
-    &= \alpha y_t + \alpha (1 - \alpha) y_{t-1} + (1 - \alpha)^2 \ell_{t-3}  \\
+    &= \alpha y_t + \alpha (1 - \alpha) y_{t-1} + (1 - \alpha)^2 \ell_{t-2}  \\
   \end{align*}
 \end{frame}
 
 \begin{frame}{Simple Exponential Smoothing and Recursion}
   You can repeat this process many times
   \begin{align*}
-    \ell_{t+1} 
-    &= \alpha y_t + \alpha (1 - \alpha) y_{t-1} + \alpha (1 - \alpha)^2 \ell_{t-1}  \\
-    &= \alpha y_t + \alpha (1 - \alpha) y_{t-1} + \alpha (1 - \alpha)^2  y_{t-1} + (1- \alpha)^3 \ell_{t-2}  \\
-    &= \alpha y_t + \alpha (1 - \alpha) y_{t-1} + \alpha (1 - \alpha)^2  y_{t-1} + \alpha (1- \alpha)^3 y_{t-2} + (1 - \alpha)^4 \ell_{t-3}  \\
+    \ell_{t} 
+    &= \alpha y_t + \alpha (1 - \alpha) y_{t-1} + (1 - \alpha)^2 \ell_{t-2}  \\
+    &= \alpha y_t + \alpha (1 - \alpha) y_{t-1} + \alpha (1 - \alpha)^2  y_{t-2} + (1- \alpha)^3 \ell_{t-3}  \\
+    &= \alpha y_t + \alpha (1 - \alpha) y_{t-1} + \alpha (1 - \alpha)^2  y_{t-2} + \alpha (1- \alpha)^3 y_{t-3} + (1 - \alpha)^4 \ell_{t-4}  \\
   \end{align*}
 
   Simple Exponential Smoothing is actually taking a weighted average of past $y$ values all the way back to the first-period
@@ -1252,7 +1254,6 @@ ses(y)              # optimally selects alpha and l_0
   For example, let's look at smoothing US GDP estimates
 \end{frame}
 
-\imageframe{figures/gdp.pdf}
 \imageframe{figures/gdp_ses_alphas.pdf}
 
 \begin{frame}{Simple Exponential Smoothing and Trends}
@@ -1376,6 +1377,10 @@ holt(y) # optimally selects alpha and beta
   \end{itemize}
 \end{frame}
 
+\imageframe{figures/candy_production.pdf}
+\imageframe{figures/candy_forecast_ses.pdf}
+\imageframe{figures/candy_forecast_holt.pdf}
+\imageframe{figures/candy_forecast_holt_winters.pdf}
 
 
 \end{document}
