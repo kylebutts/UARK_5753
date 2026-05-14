@@ -1138,6 +1138,36 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
   This has the interpretation a 1\% change in $X$ is associated with a $\beta_1$ unit change in $Y$
 \end{frame}
 
+\begin{frame}{Summary of log-transformed linear equations}
+  \begin{table}
+    \label{tab:log_transformations}
+
+    \begin{tabular}{@{}
+      p{0.3\textwidth} p{0.6\textwidth}
+    @{}}
+      \toprule
+      \textbf{Model} & \textbf{Interpretation} \\
+
+      \addlinespace[1mm]
+      \midrule
+      \addlinespace[1mm]
+
+      $y = \beta_0 + \beta_1 x$ & 
+      A 1 unit increase in $x$ increases $y$ by $\beta_1$ units \\[\medskipamount]
+
+      $\log(y) = \beta_0 + \beta_1 x$ & 
+      A 1 unit increase in $x$ increases $y$ by $\beta_1 * 100$ percent \\[\medskipamount]
+
+      $y = \beta_0 + \beta_1 \log(x)$ & 
+      A 1 percent increase in $x$ increases $y$ by $\beta_1$ units \\[\medskipamount]
+
+      $\log(y) = \beta_0 + \beta_1 \log(x)$ & 
+      A 1 percent increase in $x$ increases $y$ by $\beta_1 * 100$ percent \\
+
+      \bottomrule
+    \end{tabular}
+  \end{table}
+\end{frame}
 
 
 \section{Binary outcomes}
