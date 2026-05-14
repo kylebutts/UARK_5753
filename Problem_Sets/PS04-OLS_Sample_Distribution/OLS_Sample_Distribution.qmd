@@ -417,6 +417,7 @@ coverage_simulation <- function(
 ## Examples
 set.seed(20260224)
 coverage_simulation(n = 100, error_type = "iid", se_type = "iid")
+coverage_simulation(n = 100, error_type = "iid", se_type = "hc1")
 coverage_simulation(n = 100, error_type = "heteroskedastic", se_type = "iid")
 coverage_simulation(n = 100, error_type = "heteroskedastic", se_type = "hc1")
 coverage_simulation(n = 100, error_type = "cluster", se_type = ~g) # 5 groups of 20

@@ -107,12 +107,13 @@ sample$dist_to_cbd_km <-
 sample <- sample |>
   mutate(
     dist_to_cbd_rings = case_when(
-  dist_to_cbd_km <= 5 ~ "[0, 5]",
-  dist_to_cbd_km <= 10 ~ "(5, 10]",
-  dist_to_cbd_km <= 20 ~ "(10, 20]",
-  dist_to_cbd_km <= 30 ~ "(20, 30]",
-  TRUE ~ "30+"
-)) 
+      dist_to_cbd_km <= 5 ~ "[0, 5]",
+      dist_to_cbd_km <= 10 ~ "(5, 10]",
+      dist_to_cbd_km <= 20 ~ "(10, 20]",
+      dist_to_cbd_km <= 30 ~ "(20, 30]",
+      TRUE ~ "30+"
+    )
+  )
 
 sample <- sample |> st_drop_geometry() |> as_tibble()
 

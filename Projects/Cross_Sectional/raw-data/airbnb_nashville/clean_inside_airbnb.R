@@ -10,6 +10,8 @@ airbnb <- raw |>
   select(
     name,
     description,
+    neighbourhood = neighbourhood_cleansed,
+    neighborhood_overview,
     host_since,
     host_response_time,
     host_response_rate,
