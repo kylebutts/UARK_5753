@@ -1,0 +1,347 @@
+\documentclass[12pt]{article}
+\usepackage{../../includes/lecture_notes}
+\usepackage{../../includes/math}
+\usepackage{../../includes/uark_colors}
+
+\title{Regression in Practice}
+\author{Prof. Kyle Butts}
+\date{}
+
+\hypersetup{
+  colorlinks = true,
+  allcolors = ozark_mountains,
+  breaklinks = true,
+  bookmarksopen = true
+}
+
+\begin{document}
+\maketitle
+\begin{multicols}{2}
+
+  \section*{Review: Theoretical Results}
+
+  Before diving into applied regression, let me remind you of the key theoretical results we've established:
+
+  \begin{enumerate}
+    \item The OLS estimator is $\hat{\beta}_{\text{OLS}} = (\bm{W}' \bm{W})^{-1} \bm{W}' y$.
+
+      \smallskip
+    \item The sample distribution of $\hat{\beta}_{\text{OLS}}$ is approximately normal:
+      $$\hat{\beta}_{\text{OLS}} \sim \mathcal{N}\left(\beta_0, \ (\bm{W}' \bm{W})^{-1} \bm{W}' \Sigma \bm{W} (\bm{W}' \bm{W})^{-1}\right).$$
+
+      \smallskip
+    \item We form a forecast by plugging in a particular value of $w$: $w' \hat{\beta}_{\text{OLS}}$. 
+    This has distribution $\mathcal{N}(w' \beta_0, \ w' V_{\hat{\beta}_{\text{OLS}}} w)$.
+
+      \smallskip
+    \item Marginal (predictive) effects are $$\frac{\partial}{\partial x_\ell} \hat{f}(X) = \sum_{k=1}^K \frac{\partial}{\partial x_\ell} g_{k}(X) \hat{\beta}_{\text{OLS}, k}.$$
+  \end{enumerate}
+
+  The rest of this section covers practical uses of regression: interpreting coefficients, different types of explanatory variables, interactions, and transformations.
+
+  \section*{Difficulties with Bivariate Regression}
+
+  \subsection*{The Advertising Example}
+
+  Consider a business using advertising to boost sales. We have data on advertising spending (TV, Radio, Newspaper) and sales across different markets.
+
+  When we regress sales on each advertising medium separately, all three show positive relationships with sales. But when we include all three in a multivariate regression, something interesting happens: the coefficient on Newspaper advertising becomes essentially zero.
+
+  Why? In the bivariate regressions, Newspaper spending was correlated with TV and Radio spending. Markets with high Newspaper spending also tended to have high TV and Radio spending. So the bivariate coefficient on Newspaper was picking up the effects of the other advertising types.
+
+  Once we control for TV and Radio advertising (i.e., hold them ``equal''), there is no independent relationship between Newspaper ads and sales. This is the power of multivariate regression: it lets us isolate the independent contribution of each variable.
+
+  For example, maybe cities with more newspaper spending have older populations than those with less. 
+  OLS assigns ``credit'' to Newspaper for the effect of different age distributions on sales unless we control for age.
+
+  \section*{Multivariate Regression: ``All Else Equal''}
+
+  With multiple variables in our linear model $\hat{y} = \beta_0 + \beta_1 X_1 + \beta_2 X_2$, the predicted difference between two units is
+  $$\hat{y}_j - \hat{y}_i = \beta_1 (X_{1,j} - X_{1,i}) + \beta_2 (X_{2,j} - X_{2,i}).$$
+
+  Consider two individuals with the same $X_2$, but $X_1$ that differs by 1 unit. Then the estimated change is $\Delta \hat{y} = \beta_1$. We refer to the $\beta_k$ as \emph{marginal effects}: the predicted change in $y$ from a 1 unit increase in $X$, holding \emph{fixed} all other variables.
+
+  The Latin phrase you'll sometimes see is \emph{ceteris paribus}, meaning ``other things being equal.'' 
+  This refers to variables \emph{included} in your model. 
+  Other things not included in the model still vary as you compare units with different values of a given predictor.
+
+  The key thing to always remember is that regression `compares two different people with different values of $X_i$'.
+  When you make this comparison \emph{across people}, remember that they might vary in other ways that you don't observe. 
+  That means you always want to be really careful not to conflate \emph{marginal predictive effects} from the \emph{causal effect} (i.e. changing $X_i$ for a particular person and observing the change in $y$). 
+
+
+  \section*{Common Regression Terms}
+
+  Previously I focused on the distinction between variables you condition on ($X_i$) and variables you include in your explanatory variables ($W_i = (g_1(X_i), \dots, g_K(X_i))'$). 
+  This section will cover commonly used transformations.
+  Think of this as showing you tools in the toolbox that you can then reach for given a particular application.
+  
+  \subsection*{Polynomials}
+
+  Say we have a model with wages as a quadratic function of age:
+  $$w_i = \beta_0 + \beta_1 \text{age}_i + \beta_2 \text{age}_i^2 + u_i.$$
+
+  How do wages change when we change age according to this model? 
+  Using our definition of the marginal effect, we need to take the partial derivative:
+  $$\frac{\partial}{\partial \text{age}_i} \hat{w}_i = \hat{\beta}_1 + 2 \hat{\beta}_2 \text{age}_i.$$
+
+  The change in predicted wage as a worker ages depends on their age. At age 25, the marginal effect might be very different than at age 55. This is a key feature of polynomial models: the marginal effect varies depending on where you are along the distribution of $X$.
+
+  You can test whether the quadratic term is necessary by testing the null that $H_0: \beta_2 = 0$. Since $\hat{\beta}_2$ has an approximately normal distribution, you can use a $t$-test:
+  $$\hat{t} \equiv \frac{\hat{\beta}_2 - 0}{\text{SE}(\hat{\beta}_2)}.$$
+  Failing to reject the null means there is not enough evidence to reject the simpler linear model.
+
+  This logic extends to higher-order polynomials to better estimate ``wiggly'' relationships. A key property of polynomials is that they are \emph{smooth} functions. Any smooth CEF can be approximated well by a polynomial of high enough order (this is the Taylor expansion result).
+
+  The smoothness can be a feature if you think outcomes evolve smoothly with $X$. But it can be a problem if you think there are discontinuities present (e.g., turning 21 has a large jump in rates of certain behaviors).
+
+  One thing to be careful about with polynomials: they will always shoot off to $\pm \infty$ as $X \to \infty$ and $-\infty$. When you forecast outside the range of $X$ you trained on (called \emph{extrapolation}), even relatively small values outside the sample domain can produce very strange forecasts. The higher the order of the polynomial, the worse this problem gets.
+
+  \subsection*{Indicator Variables}
+
+  An \emph{indicator variable} is a variable that equals 0 or 1, splitting units into groups. It ``indicates'' when a unit is of a particular type. We often write this as $\one{\cdot}$ where the dot is a true/false condition.
+
+  Examples include:
+  \begin{itemize}
+    \item Being born male ($=1$) or female ($=0$).
+    \item Having a college degree ($=1$) or not ($=0$).
+    \item $\one{\text{Height}_i \geq 6}$, being at least 6 feet tall.
+  \end{itemize}
+
+  The sample mean of an indicator variable is the proportion of units with a 1:
+  $$\frac{1}{n} \sum_{i=1}^n D_i = \frac{\# \text{ of } 1\text{s}}{n} = \text{\% of sample with } D_i = 1.$$
+
+  If $\pi$ is the population fraction with $D_i = 1$, the variance is
+  $$\var(D_i) = \pi (1 - \pi).$$
+
+  Consider a regression $Y_i = \beta_0 + \beta_1 D_i + u_i$. From the OLS formula, we can show:
+  $$\hat{\beta}_1 = \expec{Y_i}{D_i = 1} - \expec{Y_i}{D_i = 0}.$$
+
+  The coefficient $\hat{\beta}_1$ tells us the difference in sample means between the group with $D_i = 1$ and the group with $D_i = 0$.
+
+  Our forecast is $\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 D_i$. Since $D_i$ can only be 0 or 1:
+  \begin{align*}
+    D_i = 0: & \quad \hat{Y}_i = \hat{\beta}_0                  \\
+    D_i = 1: & \quad \hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1.
+  \end{align*}
+
+  So $\hat{\beta}_0$ is the predicted value for the group with $D_i = 0$, and $\hat{\beta}_0 + \hat{\beta}_1$ is the predicted value for the group with $D_i = 1$.
+
+  The interpretation of $\hat{\beta}_1$ is:
+
+  % \begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {2pt}{0pt}{zinc600}, interior hidden]
+    ``On average, someone with $D_i = 1$ has a $\hat{\beta}_1$ larger/smaller value of $\hat{Y}$ compared to units with $D_i = 0$ \emph{holding all else equal}.''
+  % \end{tcolorbox}
+
+  You add the last part when you include additional covariates in the regression.
+
+  \subsection*{Multi-Valued Discrete Variables}
+
+  This intuition extends to settings where we have a discrete variable that takes $K$ distinct values: e.g., race/ethnicity, age bins, or number of cylinders in an engine.
+
+  We construct a \emph{set of} indicator variables for each value that $X$ can take:
+  $$X_{ik} \equiv \one{X_i = x_k} \quad \text{for } k = 1, \dots, K.$$
+
+  Consider the regression:
+  $$y_i = \sum_{k=1}^K X_{ik} \beta_k + u_i.$$
+
+  Since these variables are mutually exclusive (only one is non-zero per unit), $\hat{\beta}_k$ is the sample average of $y_i$ for individuals with $X_i = x_k$.
+
+  When we want to include an intercept as well:
+  $$y_i = \beta_0 + \sum_{k=1}^K X_{ik} \beta_k + u_i.$$
+
+  But here's the problem: the $K$ indicator variables sum to the intercept. This is \emph{multicollinearity}. We can add any constant to $\hat{\beta}_0$ and subtract it from all the $\hat{\beta}_k$ and get the exact same predictions. The coefficients are not uniquely identified.
+
+  Therefore, we typically drop one of the $X_{ik}$ variables (the \emph{omitted group} or \emph{reference category}). The coefficients on the remaining $\hat{\beta}_k$ represent the \emph{difference} in means between that group and the omitted group.
+
+  For example, if we drop the indicator for 4-cylinder cars, then $\hat{\beta}_0$ estimates the mean MPG for 4-cylinder cars, and $\hat{\beta}_6$ estimates how much different 6-cylinder cars are from 4-cylinder cars.
+
+  \subsection*{Interactions of Discrete Variables}
+
+  Consider a model where we want to understand how wages are influenced by both gender and college education:
+  $$\beta_0 + \beta_1 \text{female}_i + \beta_2 \text{college}_i + \beta_3 (\text{female}_i \times \text{college}_i)$$
+
+  Here, $\beta_3$ captures the \emph{interaction effect} between female and college-education status. The effect of gender on wages may differ depending on whether the worker has a college degree, and vice versa.
+
+  The wage gap for non-college workers is $\beta_1$, while the wage gap for college-educated workers is $\beta_1 + \beta_3$. So $\beta_3$ represents the difference in wage gaps between college-educated and non-college-educated workers.
+
+  More generally, interactions capture how one variable changes the marginal effect of another variable. This is similar to quadratic functions where the marginal effect depends on where you are along the distribution of $X$.
+
+  Using partial derivatives:
+  $$\frac{\partial \hat{w}_i}{\partial \text{female}_i} = \hat{\beta}_1 + \hat{\beta}_3 \text{college}_i.$$
+
+  Note that when we include discrete variables but not their interaction, we are implicitly assuming this interaction is zero.
+
+  \subsection*{Continuous Variable Interacted with Discrete Variable}
+
+  Let $X_i$ be continuous and $D_i$ be a dummy variable:
+  $$y_i = \beta_0 + D_i \beta_1 + X_i \beta_2 + X_i D_i \beta_3 + u_i.$$
+
+  The marginal effect of $X_i$ is $\frac{\partial \hat{y}_i}{\partial X_i} = \hat{\beta}_2 + D_i \hat{\beta}_3$.
+  \begin{itemize}
+    \item For group $D_i = 0$: marginal effect is $\hat{\beta}_2$.
+    \item For group $D_i = 1$: marginal effect is $\hat{\beta}_2 + \hat{\beta}_3$.
+  \end{itemize}
+
+  So $\hat{\beta}_3$ is the difference in marginal effects between $D_i = 1$ and $D_i = 0$.
+
+  When including an interaction term, it is important to (almost) always include the \emph{main effects}. The main effects are the variables by themselves. They are what let us interpret the interaction term as the ``difference'' in marginal effects.
+
+  \subsection*{Continuous-Continuous Interactions}
+
+  Consider two continuous variables being interacted:
+  $$y_i = \beta_0 + X_{1,i} \beta_1 + X_{2,i} \beta_2 + X_{1,i} X_{2,i} \beta_3 + u_i.$$
+
+  The marginal effects are:
+  $$\frac{\partial \hat{y}_i}{\partial X_{1,i}} = \hat{\beta}_1 + X_{2,i} \hat{\beta}_3 \quad \text{and} \quad \frac{\partial \hat{y}_i}{\partial X_{2,i}} = \hat{\beta}_2 + X_{1,i} \hat{\beta}_3.$$
+
+  This is common when you think there are complementarities between variables. For example, crop yield might benefit more from fertilizer when there's more water, or job performance might benefit more from experience when there's more training.
+
+  \subsection*{The Partially Linear Model}
+
+  In a forecast model, we often want to see how the forecasted outcome varies with a \emph{particular} variable of interest while controlling for other variables.
+
+  The \emph{partially linear model} mixes high flexibility in a key variable we care about with a linear model for the rest:
+  $$y_i = \mu(X_{1i}) + W_i' \beta + u_i,$$
+  where $\mu(X_{1i})$ is a highly flexible function and $W_i$ is a set of linear control variables.
+
+  This prevents the curse of dimensionality by linearly controlling for most variables while allowing a flexible model for the key variable of interest.
+
+  \subsubsection*{Binning}
+
+  One approach is to take $X_{1i}$ and make it discrete by chopping it into bins: e.g., age into 20-24, 25-29, 30-34, etc.
+
+  Then we treat this as a multi-valued discrete variable: indicators for each bin with one omitted category. We estimate sample means for each bin (relative to the omitted group's mean).
+
+  An advantage is this is relatively easy to explain and quite flexible: "The average property value for homes built from 1950-1959 is \$471,000." If you want more flexibility, you can increase the number of bins (if you have enough data).
+
+  One problem is that the marginal effect estimates can be odd: the estimated function is flat (zero marginal effect) except at the \emph{knots} where there is an instant jump. But we can accept this limitation if we recognize it.
+
+  \subsubsection*{Splines}
+
+  Polynomials allow flexibility but can become sensitive and noisy. Bins are flexible and simple but create artificial discontinuities and non-smoothness.
+
+  Splines blend the two approaches:
+  \begin{itemize}
+    \item Chop up the domain of $X_1$ into bins.
+    \item Within each bin, estimate a polynomial of a given order ($p$).
+    \item Optionally require the endpoints to ``connect'' ($s$).
+  \end{itemize}
+
+  Binned averages are a particular version of splines with polynomial order $p = 0$ and no smoothness constraint. We could increase to $p = 1$ for linear functions within each bin, or $p = 2$ for quadratic functions. Adding smoothness constraints makes the pieces connect smoothly.
+
+  There is a \emph{bias/variance trade-off} when selecting the number of bins: more bins better approximate $\mu(X_{1i})$ (lower bias) but fewer observations per bin makes estimates more noisy (higher variance). 
+  It also isn't clear why bins should be evenly spaced: they might be smaller where the data is wiggly and larger where it's smooth.
+
+  One modern approach is \emph{binscatter regression}: chop $X$ into $J$ bins with equal numbers of observations per bin, and choose $J$ optimally to minimize mean-squared prediction error.
+
+  \section*{Log Transformations}
+
+  You should take the log of an outcome variable when you think a 1 unit change in $X$ is related to a percentage change in $Y$. This is especially common with skewed distributions like home prices, GDP, population, and income.
+
+  $\log(Y) = X\beta$ implies $Y = e^{X\beta}$, fitting an exponential relationship. These are common in financial markets (compounding returns) and epidemiology (disease growth is approximately exponential early on).
+
+  \section*{Log-Linear Transformation}
+
+  Consider:
+  $$\log(\text{wages}_i) = \beta_0 + \beta_1 \text{College Degree}_i + u_i.$$
+
+  Compare two individuals, one with and one without a college degree:
+  \begin{align*}
+    &\log(\text{wages}_1) - \log(\text{wages}_0)                     = \beta_1 \\
+    &\implies \log(\text{wages}_1 / \text{wages}_0)                  = \beta_1 \\
+    &\implies \frac{\text{wages}_1 - \text{wages}_0}{\text{wages}_0} = \exp(\beta_1) - 1.
+  \end{align*}
+
+  So having a college degree is associated with an $(\exp(\beta_1) - 1) \times 100\%$ change in wages. For $-0.10 < \beta_1 < 0.10$, $\exp(\beta_1) - 1 \approx \beta_1$, so it's simpler to say a college degree is associated with a $\beta_1 \times 100\%$ increase in wages.
+
+  The interpretation:
+
+  % \begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {2pt}{0pt}{zinc600}, interior hidden]
+    ``Having a college degree is associated with an increase in wages of $\beta_1 \times 100$ percent.''
+  % \end{tcolorbox}
+
+  \section*{Log-Log Transformations}
+
+  When both variables are logged:
+  $$\log(Y_i) = \beta_0 + \beta_1 \log(X_i) + u_i,$$
+  the interpretation is simpler: a 1\% change in $X$ is associated with a $\beta_1$\% change in $Y$.
+
+  This follows from:
+  $$\frac{Y_1 - Y_0}{Y_0} \approx \beta_1 \frac{X_1 - X_0}{X_0}.$$
+
+  So we interpret a $T$ percent increase in $X$ as a $\beta_1 \times T$ percent increase in $Y$.
+
+  \section*{Linear-Log Transformation}
+
+  For
+  $$Y_i = \beta_0 + \beta_1 \log(X_i) + u_i,$$
+  the interpretation is: a 1\% change in $X$ is associated with a $\beta_1$ unit change in $Y$.
+
+  \section*{Binary Outcomes}
+
+  In many settings, our outcome is binary (0 or 1), like whether a customer purchased a product. We want to predict the probability that $Y_i = 1$.
+
+  The expectation of a binary variable is just the probability:
+  $$\expec{Y_i} = \prob{Y_i = 1}.$$
+
+  The conditional expectation of a binary outcome is similarly the conditional probability:
+  $$\expec{Y_i}{X_i = x} = \prob{Y_i = 1}{X_i = x}.$$
+
+  \section*{Linear Probability Model}
+
+  One approach is to use a linear model:
+  $$\expec{Y_i}{X_i = x} = \prob{Y_i = 1}{X_i = x} = W_i' \beta,$$
+  for some $W_i = g(X_i)$. This is called the \emph{linear probability model}. It predicts the proportion of 1s you would observe given $X_i = x$, and can be estimated using OLS.
+
+  The marginal effect interpretation becomes:
+
+  % \begin{tcolorbox}[boxrule = 0pt, frame hidden, sharp corners, enhanced, borderline west = {2pt}{0pt}{zinc600}, interior hidden]
+    ``On average, a one unit increase in $x_\ell$ is associated with a $\hat{\beta}_\ell$ larger/smaller probability of $Y_i = 1$ \emph{holding all else equal}.''
+  % \end{tcolorbox}
+
+  The problem with the linear probability model is that probabilities must fall between 0 and 1, but OLS doesn't impose this restriction. For some values of $x$, $w' \hat{\beta}_{\text{OLS}}$ can be less than 0 or greater than 1.
+
+  \section*{Logistic Regression}
+
+  To ensure predicted probabilities fall between 0 and 1, we use a logistic transformation:
+  $$\expec{Y_i}{X_i = x} = \prob{Y_i = 1}{X_i = x} = \text{logistic}(W_i' \beta),$$
+  where $\text{logistic}(z) = \frac{e^z}{e^z + 1}$ and $W_i' \beta$ is called the (linear) ``index function.''
+
+  One way to arrive at this model is to assume a \emph{latent index model}:
+  $$Y_i^* = W_i' \beta + \varepsilon_i,$$
+  where $Y_i^*$ is a latent utility. When $Y_i^*$ is high enough, we switch from $Y_i = 0$ to $Y_i = 1$. We observe $Y_i \equiv \one{Y_i^* \geq 0}$.
+
+  When $\varepsilon_i$ follows the logistic distribution, this implies:
+  $$\prob{Y_i = 1}{X_i} = \frac{e^{W_i'\beta}}{e^{W_i'\beta} + 1}.$$
+
+  Each $Y_i$ is a Bernoulli random variable with probability of success $\pi_i \equiv \frac{e^{W_i'\beta}}{e^{W_i'\beta} + 1}$. We estimate $\beta$ by maximizing the likelihood of observing the data we did.
+
+  \section*{Marginal Effects with Logistic Regression}
+
+  The marginal effect of $x_\ell$ on the probability is:
+  $$\frac{\partial}{\partial x_\ell} \hat{\pi}_i = \frac{e^{\hat{U}_i}}{(e^{\hat{U}_i} + 1)^2} \times \frac{\partial}{\partial x_\ell} \hat{U}_i,$$
+  where $\hat{U}_i = W_i' \hat{\beta}$.
+
+  Notice the marginal effect depends on the full set of covariates (because they all impact $\hat{U}_i$). Two common approaches:
+  \begin{itemize}
+    \item Specify $x$ at the sample mean: "At the mean of $X$, the marginal effect is..."
+    \item Average the marginal effect across the sample: "On average, the marginal effect is..."
+  \end{itemize}
+
+  \section*{Classification}
+
+  With predicted probabilities $\hat{\pi}_i$, we can perform \emph{classification} using a rule like $\hat{Y}_i = \one{\hat{\pi}_i \geq 0.5}$. Or we could use a different cutoff depending on the costs of different types of errors.
+
+  Four possibilities:
+  \begin{enumerate}
+    \item $Y_i = 0$, $\hat{Y}_i = 0$: true negative.
+    \item $Y_i = 1$, $\hat{Y}_i = 0$: false negative.
+    \item $Y_i = 0$, $\hat{Y}_i = 1$: false positive.
+    \item $Y_i = 1$, $\hat{Y}_i = 1$: true positive.
+  \end{enumerate}
+
+  If you are a medical doctor wanting to minimize missed diagnoses (false negatives), you'd want a smaller cutoff. If you are targeting ads and want to minimize wasted spending (false positives), you'd want a larger cutoff.
+
+\end{multicols}
+\end{document}

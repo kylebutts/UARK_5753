@@ -1,0 +1,424 @@
+\documentclass[12pt]{article}
+\usepackage{../../includes/lecture_notes}
+\usepackage{../../includes/math}
+\usepackage{../../includes/uark_colors}
+
+\title{Regression}
+\author{Prof. Kyle Butts}
+\date{}
+
+\hypersetup{
+  colorlinks = true,
+  allcolors = ozark_mountains,
+  breaklinks = true,
+  bookmarksopen = true
+}
+
+\begin{document}
+\maketitle
+\begin{multicols}{2}
+
+  \section*{Conditional Expectation Function}
+
+  The \textbf{conditional expectation function (CEF)} is one of the most fundamental concepts in applied econometrics.
+  At its core, it asks a simple question: given that we know some characteristics about a unit, what do we expect their outcome to be?
+
+  Formally, we define the CEF as:
+  $$m(\bm{x}) \equiv \mathbb{E}[y_i|\bm{X}_i = \bm{x}]$$
+
+  This reads as ``$m(\bm{x})$ is the expected value of $y_i$ conditional on the unit having characteristics $\bm{X}_i = \bm{x}$.''
+  The beauty of this definition is that it connects directly to how we naturally think about prediction and relationships in data.
+
+  The most straightforward way to estimate the CEF for any given value $\bm{x}$ is remarkably simple: find all units in your data with $\bm{X}_i = \bm{x}$ and take their average outcome.
+  This is the simplest estimation procedure for the CEF.
+  For each possible value of $\bm{x}$,
+  \begin{enumerate}
+    \item Subset your data to units with $\bm{X}_i = \bm{x}$
+    \item Take average of $y_i$ for those units. Call $m(\bm{x})$ this subsample average.
+  \end{enumerate}
+
+  Let's start with the simplest case: a single discrete variable.
+  Consider wages ($w_i$) and college attendance ($D_i$), where $D_i = 1$ indicates college attendance and $D_i = 0$ indicates no college.
+  The CEF becomes:
+  $$
+  m(1) = \mathbb{E}[w_i|D_i = 1] \quad\text{and}\quad m(0) = \mathbb{E}[w_i|D_i = 0]
+  $$
+
+  This is exactly what we'd compute: the average wage for college attendees and non-attendees.
+
+  Now suppose we have two discrete variables: college attendance ($D_i$) and gender, where $F_i = 1$ indicates female.
+  We now have four distinct combinations: $(D_i, F_i) \in \left\{ (0,0), (1,0), (0,1), (1,1) \right\}$.
+  Estimating the CEF requires computing four separate averages for each group.
+  This highlights an important point: to fully characterize the relationship, we need to account for all possible interactions between our variables.
+
+  Moving to continuous variables introduces new challenges.
+  If $X_i$ is continuous, we can no longer find units with exactly $X_i = x$.
+  Instead, we must find units with $X_i \approx x$.
+  But how close is ``close enough''?
+  The standard approach is to create many small \textbf{bins} across the range of $X$ and average outcomes within each bin.
+  This non-parametric estimation approach works well when we have plenty of data and few variables.
+
+  However, as we add more variables, we quickly encounter the \textbf{curse of dimensionality}.
+  With multiple continuous variables, the number of distinct combinations of $\bm{x}$ values grows exponentially.
+  In practice, most combinations will have few or no observations, making reliable estimation impossible.
+  This fundamental limitation pushes us toward modeling the CEF rather than estimating it directly.
+
+  \section*{Modelling the CEF}
+
+  The curse of dimensionality forces us to make assumptions about the functional form of $m(\bm{x})$.
+  Rather than estimating the CEF separately for every possible combination of characteristics, we must specify a model that can leverage all our data efficiently.
+
+  The most common approach is the \textbf{linear model}:
+  $$
+  m(\bm{x}) = \bm{x}' \beta = \sum_{k=1}^p x_{k} \beta_k
+  $$
+  We assume that one of the $x_k = 1$ for all units, so that we have an intercept.
+  This assumes that the expected outcome changes linearly with each variable $x_k$.
+
+  But linearity often fails to capture important features of real relationships.
+  Consider a few examples where constant marginal effects seem implausible:
+  \begin{itemize}
+    \item Returns to experience in the labor market typically exhibit diminishing returns.
+      The 20th year of experience adds less to wages than the second year.
+
+    \item In housing markets, an additional square foot adds less value to a mansion than to a studio apartment.
+
+    \item The return to experience may depend critically on whether someone already has a college degree.
+      Here, there is complementarity between different types of human capital.
+  \end{itemize}
+
+  These examples suggest we need more flexibility while maintaining the tractability of linear models.
+  The key insight is to distinguish between the variables we observe, $\bm{X}_i$, and the \textbf{terms} we include in our model.
+  In general, we write
+  $$
+  \bm{W}_i = \bm{g}(\bm{X}_i) = \left( g_1(\bm{X}_i), \dots, g_K(\bm{X}_i) \right)'.
+  $$
+  For diminishing returns, we might include polynomial terms: if $X_i$ is years of experience, we could include both $X_i$ and $X_i^2$ in $\bm{W}_i$.
+  For complementarity, we include interaction terms: the return to experience might be $\beta_1 X_{1i} + \beta_2 X_{1i} \cdot D_i$ where $D_i$ indicates college education.
+  For highly flexible relationships, we can use bins: divide a continuous variable into ranges and include indicator variables for each range.
+
+  The selection of terms to include in a linear regression model is a bit of an art.
+  Including too many terms makes the model at risk of overfitting and makes the output more difficult to interpret.
+  Too few terms risks making strong restrictions on how $\bm{X}_i$ and $y_i$ relate.
+
+  One very common setting is wanting to consider a highly flexible relationship of one key variable ($X_{1,i}$) while maintaining a simple linear control for other variables ($\bm{Z}_i$).
+  This model,
+  $$
+  y_i = \mu(X_{1,i}) + \bm{Z}_i' \beta + u_i,
+  $$
+  is often called the \textbf{partially linear model} because the function we let $\mu(X_{1,i})$ be very flexible while having a simple linear model for the other covariates.
+
+  There are many ways to estimate this model, but one popular method is called Binscatter Regression and is implementable via the \texttt{binsreg} package.
+
+  \section*{Ordinary Least Squares}
+
+  After selecting a model for the conditional expectation function, i.e. a choice of transformations of $\bm{X}_i$ in $\bm{W}_i$, we move to estimating this model.
+  Our model is given by:
+  $$
+  y_i = \bm{W}_i' \beta + u_i.
+  $$
+  At a high level, our goal is to use a sample of observations to learn which values of $\beta$ best predict the outcome.
+  But what constitutes ``best''?
+  There are many choices on how to evaluate model fit, which we call the \textbf{loss function}.
+
+  By far the most common choice is the mean-squared prediction error:
+  $$
+  \text{MSPE}(\beta) \equiv \sum_{i=1}^n (y_i - \bm{W}_i' \beta)^2.
+  $$
+
+  The \textbf{Ordinary Least Squares} (OLS) estimator is the value of $\beta$ that minimizes MSPE:
+  $$
+  \hat{\beta}_{\text{OLS}} \equiv \argmin_\beta \sum_{i=1}^n (y_i - \bm{W}_i' \beta)^2.
+  $$
+
+  \section*{Matrix Notation}
+
+  Let $\bm{Y}$ be the $n \times 1$ vector of $y_i$. Let $\bm{W}$ be the $n \times K$ matrix stacking $\bm{W}_i'$:
+  $$
+  \bm{W} =
+  \begin{bmatrix}
+    \bm{W}_1' \\
+    \vdots    \\
+    \bm{W}_n'
+  \end{bmatrix}.
+  $$
+  We generally \emph{always} assume you have an intercept, i.e. $W_{i1} = 1$.
+  Our model in matrix form is:
+  $$
+  \bm{Y} = \bm{W} \beta + \bm{u}.
+  $$
+
+  \section*{Deriving the OLS Estimator}
+
+  We want to minimize the sum of squared residuals:
+  $$
+  \hat{\beta}_{\text{OLS}} = \argmin_\beta (\bm{Y} - \bm{W} \beta)'(\bm{Y} - \bm{W} \beta).
+  $$
+
+  Expanding this product:
+  \begin{align*}
+    &(\bm{Y} - \bm{W} \beta)'(\bm{Y} - \bm{W} \beta) \\
+    &\quad =
+    \bm{Y}' \bm{Y} - \beta' \bm{W}' \bm{Y} - \bm{Y}' \bm{W} \beta + \beta' \bm{W}' \bm{W} \beta.
+  \end{align*}
+
+  Squint your eyes and this looks like a quadratic function.
+  This is indeed true, in the linear algebra world, this is what a quadratic function looks like.
+  Taking the derivative and setting it equal to zero yields the first-order condition:
+  \begin{align*}
+    \frac{\partial}{\partial \beta} \left( \bm{Y}' \bm{Y} - \beta' \bm{W}' \bm{Y} - \bm{Y}' \bm{W} \beta + \beta' \bm{W}' \bm{W} \beta \right) = 0.
+  \end{align*}
+
+  Using the rules of matrix derivatives:
+  \begin{align*}
+    0 - \bm{W}' \bm{Y} - \bm{W}' \bm{Y} + 2 \bm{W}' \bm{W} \beta = 0.
+  \end{align*}
+
+  Setting this equal to zero gives:
+  $$
+  \left(\bm{W}' \bm{W} \right) \hat{\beta}_{\text{OLS}} = \bm{W}' \bm{Y}.
+  $$
+
+  Solving for $\beta$:
+  $$
+  \hat{\beta}_{\text{OLS}} = \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \bm{Y}.
+  $$
+
+  \section*{Intuition for the OLS Formula}
+
+  Let's check that this formula makes sense in simple cases.
+
+  \noindent\textbf{Intercept-only model:} Say we have just an intercept ($W_{i1} = 1$), so $\bm{W} = \iota$. Then:
+  \begin{itemize}
+    \item $\bm{W}' \bm{W} = \iota' \iota = n$.
+    \item $\bm{W}' \bm{Y} = \iota' \bm{Y} = \sum_{i=1}^n Y_i$.
+  \end{itemize}
+  Consequently, $\hat{\beta}_{\text{OLS}} = \frac{1}{n} \sum_{i=1}^n Y_i$, the sample mean.
+
+  \noindent\textbf{Bivariate regression:} Consider an intercept and a single explanatory variable $W_{i2}$.
+  By the Frisch-Waugh-Lovell theorem, this is equivalent to regressing $Y_i - \bar{Y}$ on $W_{i2} - \bar{W}_2$.
+  In this case:
+  \begin{itemize}
+    \item $\bm{W}' \bm{W} = \sum_i (W_{i2} - \bar{W}_2)^2$ is $(n-1)$ times the sample variance of $W_{i2}$.
+    \item $\bm{W}' \bm{Y} = \sum_i (W_{i2} - \bar{W}_2)(Y_i - \bar{Y})$ is $(n-1)$ times the sample covariance.
+  \end{itemize}
+
+  Consequently, we have the bivariate regression formula: $\hat{\beta}_{\text{OLS}} = \widehat{\cov}(W_{i2}, Y_i) / \widehat{\var}(W_{i2})$.
+
+  \noindent\textbf{Multivariate regression:} More generally, when we have $K-1$ covariates and an intercept, the regression is equivalent to one where $Y$ and all covariates are demeaned (without an intercept).
+  Then:
+  $$
+  \hat{\beta}_{\text{OLS}} = \left[ \widehat{\var}(\bm{W}_i) \right]^{-1} \widehat{\cov}(\bm{W}_i, Y_i).
+  $$
+
+  \section*{Statistical Properties of OLS}
+
+  In repeated sampling, we will get different sample of observations.
+  This will create different estimates of $\hat{\beta}$.
+
+  Say the we have \textbf{correctly specified} the conditional expectation function, i.e. the true model $y_i = \bm{W}_i' \beta_0 + u_i$.
+  Then we can assume $\expec{u_i}{\bm{W}_i} = 0$.
+
+  \bigskip
+  \emph{\textbf{Side Note:}} All of the below derivations are still true without assuming we correctly specify the model.
+  In that case, $\beta_0$ corresponds to the coefficient we would get if we ran the regression on the full population (the population least squares coefficient).
+  This would imply $\text{Cov}(u_i, \bm{W}_i) = 0$, i.e. there's no linear covariance between the error and $\bm{W}$.
+
+  Plugging this into our OLS estimator:
+  \begin{align*}
+    \hat{\beta}_{\text{OLS}}
+    & = \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \bm{Y}                                                            \\
+    & = \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \left( \bm{W} \beta_0 + \bm{u} \right)                            \\
+    & = \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \bm{W} \beta_0 + \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \bm{u} \\
+    & = \beta_0 + \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \bm{u}.
+  \end{align*}
+
+  This decomposition shows that our estimator equals the true population parameter plus a noise term that depends on the random errors.
+
+  \section*{Unbiasedness}
+
+  Taking expectations of the expression above and using $\expec{u_i}{\bm{W}_i} = 0$ (or the weaker 0 covariance):
+  \begin{align*}
+    \expec{\hat{\beta}_{\text{OLS}}}
+    & = \beta_0 + \expec{ \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \bm{u} } \\
+    & = \beta_0.
+  \end{align*}
+
+  On average across repeated samples, our estimator equals the true population parameter.
+  This means our coefficient estimates are \textbf{unbiased} for the population values.
+
+  \section*{The Sample Distribution of OLS Coefficients}
+
+  Subtracting $\beta_0$ and multiplying by $\sqrt{n}$:
+  $$
+  \sqrt{n} \left( \hat{\beta}_{\text{OLS}} - \beta_0 \right) =
+  \left( \frac{1}{n} \bm{W}' \bm{W} \right)^{-1} \frac{1}{\sqrt{n}} \sum_{i=1}^n \bm{W}_i u_i.
+  $$
+
+  The term $\frac{1}{\sqrt{n}} \sum_{i=1}^n \bm{W}_i u_i$ has mean zero (from unbiasedness) and variance $\expec{\bm{W}' \bm{u} \bm{u}' \bm{W}} = \bm{W}' \Sigma \bm{W}$ where $\Sigma = \expec{\bm{u} \bm{u}'}$.
+
+  Applying the Central Limit Theorem, we have that $\frac{1}{\sqrt{n}} \bm{W}' \bm{u}$ is approximately normally distributed. Therefore:
+  $$
+  \hat{\beta}_{\text{OLS}} \sim
+  \mathcal{N}\left( \beta_0, \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \Sigma \bm{W} \left(\bm{W}' \bm{W} \right)^{-1} \right).
+  $$
+
+  This is a remarkable result. Even if the underlying data are not normally distributed, the OLS estimator has an approximately normal distribution in large samples.
+
+  \section*{Variance and Standard Errors}
+
+  The variance is a $K \times K$ matrix. The diagonal elements $\var{\hat{\beta}_{\text{OLS}, k}}$ give the variance of each coefficient estimate. Take the square root to get the standard deviation of $\hat{\beta}_{\text{OLS}, k}$.
+
+  The off-diagonal elements tell us how slope coefficients are correlated with one another across repeated samples. This matters when we want to test multiple hypotheses simultaneously.
+
+  \bigskip
+  The main challenge of estimating the variance-covaraince matrix entails the matrix $\Sigma$ which is a $N \times N$ matrix.
+  The element $\Sigma_{i,j}$ denotes the covariance between the error terms for observation $i$ and $j$.
+
+  \section*{Heteroskedasticity-Robust Standard Errors}
+  By default, software will produce `IID standard errors'.
+  Do not use these. Instead, we will use (at minimum) `HC1' standard errors.
+  These are often called `robust standard errors', but I prefer the full name heteroskedasticity-robust standard errors.
+
+  This imposes that $\Sigma_{i,j} = 0$ whenever $i \neq j$, but lets the variance of the error term vary by individual (e.g. wage shocks to high-skilled workers might be larger than low-skilled workers).
+
+  We estimate the variance using residuals $\hat{u}_i = y_i - \bm{W}_i' \hat{\beta}_{\text{OLS}}$. The HC1 variance estimator is:
+  $$
+  \widehat{\var}(\hat{\beta}_{\text{OLS}}) = \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \hat{\Sigma} \bm{W} \left(\bm{W}' \bm{W} \right)^{-1},
+  $$
+  where $\hat{\Sigma}$ has $\hat{u}_i^2$ on the diagonal.
+
+  Taking the square root of the $k$-th diagonal element gives the \textbf{standard error} of $\hat{\beta}_{\text{OLS}, k}$: our estimate of the standard deviation of the sampling distribution.
+
+  \section*{Cluster-Robust Standard Errors}
+
+  Previously we discussed ``robust'' or ``HC1'' standard errors, which assume \emph{independent} errors: a shock to one unit is unrelated to all other units.
+
+  In many settings, independent errors are implausible because unit-level shocks are correlated. Think about:
+  \begin{itemize}
+    \item Students in the same school.
+    \item Workers in the same labor market.
+    \item Patients at the same hospital.
+  \end{itemize}
+
+  When errors are correlated across units, our ``robust'' standard errors are typically too small. The intuition: correlated errors mean we have fewer ``effective observations'' than $n$.
+
+  \section*{Clustering}
+
+  The most common solution is to model errors as being \emph{clustered}:
+  \begin{itemize}
+    \item Units within the same cluster are allowed to have arbitrarily correlated errors.
+    \item Units in different clusters have zero correlation.
+  \end{itemize}
+
+  Let $g_i$ denote the cluster that unit $i$ belongs to.
+  Then $\sigma_{i,j} = 0$ when $g_i \neq g_j$, but $\sigma_{i,j}$ is unrestricted when $g_i = g_j$.
+
+  The cluster-robust variance estimator uses the block-diagonal structure of the covariance matrix. We estimate each $\sigma_{i,j}$ as the product of regression residuals $\hat{u}_i \hat{u}_j$.
+
+  The intuition for why standard errors are larger: we have fewer ``distinct'' observations when errors can be correlated within groups.
+  In the worst case (extreme correlation), you only have $G$ observations (one per cluster).
+  In the best case (independence within cluster), you have $n$.
+
+  The rule of thumb is you want at least 20-30 clusters, each with multiple observations.
+  If you have fewer groups, use the wild cluster bootstrap.
+
+  \section*{Fixed Effects vs. Clustering}
+
+  We could include cluster fixed effects:
+  $$y_i = \alpha_{g_i} + \beta x_i + \epsilon_i,$$
+  where $\alpha_{g_i}$ is the common effect for all units in the same group.
+
+  But why would we still need clustered standard errors?
+
+  Fixed effects assume \emph{all units} in the group are affected \emph{by the same amount}. But there can be more general forms of correlated errors within a group. Some people might be more impacted by shocks than others. Clustered standard errors can still be necessary even when using cluster fixed effects.
+
+  \section*{Confidence Intervals}
+
+  Since $\hat{\beta}_{\text{OLS}, k}$ has an approximately normal sampling distribution, we can form confidence intervals just as before:
+  $$
+  \left[ \hat{\beta}_{k} - 1.96 \cdot \text{SE}(\hat{\beta}_{k}), \ \hat{\beta}_{k} + 1.96 \cdot \text{SE}(\hat{\beta}_{k}) \right]
+  $$
+
+  Once you choose an estimator for the variance-covariance matrix of the OLS coefficients, then we take the square-root of the diagonal elements to form $\text{SE}(\hat{\beta}_{\text{OLS}, k})$.
+  The interpretation is the same as before: across repeated samples, 95\% of those confidence intervals will contain the true value $\beta_{0,k}$.
+
+  \section*{Forecasting with the Regression Model}
+
+  We have a fitted model $\hat{y} = \bm{W}' \hat{\beta}_{\text{OLS}}$ with:
+  $$
+  \hat{\beta}_{\text{OLS}} \sim \mathcal{N}\left( \beta_0, \bm{V} \right),
+  $$
+  where $\bm{V} = \left(\bm{W}' \bm{W} \right)^{-1} \bm{W}' \Sigma \bm{W} \left(\bm{W}' \bm{W} \right)^{-1}$.
+
+  Now suppose we want to evaluate this model at a particular value of the covariates, call it $\bm{w}$. The forecasted value is:
+  $$
+  \hat{Y} = \bm{w}' \hat{\beta}_{\text{OLS}} = \sum_{k=1}^K w_k \hat{\beta}_{\text{OLS}, k}.
+  $$
+
+  Uncertainty from our regression coefficients translates to uncertainty about $\hat{Y}$. We can write:
+  \begin{align*}
+    \hat{Y} & = \bm{w}' \hat{\beta}_{\text{OLS}}                                                                                                       \\
+    & = \underbrace{\bm{w}' \beta_0}_{= f_0(\bm{w}) = \expec{Y}{\bm{X} = \bm{w}}} + \bm{w}' \left( \hat{\beta}_{\text{OLS}} - \beta_0 \right).
+  \end{align*}
+
+  The forecasted value is the conditional expectation function (assuming our model is correct) plus sampling noise.
+
+  \section*{Inference on Forecasts}
+
+  Since $\hat{\beta}_{\text{OLS}}$ is normally distributed and we multiply it by a fixed vector $\bm{w}$, the forecast is also normally distributed:
+  $$
+  \hat{Y} = \bm{w}' \hat{\beta}_{\text{OLS}} \sim \mathcal{N}\left( \bm{w}' \beta_0, \ \bm{w}' \bm{V} \bm{w} \right).
+  $$
+
+  This is exactly what we covered earlier: forecasts are functions of the data, so they have a sample distribution.
+  The Central Limit Theorem ensures this distribution is approximately normal.
+  And from the normal distribution, we can form confidence intervals.
+
+  The standard error of the forecast is $\sqrt{\bm{w}' \bm{V} \bm{w}}$, and the 95\% confidence interval is:
+  $$
+  \hat{Y} \pm 1.96 \cdot \sqrt{\bm{w}' \bm{V} \bm{w}}.
+  $$
+
+  \section*{Marginal (Predictive) Effects}
+
+  Often we want to compare forecasted values at two different points: $\bm{w}_1$ and $\bm{w}_2$.
+
+  The simplest approach is to compare $\bm{w}_1' \hat{\beta}_{\text{OLS}}$ and $\bm{w}_2' \hat{\beta}_{\text{OLS}}$ directly.
+
+  It is important to remember that the goal of forecasting is to predict $Y$ as well as possible. When units have larger $x_1$, maybe they tend to have larger $x_2$ as well. Regression will use that information when forming predictions.
+
+  Avoid making causal claims that \emph{changing} $w_k$ \emph{causes} a change in $Y$. Instead, use language like:
+
+  \textbf{Correct:} ``Our regression model predicts that a one unit increase in $w_k$ is associated with a $\hat{\beta}_{\text{OLS},k}$ unit change in $Y$.''
+
+  \textbf{Incorrect:} ``Increasing $w_k$ by one unit increases $Y$ by $\hat{\beta}_{\text{OLS},k}$ units.''
+
+  \section*{Derivatives as Marginal Effects}
+
+  Sometimes we want to think about changing $X_\ell$ instead of changing $W_\ell$ directly. For example, if we change age, we change both age and age$^2$ in our model.
+
+  To make this precise, write our model as:
+  $$
+  \hat{f}(\bm{X}) = \sum_{k=1}^K g_k(\bm{X}) \hat{\beta}_{\text{OLS}, k}.
+  $$
+
+  We can ask how $\hat{f}(\bm{X})$ changes when we change one element of $\bm{X}$, say $x_\ell$. Taking the derivative:
+  $$
+  \frac{\partial}{\partial x_\ell} \hat{f}(\bm{X}) = \sum_{k=1}^K \frac{\partial}{\partial x_\ell} g_k(\bm{X}) \hat{\beta}_{\text{OLS}, k}.
+  $$
+
+  This is called the \textbf{marginal (predictive) effect} of $x_\ell$. Note that I say ``predictive'' rather than ``causal'' to emphasize this is not the effect of experimentally changing $x_\ell$ for a unit.
+
+  This formula holds fixed all other variables at their original covariate values and only changes $x_\ell$. Note that multiple $g_k$ terms can change when we change a single $x_\ell$.
+
+  In the special case where we include each variable linearly ($g_k(\bm{X}) = X_k$), this reduces to the standard $\hat{\beta}_{\text{OLS}, k}$ being our estimated marginal effect.
+
+  For example, if we have a quadratic model $\hat{w}_i = \hat{\beta}_0 + \hat{\beta}_1 \text{age}_i + \hat{\beta}_2 \text{age}_i^2$, then:
+  $$
+  \frac{\partial}{\partial \text{age}} \hat{w}_i = \hat{\beta}_1 + 2\hat{\beta}_2 \text{age}_i.
+  $$
+
+  The marginal effect of age depends on the person's age itself. At age 25, the effect is $\hat{\beta}_1 + 50\hat{\beta}_2$. At age 55, it is $\hat{\beta}_1 + 110\hat{\beta}_2$.
+\end{multicols}
+\end{document}

@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage{../../includes/lecture_notes}
+\usepackage{../../includes/math}
+\usepackage{../../includes/uark_colors}
+
+
+\title{Linear Algebra}
+\author{Prof. Kyle Butts}
+\date{}
+\hypersetup{
+  colorlinks = true,
+  allcolors = ozark_mountains,
+  breaklinks = true,
+  bookmarksopen = true
+}
+
+\begin{document}
+\maketitle
+\begin{multicols}{2}
+	\section*{Linear Algebra For Econometrics}
+
+	The main reason we need linear algebra in econometrics is that it provides a clean way to express and manipulate collections of variables and their relationships.
+
+	\section*{Matrices and Vectors}
+
+	At its core, a \emph{matrix} is just a rectangular array of numbers. 
+  In econometrics, we typically use matrices to represent our data, where rows correspond to observations and columns correspond to variables. 
+  For example, if we have $N$ observations on $K$ variables, we write this as an $N \times K$ matrix $\bm{X}$. 
+  This looks just like an Excel spreadsheet where each row is an observation and each column is a variable.
+
+	Each element of a matrix $\bm{A}$ can be referred to as $A_{i,j}$ where $i$ is the row (observation) and $j$ is the column (variable). 
+  A \emph{column vector} is simply a $N \times 1$ matrix and typically is a `variable'.
+  When referring to a column of our matrix, we write $\bm{X}_{\cdot, j}$.
+
+	The transpose of a matrix, denoted $\bm{A}'$, flips rows and columns: the $i$-th column of $\bm{A}$ becomes the $i$-th row of $\bm{A}'$.
+  In the transposed matrix, column $j$ of the original matrix is the $j$-th row. 
+
+	\section*{Matrix Operations}
+
+	Matrix addition and subtraction work element-by-element, so dimensions must match. 
+  Scalar multiplication multiplies every element by a constant.
+
+	Matrix multiplication is more subtle. 
+  When we multiply an $r \times c$ matrix by a $c \times p$ matrix, the result is an $r \times p$ matrix. 
+  The key insight is that each element of the resulting matrix product is a \emph{dot product} between a row of the first matrix and a column of the second.
+  A dot product of two vectors is given by $x \cdot y = \sum_{i=1}^c x_i y_i$.
+
+	It's worth noting that matrix multiplication is associative and distributive, but \emph{not} commutative: $\bm{A}\bm{B} \neq \bm{B}\bm{A}$.
+
+	Two special matrices are worth knowing. The \textbf{identity matrix} $\mathbb{I}_n$ acts like the number 1:
+	$$
+		\mathbb{I}_n = \begin{bmatrix}
+			1      & 0      & \dots  & 0      \\
+			0      & 1      & \dots  & 0      \\
+			\vdots & \vdots & \ddots & \vdots \\
+			0      & 0      & \dots  & 1
+		\end{bmatrix}
+	$$
+	It has the property that $\mathbb{I}_n \bm{A} = \bm{A} \mathbb{I}_n = \bm{A}$.
+
+	The other is the \textbf{unit vector} $\iota = \begin{bmatrix} 1 \\ 1 \\ \vdots \\ 1 \end{bmatrix}$, which is useful for summing elements.
+
+	\section*{Variance-Covariance Matrix}
+
+	One particularly useful application is computing sample statistics. The sample variance of a variable can be written as $\tilde{x}' \tilde{x} / (n-1)$ where $\tilde{x}$ is the de-meaned vector. Similarly, the variance-covariance matrix of multiple variables is
+	$$
+		\frac{1}{n-1} \tilde{\bm{X}}' \tilde{\bm{X}}
+	$$
+	where $\tilde{\bm{X}}$ is the data matrix with each column de-meaned. To see that this is indeed the variance-covariance matrix, note that the $(i,j)$-th element is:
+	$$
+		\frac{1}{n-1} \sum_{k=1}^n (X_{k,i} - \bar{X}_i)(X_{k,j} - \bar{X}_j) = \widehat{\text{Cov}}(X_i, X_j).
+	$$
+	The diagonal elements are variances (when $i = j$) and the off-diagonal elements are covariances between pairs of variables.
+
+	\section*{Matrix Transformations and Inverses}
+
+	An $n \times n$ matrix times an $n \times 1$ vector can be thought of as a linear transformation: it can rotate, reflect, stretch, or shrink vectors in $\mathbb{R}^n$.
+
+	The \emph{determinant} of a matrix tells us how much area changes under this transformation. If $\det(\bm{A}) = 0$, the transformation collapses dimensions and $\bm{A}$ has no inverse. When $\det(\bm{A}) \neq 0$, the inverse $\bm{A}^{-1}$ ``undoes'' the transformation: $\bm{A}^{-1}\bm{A} = \mathbb{I}_n$.
+
+	These concepts become essential when we derive the ordinary least squares estimator, which involves matrix inverses and products.
+
+\end{multicols}
+\end{document}

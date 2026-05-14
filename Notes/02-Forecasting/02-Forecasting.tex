@@ -1,0 +1,287 @@
+\documentclass[12pt]{article}
+\usepackage{../../includes/lecture_notes}
+\usepackage{../../includes/math}
+\usepackage{../../includes/uark_colors}
+
+\title{Forecasting}
+\author{Prof. Kyle Butts}
+\date{}
+
+\hypersetup{
+  colorlinks = true,
+  allcolors = ozark_mountains,
+  breaklinks = true,
+  bookmarksopen = true
+}
+
+\begin{document}
+\maketitle
+\begin{multicols}{2}
+  \section*{Introduction to Forecasting}
+
+  The goal of forecasting is to learn the relationship between \emph{input variables} and \emph{outcome variable(s)} so that we can \emph{predict} the outcome when we don't observe it.
+
+  This shows up everywhere. Say we want to learn who are potential customers based on their observable characteristics:
+  \begin{itemize}
+    \item[] \textbf{Input:} observable characteristics (age, income, location)
+    \item[] \textbf{Outcome:} whether they purchase a product
+  \end{itemize}
+
+  Or we might want to predict values of a variable in the future, like the time-series of stock prices:
+  \begin{itemize}
+    \item[] \textbf{Input:} the time-period
+    \item[] \textbf{Output:} stock price
+  \end{itemize}
+
+  In both cases, we're trying to learn some relationship between the inputs and the outputs so we can make predictions when we don't have the outcome.
+
+  \section*{The Forecasting Model}
+
+  We have an outcome variable $y$ and a set of $p$ different predictor variables $\bm{X} = (X_1, X_2, \dots, X_p)$.
+  For some observations we observe both $\bm{X}$ and $y$.
+  This is what allows us to \text{fit} our model and learn the relationship between the two.
+
+  We can write our model in general form as
+  $$y = f_0(\bm{X}) + \varepsilon,$$
+  where $f_0$ is some unknown function of $\bm{X}$ and $\varepsilon$ is the \emph{error term}.
+
+  Think of $f_0(\bm{X})$ as the `true' model: this is the best prediction of $y$ given information on $\bm{X}$.
+  We can write this formally as $\expec{y - f_0(\bm{X})}{\bm{X}} = \expec{\varepsilon}{\bm{X}} = 0$.
+  This is a really strong assumption.
+  It says that we have \emph{exhausted} all the information in $\bm{X}$.
+  Any of the remaining variation in $y$ is completely unpredictable given the information we observe in $\bm{X}$, even if we had access to the best prediction model.
+  % Once we know $f_0(\bm{X})$, we cannot predict any more of the variation in $y$ using $\bm{X}$.
+
+  \section*{Predictions and the Error Term}
+
+  We will use a training sample of data to predict $f_0$.
+  We denote our estimate of $f_0$ as $\hat{f}$.
+  For a given unit, we predict
+  $$\hat{y} = \hat{f}(\bm{X}).$$
+
+  Definitionally, we have a \textbf{prediction error} of $\hat{f}$ which is defined as $y - \hat{f}(\bm{X})$.
+  The term `error'' gets used in a few different ways, so let me clarify:
+
+  \begin{enumerate}
+    \item If we knew the `true' model, $f_0(\bm{X})$, then $\varepsilon \equiv y - f_0(\bm{X})$ represents the things that are unpredictable given $\bm{X}$.
+      This is the ``true'' error term.
+
+      \smallskip
+    \item If $\hat{f}(\bm{X})$ is an estimated model, then $\hat{\varepsilon} = y - \hat{f}(\bm{X})$ is the difference between that unit's actual $y_i$ and their predicted $y$.
+      This is better called the \emph{prediction error}.
+  \end{enumerate}
+
+  The key distinction: the true error term is a property of the best possible model $f_0$ while the prediction error is a property of our estimated model, $\hat{f}$
+
+  \section*{Goals of Forecasting}
+
+  There are two related goals when predicting $f$:
+
+  \noindent\textbf{1. Prediction:} Predict $y$ as well as possible.
+  \begin{itemize}
+    \item Think of prediction as a `black box' where the goal is to do as good a job at predicting $y$ as possible.
+    \item We want to learn the `true' $f_0(\bm{X})$, leaving no information on the table.
+  \end{itemize}
+
+  \noindent\textbf{2. Inference:} Understand the relationship between $\bm{X}$ and $y$.
+  \begin{itemize}
+    \item If our goal is being able to \emph{describe} the relationship between $x$ and $y$; i.e. we care about understanding $f_0$ and not just $\hat{y}$.
+
+    \item Allows us to create ``heuristics'' that help decision-makers.
+
+    \item Worth approximating $f_0$ with a more `simple' functional form so that we can better convey the results to stakeholders.
+  \end{itemize}
+
+  For example, with housing data:
+  \begin{itemize}
+    \item[] \textbf{Prediction example:} ``Is the house over/under-priced?''. Only care about $\hat{\text{price}} = \hat{f}(\bm{X})$.
+    \item[] \textbf{Inference example:} ``How much more do homes with a river view sell for?''.  Need to know information about $f_0$ to answer.
+  \end{itemize}
+
+  \section*{Model Flexibility}
+
+  There is a tension between how \emph{flexible} we can make our model and how well it performs:
+
+  \begin{enumerate}
+    \item If our goal is prediction, we only have a finite amount of data to use to fit our model, so there's a limit on how much we can learn. We face the risk of \textbf{overfitting} the data.
+      Overfitting means that we are chasing after the random noise $\varepsilon$ instead of the true signal.
+
+    \item If our goal is inference, then added flexibility makes our results harder to summarize and communicate to stakeholders.
+  \end{enumerate}
+
+  This is the core trade-off in forecasting: more flexible models can capture more complex patterns, but they also introduce more noise and are harder to interpret.
+
+  \section*{Fitting Models}
+
+  The general framework for forecasting follows these steps:
+
+  \begin{enumerate}
+    \item Collect a set of data $\{ (y_i, \bm{X}_i) \}_{i=1}^n$ for a set of observations.
+
+      \smallskip
+    \item Using knowledge of the topic, select a \emph{class} of models $\mathcal{F}$ that you want to select from.
+      \begin{itemize}
+        \item That is, $\hat{f}$ must be one of the functions in $\mathcal{F}$, e.g. linear functions of $\bm{X}_i$.
+      \end{itemize}
+
+      \smallskip
+    \item Using your data, select $\hat{f} \in \mathcal{F}$ that \emph{predicts} $y$ ``best''.
+      \begin{itemize}
+        \item ``best'' is defined by a \emph{loss function}, e.g. mean-squared prediction error.
+      \end{itemize}
+  \end{enumerate}
+
+  \section*{Selecting a Class of Models}
+
+  First, we have to select a class of models $\mathcal{F}$. This involves:
+  \begin{itemize}
+    \item Selecting which variables we want to include in our model.
+    \item Specifying a functional form for our model.
+  \end{itemize}
+
+  For example, we might think about a simple \emph{linear model}:
+  $$f(\bm{X}_i) = \alpha + X_{i1} \beta_1 + X_{i2} \beta_2.$$
+
+  The class $\mathcal{F}$ consists of all models of this form, i.e. choices of different values of $(\alpha, \beta_1, \beta_2)$.
+  This is a restrictive model:
+  \begin{itemize}
+    \item No polynomials of $X_1$ (e.g., wages are non-linear in age).
+    \item No interaction between $X_1$ and $X_2$ (e.g., a college degree changes the return to experience).
+  \end{itemize}
+
+  Perhaps we want a wider class of models:
+  $$\alpha + X_{i1} \beta_1 + X_{i1}^2 \beta_2 + X_{i2} \beta_3 + X_{i2}^2 \beta_4 + X_{i1} X_{i2} \beta_5.$$
+
+  The class $\mathcal{F}$ consists of all functions of this form, and since some coefficients can be zero, this class is \emph{strictly more general} than the last. We can imagine creating even more terms or using things other than quadratics, e.g., $\one{20 < \text{Age}_i \leq 30}$.
+
+  The choice of $\mathcal{F}$ is the `art' of being a good forecaster.
+  We want to include functions of $\bm{X}$ that we think are really useful for predicting $y$ and the only way to know these functions is to become a subject matter expert on whatever phenomenon you are modelling.
+
+  Later in your studies, you will learn about machine learning algorithms that ``learn'' the transformations of $\bm{X}$ for you.
+  This sounds like a `free lunch' type scenario, but remember that you will only have a finite amount of data.
+  Telling the model important transformations to include will result in more precise forecasts than making the machine learning method learn them for you.
+
+
+  \section*{Loss Functions}
+
+  To provide a summary measure of fit, we want to \emph{average} prediction error over many observations.
+  If we took the simple mean of prediction error, positive and negative errors would cancel out.
+  For example, an error of $-1$ and $1$ would be just as bad as $-4$ and $4$.
+
+  \bigskip
+  Therefore, we square the errors so that they are all positive and do not cancel out.
+  The most common loss function is the \emph{mean-squared (prediction) error} (MSE):
+  $$
+  \text{MSE} \equiv \frac{1}{n} \sum_{i=1}^n \left( y_i - \hat{y}_i \right)^2 = \frac{1}{n} \sum_{i=1}^n \hat{\varepsilon}_i^2.
+  $$
+
+  The MSE is not the only loss function. Consider:
+  \begin{itemize}
+    \item The \emph{mean-absolute prediction error} $$\frac{1}{n} \sum_{i=1}^n \left| y_i - \hat{y}_i \right|$$ will estimate the \emph{median} of $y$ given $\bm{X}$.
+    \item In settings where you're predicting whether someone has a disease, you might want to penalize false-negatives more than false-positives.
+  \end{itemize}
+
+  \section*{In-Sample vs. Out-of-Sample Prediction}
+
+  As a forecaster, you will \emph{fit} a model using a set of observations $\{ (y_i, \bm{X}_i) \}_{i=1}^n$. This is called the \emph{training data}.
+
+  We can calculate the \emph{in-sample MSE} by averaging over all observations in the training data. This tells us how well we predict the data we trained our model on.
+
+  But if our goal is prediction, we really want to know how our model would predict on \emph{new} observations we haven't seen before.
+  It is common to hold out a set of \emph{test data} that is NOT used for training our model, but only for evaluating its performance.
+
+  It is tempting to pick our model with the smallest \emph{in-sample MSE}, but this can be \emph{a risky thing to do}.
+  By focusing on fitting the current sample very well, you risk \emph{overfitting} the data.
+  Your model starts chasing the random noise $\varepsilon$ instead of learning the true pattern.
+
+  By making our model more and more flexible, you risk overfitting more and more.
+  Your model tries to improve the \emph{in-sample} MSE, but worsens your \emph{out-of-sample} MSE.
+  The solution is to evaluate your model using held-out test data.
+
+  \section*{Sample Splitting}
+
+  One solution to this problem is \textbf{sample splitting}.
+  Say you want to fit a polynomial but are concerned with overfitting.
+  We can tackle this with sample splitting:
+  \begin{itemize}
+    \item Take a random half your data and fit a polynomial of order $k$.
+    \item Evaluate MSE on the other half (the test set).
+  \end{itemize}
+
+  Do this for $k = 1, \dots, K$ and pick the polynomial degree that minimizes test-data MSE.
+  This technique is not very common for econometricians.
+  I think the reason is that we tend to be concerned with \emph{inference} and therefore use relatively simple models (e.g., a regression with a few terms).
+  Simplicity of the model class already provides some protection against overfitting, so sample splitting is less commonly used.
+
+  %   \section*{The Bias-Variance Tradeoff}
+  %
+  %   The discussion of increasing flexibility leading to increasing noise in our model fit is a well-known problem. It is called the \emph{bias-variance tradeoff}:
+  %
+  %   \bigskip
+  %   \begin{enumerate}
+  %     \item \textbf{Bias:} When our model we fit, $\hat{f}(\bm{x})$, does a poor job fitting the true model $f_0(\bm{x})$.
+  %     \item \textbf{Variance:} The variability of our model we fit, $\hat{f}(\bm{x})$, across different samples.
+  %   \end{enumerate}
+  %
+  %   \bigskip
+  %   This is a trade-off. To lower bias by adding flexibility, you typically add variance (noisiness) to the estimate. More flexible models can capture more complex patterns, but they vary more across samples.
+
+  \section*{Inference on forecasts}
+
+  Here's the crucial point that often gets glossed over: \emph{a forecast $\hat{y}$ is a function of the observed data.}
+
+  Think about what this means. Your training data $\{ (y_i, \bm{X}_i) \}_{i=1}^n$ is a random sample from the population. Since $\hat{y} = \hat{f}(\bm{X})$ depends on this random data, $\hat{y}$ is itself a random variable.
+
+  This is actually a profound observation.
+  It is easy to think of predictions as just a number.
+  But because predictions depend on randomly sampled data, they inherit the randomness from our sampling process.
+
+  \section*{The Sample Distribution of a Forecast}
+
+  Because $\hat{y}$ is a random variable (it's a function of random data), it has a \emph{sample distribution}. This is the distribution of $\hat{y}$ values you would get if you drew many different samples from the population and computed $\hat{y}$ each time.
+
+  This concept is exactly the same as the sampling distribution of a sample mean or any other estimator.
+  Just as $\bar{X}$ varies across samples, so does $\hat{y}$.
+
+  Understanding the sample distribution will allow us to talk about the \emph{variability} of a forecast.
+  Different samples yield different forecasts, and understanding this variability is crucial for understanding how reliable our predictions are.
+
+  \section*{The Central Limit Theorem and Forecasts}
+
+  Just like sample means, forecasts often have a sample distribution that is approximately \emph{normal}.
+  This follows from a \emph{Central Limit Theorem} (CLT).
+  The quality of the normal approximation will improve with the sample size.
+  This is not always true (e.g. a complicated estimation procedure with forknig paths), so beware!
+
+  The CLT tells us that, under relatively mild conditions, when we sum or average a large number of random variables (each of which might come from any distribution), the result tends toward a normal distribution.
+
+  Since our forecast $\hat{y}$ is a function of many random data points, the CLT often applies, and the sample distribution of $\hat{y}$ will be approximately normal. This is true even if the underlying data or the true function $f_0$ are not normally distributed.
+
+  This approximate normality is incredibly useful because the normal distribution has well-known properties that let us quantify uncertainty.
+
+  \section*{Standard Errors and Confidence Intervals}
+
+  Assuming $\hat{y}$ has an (approximately) normal sample distribution, we can use the tools of statistical inference to characterize our uncertainty.
+
+  First, we need the \emph{standard error} of the forecast: the estimated standard deviation of the sample distribution of $\hat{y}$. This tells us how much $\hat{y}$ varies across repeated samples.
+
+  Then, because the sample distribution is approximately normal, we know that approximately 95\% of $\hat{y}$ values across repeated samples fall within $\pm 1.96$ standard deviations of the true population value $f_0(\bm{X})$.
+
+  This lets us form a \emph{confidence interval} for our forecast:
+  $$\hat{y} \pm 1.96 \times \text{SE}(\hat{y}).$$
+  The 95\% \textbf{coverage} of the confidence interval means that if we were to draw many samples and form a confidence interval for each sample, about 95\% of those intervals would contain the true $f_0(\bm{X})$.
+
+  \section*{Putting It All Together}
+
+  Let's trace through the logic:
+  \begin{enumerate}
+    \item A forecast $\hat{y}$ is a function of the randomly sampled training data.
+    \item Therefore, $\hat{y}$ has a sample distribution
+    \item The Central Limit Theorem typically ensures this sample distribution is approximately normal.
+    \item We can estimate the standard deviation of this sample distribution (the standard error).
+    \item Using the normal distribution, we can form confidence intervals around our forecast.
+  \end{enumerate}
+
+  This is the same logical structure as estimation in any statistical setting. Whether we're estimating a mean, a regression coefficient, or a forecast, the repeated-sampling perspective gives us a way to quantify statistical uncertainty.
+\end{multicols}
+\end{document}
